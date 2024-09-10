@@ -30,7 +30,7 @@ const UsersSchema = new Schema(
         type: String,
         enum: ['diretor','professor', 'estudante', 'cordenador', 'inspetor', 'limpeza', 'cozinha', 'outro']
       },
-      adress:{
+      address:{
         street: { type: String, required: true },
         cep: {type: String, required: true},
         state: {type: String, required: true},

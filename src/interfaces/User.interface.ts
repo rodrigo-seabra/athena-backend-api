@@ -8,7 +8,7 @@ export interface UsersInterface {
     image?: string;
     confirmpassword?: string;
     role?: 'diretor'|'professor'| 'estudante'| 'cordenador'| 'inspetor'| 'limpeza'| 'cozinha'| 'outro',
-    adress: {
+    address: {
         street: string;
         cep: string;
         state: string;
