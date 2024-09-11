@@ -12,9 +12,9 @@ class UserController {
   }
   public async create(req: Request, res: Response) : Promise<Response>{
     try {
-      const { name, email, password, phone, cpf, role, address, schoolId } = req.body;
+      const { name, email, password, phone, cpf, role, address, IdSchool } = req.body;
 
-      if (!name || !email || !password || !phone || !cpf || !role || !address || !schoolId) {
+      if (!name || !email || !password || !phone || !cpf || !role || !address || !IdSchool) {
         return res.status(400).json({ message: "Todos os campos são obrigatórios." });
       }
 
@@ -37,7 +37,7 @@ class UserController {
         cpf,
         role,
         address,
-        schoolId,
+        IdSchool,
       });
 
       let created = await User.create(newUser);

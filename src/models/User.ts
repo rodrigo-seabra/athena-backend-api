@@ -36,7 +36,7 @@ const UsersSchema = new Schema(
         state: {type: String, required: true},
         city: {type: String, required :true}
       },
-      schoolId: {
+      IdSchool: {
         type: Number,
       }
     },
