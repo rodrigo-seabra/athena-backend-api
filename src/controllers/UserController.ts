@@ -53,6 +53,30 @@ class UserController {
     }
   }
 
+  public async login(req: Request, res: Response): Promise<Response> {
+    const { email, password } = req.body as UsersModel;
+    let userFind: UsersModel | null = await User.findOne({ email: email });
+    if (userFind) {
+      if (!email) {
+        return res.status(422).json({ message: "O email é obrigatório!" });
+      }
+      if (!password) {
+        return res.status(422).json({ message: "A senha é obrigatória!" });
+      }
+      const checkPassword = await bcrypt.compare(password, userFind.password);
+      if (!checkPassword) {
+        return res.status(422).json({
+          message: "Senha inválida",
+        });
+      }
+      return await Token.createUserToken(userFind, res);
+    } else {
+      return res.status(422).json({
+        message: "Não há usuário cadastrado com esse e-mail",
+      });
+    }
+  }
+
 }
 
 export default new UserController();
