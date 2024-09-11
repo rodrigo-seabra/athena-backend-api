@@ -2,6 +2,7 @@ import { json, Request, Response } from "express";
 import User, {UsersModel} from "../models/User";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import Token from "../helpers/Token";
 
 const saltRounds = 10;
 const jwtSecret = "athena-secret"; 
@@ -39,20 +40,13 @@ class UserController {
         schoolId,
       });
 
-      await newUser.save();
 
-      const token = jwt.sign({ id: newUser._id, role: newUser.role }, jwtSecret, { expiresIn: '1h' });
 
-      return res.status(201).json({
-        message: "Usuário cadastrado com sucesso.",
-        user: {
-          id: newUser._id,
-          name: newUser.name,
-          email: newUser.email,
-          role: newUser.role,
-          token 
-        }
-      });
+      let created = await User.create(newUser);
+
+      return await Token.createUserToken(created, res);
+
+
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Erro ao criar usuário." });
