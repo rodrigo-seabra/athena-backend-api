@@ -5,7 +5,6 @@ import bcrypt from "bcrypt";
 import Token from "../helpers/Token";
 
 const saltRounds = 10;
-const jwtSecret = "athena-secret"; 
 class UserController {
   public async index(req: Request, res: Response): Promise<Response> {
     return res.status(200).json({message: "Deu bom!"})
