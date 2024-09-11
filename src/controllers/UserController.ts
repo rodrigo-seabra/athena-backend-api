@@ -40,13 +40,8 @@ class UserController {
         schoolId,
       });
 
-
-
       let created = await User.create(newUser);
-
       return await Token.createUserToken(created, res);
-
-
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Erro ao criar usuário." });
