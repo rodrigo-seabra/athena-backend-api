@@ -9,7 +9,13 @@ const saltRounds = 10;
 class SchoolController{
 
     public async index (req:Request, res:Response) : Promise<Response>{
-        return res.status(200).json({message: "Deu certo!"})
+        try{
+          let schools : SchoolsModels[] = await School.find();
+          return res.status(200).json({schools})
+        }catch (error) {
+          console.error(error);
+          return res.status(500).json({ message: "Erro ao buscar instituições" });
+        }
     }
 
     public async create (req: Request, res: Response) : Promise<Response>{

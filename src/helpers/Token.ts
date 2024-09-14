@@ -4,7 +4,7 @@ import { UsersInterface } from "../interfaces/User.interface";
 import User, {UsersModel} from "../models/User";
 
 interface JwtPayloadWithCPF extends JwtPayload {
-  CPF: string;
+  cpf: string;
 }
 
 class Token {
@@ -28,7 +28,7 @@ class Token {
   }
   public check(token: string): boolean {
     try {
-      let decoded = jwt.verify(token, "010806Catalogo");
+      let decoded = jwt.verify(token, "athena-secret");
       if (decoded) {
         return true;
       } else {
@@ -38,6 +38,42 @@ class Token {
       return false;
     }
   }
+
+  public async getUserFunction(token: string): Promise<string> {
+    try {
+      const decoded = jwt.verify(token, "athena-secret") as JwtPayloadWithCPF;
+      const cpf = decoded.cpf;
+      const user: UsersModel | null = await User.findOne({ cpf: cpf });
+      
+      if (user) {
+        switch (user.role) {
+          case 'diretor':
+            return 'diretor';
+          case 'professor':
+            return 'professor';
+          case 'estudante':
+            return 'estudante';
+          case 'cordenador':
+            return 'coordenador';
+          case 'inspetor':
+            return 'inspetor';
+          case 'limpeza':
+            return 'limpeza';
+          case 'cozinha':
+            return 'cozinha';
+          case 'outro':
+            return 'outro';
+          default:
+            return 'Função desconhecida';
+        }
+      }
+      return 'Usuário não encontrado';
+    } catch (error) {
+      return 'Erro inesperado';
+    }
+  }
+  
+
   public getToken(req: Request): string {
     let error = "Sem credenciais";
     if (!req.headers.authorization) {
@@ -58,7 +94,7 @@ class Token {
       return res.status(401).json({ message: "Acesso negado!" });
     }
     try {
-      const decoded = jwt.verify(token, "010806Catalogo") as JwtPayloadWithCPF;
+      const decoded = jwt.verify(token, "athena-secret") as JwtPayloadWithCPF;
       const cpf = decoded.cpf;
       const user: UsersModel | null = await User.findOne({ cpf: cpf });
       if (!user) {
