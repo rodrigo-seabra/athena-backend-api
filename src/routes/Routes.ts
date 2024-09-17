@@ -1,6 +1,7 @@
 import { Router } from "express";
 import UserController from "../controllers/UserController";
 import SchoolController from "../controllers/SchoolController";
+import TaskController from "../controllers/TaskController";
 
 class Routes {
   public routes: Router;
@@ -8,6 +9,7 @@ class Routes {
     this.routes = Router();
     this.UserRoutes();
     this.SchoolRoutes();
+    this.TaskRoutes();
   }
 
   private UserRoutes() {
@@ -19,6 +21,9 @@ class Routes {
     this.routes.get("/school", SchoolController.index);
     this.routes.post("/school/create", SchoolController.create);
     this.routes.post("/school/login", SchoolController.login);
+  }
+  private TaskRoutes(){
+    this.routes.post("/taks", TaskController.create);
   }
 
 
