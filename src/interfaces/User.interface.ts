@@ -3,7 +3,7 @@ export interface UsersInterface {
     email: string;
     phone: string;
     password: string;
-    IdSchool?: Number;
+    IdSchool?: String;
     cpf: string;
     image?: string;
     confirmpassword?: string;

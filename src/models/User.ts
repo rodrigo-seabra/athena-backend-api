@@ -37,7 +37,7 @@ const UsersSchema = new Schema(
         city: {type: String, required :true}
       },
       IdSchool: {
-        type: Number,
+        type: String,
       }
     },
     {
