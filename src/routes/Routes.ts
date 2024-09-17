@@ -29,7 +29,7 @@ class Routes {
     this.routes.post("/taks", Middlewares.authTaskCreationMiddleware, TaskController.create);
   }
   private ClassRoutes(){
-    this.routes.post("/class", ClassController.create);
+    this.routes.post("/class", Middlewares.authClassCreationMiddleware,ClassController.create);
   }
 
 

@@ -38,6 +38,23 @@ class Middlewares {
       return res.status(400).json({ message: "Token inválido!" });
     }
   }
+  public async authClassCreationMiddleware(req: Request, res: Response, next: NextFunction) {
+    let token = Token.getToken(req);
+    if (token === "Sem credenciais") {
+      return res.status(401).json({ message: "Acesso negado!" });
+    }
+    try {
+      let userFunction = await Token.getUserFunction(token); 
+      if (userFunction === 'coordenador' || userFunction === 'diretor') {
+        console.log(userFunction)
+        next(); 
+      } else {
+        return res.status(403).json({ message: "Acesso negado! Somente coordenadores e diretores podem criar turmas." });
+      }
+    } catch (error) {
+      return res.status(400).json({ message: "Token inválido!" });
+    }
+  }
 }
 
 export default new Middlewares();
