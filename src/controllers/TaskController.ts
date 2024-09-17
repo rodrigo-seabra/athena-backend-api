@@ -13,14 +13,12 @@ class TaskController{
               studentResponses
             } = req.body;
         
-            // Verificar campos obrigatórios
             if (!subject || !content || !dueDate || !recipients || !professorId) {
               return res.status(400).json({
                 message: "Todos os campos obrigatórios devem ser preenchidos."
               });
             }
         
-            // Verificar se já existe uma tarefa semelhante (por exemplo, baseada no assunto e data de vencimento)
             const existingTask = await Task.findOne({ subject, dueDate });
             if (existingTask) {
               return res.status(400).json({
@@ -28,7 +26,6 @@ class TaskController{
               });
             }
         
-            // Criar a nova tarefa
             const newTask = new Task({
               subject,
               content,

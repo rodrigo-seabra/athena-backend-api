@@ -2,6 +2,7 @@ import { Router } from "express";
 import UserController from "../controllers/UserController";
 import SchoolController from "../controllers/SchoolController";
 import TaskController from "../controllers/TaskController";
+import Middlewares from "../middlewares/Middlewares";
 
 class Routes {
   public routes: Router;
@@ -23,7 +24,7 @@ class Routes {
     this.routes.post("/school/login", SchoolController.login);
   }
   private TaskRoutes(){
-    this.routes.post("/taks", TaskController.create);
+    this.routes.post("/taks", Middlewares.authTaskCreationMiddleware, TaskController.create);
   }
 
 
