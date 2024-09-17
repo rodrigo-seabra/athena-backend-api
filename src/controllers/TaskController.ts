@@ -18,14 +18,12 @@ class TaskController{
                 message: "Todos os campos obrigatórios devem ser preenchidos."
               });
             }
-        
             const existingTask = await Task.findOne({ subject, dueDate });
             if (existingTask) {
               return res.status(400).json({
                 message: "Já existe uma tarefa com o mesmo assunto e data de vencimento."
               });
             }
-        
             const newTask = new Task({
               subject,
               content,
@@ -35,9 +33,7 @@ class TaskController{
               professorId,
               studentResponses
             });
-        
             const createdTask = await Task.create(newTask);
-        
             return res.status(201).json({
               message: "Tarefa criada com sucesso.",
               task: createdTask
