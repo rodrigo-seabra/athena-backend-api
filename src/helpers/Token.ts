@@ -19,7 +19,6 @@ class Token {
       },
       "athena-secret"
     );
-    // return token
     return res.json({
       message: "Você está autenticado!",
       token: token,
