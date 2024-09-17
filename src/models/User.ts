@@ -28,7 +28,7 @@ const UsersSchema = new Schema(
       },
       role:{
         type: String,
-        enum: ['diretor','professor', 'estudante', 'cordenador', 'inspetor', 'limpeza', 'cozinha', 'outro']
+        enum: ['diretor','professor', 'estudante', 'coordenador', 'inspetor', 'limpeza', 'cozinha', 'outro']
       },
       address:{
         street: { type: String, required: true },

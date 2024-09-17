@@ -43,7 +43,7 @@ class TaskController{
           }
     }
     public async addStudentResponse ( req : Request, res: Response) :Promise<Response>{
-      return res.status(200).json({message: "rodou"})
+      return res.status(200).json({message: " teste "});
     }
 }
 

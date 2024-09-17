@@ -7,7 +7,7 @@ export interface UsersInterface {
     cpf: string;
     image?: string;
     confirmpassword?: string;
-    role?: 'diretor'|'professor'| 'estudante'| 'cordenador'| 'inspetor'| 'limpeza'| 'cozinha'| 'outro',
+    role?: 'diretor'|'professor'| 'estudante'| 'coordenador'| 'inspetor'| 'limpeza'| 'cozinha'| 'outro',
     address: {
         street: string;
         cep: string;
