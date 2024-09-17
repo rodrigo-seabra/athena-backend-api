@@ -3,6 +3,7 @@ import UserController from "../controllers/UserController";
 import SchoolController from "../controllers/SchoolController";
 import TaskController from "../controllers/TaskController";
 import Middlewares from "../middlewares/Middlewares";
+import ClassController from "../controllers/ClassController";
 
 class Routes {
   public routes: Router;
@@ -11,6 +12,7 @@ class Routes {
     this.UserRoutes();
     this.SchoolRoutes();
     this.TaskRoutes();
+    this.ClassRoutes();
   }
 
   private UserRoutes() {
@@ -25,6 +27,9 @@ class Routes {
   }
   private TaskRoutes(){
     this.routes.post("/taks", Middlewares.authTaskCreationMiddleware, TaskController.create);
+  }
+  private ClassRoutes(){
+    this.routes.post("/class", ClassController.create);
   }
 
 
