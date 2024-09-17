@@ -1,13 +1,10 @@
 export interface TaskInterface {
-    _id: string;                    
     subject: string;                
     content: string;                
     dueDate: Date;                  
     recipients: string[];           
     attachment?: string[];         
-    professorId: string;           
-    createdAt: Date;                
-    updatedAt?: Date;               
+    professorId: string;                        
     studentResponses?: {            
       studentId: string;            
       responseContent: string;      
