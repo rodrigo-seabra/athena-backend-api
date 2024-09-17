@@ -27,11 +27,11 @@ class Routes {
     this.routes.post("/school/login", SchoolController.login);
   }
   private TaskRoutes(){
-    this.routes.post("/taks", Middlewares.authTaskCreationMiddleware, TaskController.create);
-    this.routes.post("/taks/response", AuthMiddlware.Authenticator , AuthMiddlware.getRole ,TaskController.addStudentResponse)
+    this.routes.post("/taks", AuthMiddlware.Authenticator , AuthMiddlware.Authorization, TaskController.create);
+    this.routes.post("/taks/response", AuthMiddlware.Authenticator , AuthMiddlware.Authorization ,TaskController.addStudentResponse)
   }
   private ClassRoutes(){
-    this.routes.post("/class", Middlewares.authClassCreationMiddleware,ClassController.create);
+    this.routes.post("/class", AuthMiddlware.Authenticator , AuthMiddlware.Authorization ,ClassController.create);
   }
 
 

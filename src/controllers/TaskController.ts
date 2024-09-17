@@ -4,6 +4,7 @@ import User from "../models/User";
 import Token from "../helpers/Token";
 import Middleware from "../middlewares/Middlewares";
 import AuthMiddleware from "../middlewares/AuthMiddleware";
+import { Req } from "../interfaces/Req.interface";
 class TaskController {
     public async create(req: Request, res: Response): Promise<Response> {
         try {
@@ -48,62 +49,55 @@ class TaskController {
         }
     }
     public async addStudentResponse(
-        req: Request,
+        req: Req,
         res: Response
     ): Promise<Response> {
         try {
-            console.log( AuthMiddleware.user );
-            // const {
-            //     idTask,
-            //     responseContent,
-            //     attachment,
-            //     date
-            // } = req.body;
+            const {
+                idTask,
+                responseContent,
+                attachment,
+                date
+            } = req.body;
 
-            // let user  = await Token.getUser(req, res );
+            let user = req.user;
+            console.log(user)
 
-            // if (!idTask || !user._id || !responseContent) {
-            //     return res.status(400).json({ message: 'Missing required fields: idTask, studentId, or responseContent' });
-            // }
-          
-            // const existingUser = await User.findOne ({ _id: user._id});
-            // if ( !existingUser ){
-            //     return res.status(404).json({message: "User not found"})
-            // }
+            if (!idTask || !user?._id || !responseContent) {
+                return res.status(400).json({ message: 'Missing required fields: idTask, studentId, or responseContent' });
+            }
 
-            // const existingTask = await Task.findOne({ _id: idTask } );
-            // if ( !existingTask ) {
-            //     return res.status(404).json({ message: 'Task not found' });
-            // }
+            const existingTask = await Task.findOne({ _id: idTask } );
+            if ( !existingTask ) {
+                return res.status(404).json({ message: 'Task not found' });
+            }
 
-            // const existingResponse : any = existingTask.studentResponses?.filter((data) => data.studentId == user._id);
+            const existingResponse : any = existingTask.studentResponses?.filter((data) => data.studentId == user._id);
 
-            //console.log( AuthMiddleware.user );
 
-            // if (existingResponse && existingResponse.length > 0 ){
-            //     return res.status(409).json({ message: 'Student already responded to this task' });
+            if (existingResponse && existingResponse.length > 0 ){
+                return res.status(409).json({ message: 'Student already responded to this task' });
 
-            // }
+            }
   
-            // if (existingResponse) {
-            //   return res.status(409).json({ message: 'Student already responded to this task' });
-            // }
-            // existingTask.studentResponses?.push( {
-            //         studentId: user._id,
-            //         responseContent: responseContent,
-            //         attachment: attachment,
-            //         graded: true,
-            //         submissionDate: new Date()
-            //     }
-            // );
-            // existingTask.save();
-            // const response : any  = existingTask.studentResponses?.filter( data => data.studentId == user._id );
-            // if ( !response && response.length == 0) {
-            //     throw new Error( "Respose not found." );
-            // }
+            if (existingResponse) {
+              return res.status(409).json({ message: 'Student already responded to this task' });
+            }
+            existingTask.studentResponses?.push( {
+                    studentId: user._id.toString(),
+                    responseContent: responseContent,
+                    attachment: attachment,
+                    graded: true,
+                    submissionDate: new Date()
+                }
+            );
+            existingTask.save();
+            const response : any  = existingTask.studentResponses?.filter( data => data.studentId == user._id );
+            if ( !response && response.length == 0) {
+                throw new Error( "Respose not found." );
+            }
 
-            // return res.status(200).json({ message:  response[0]._id });
-            return res.status(200).json({ message:  "Deu certo"});
+            return res.status(200).json({ message:  response[0]._id });
         } catch (error: any) {
             return res.status(400).json({ message: error.message });
         }
