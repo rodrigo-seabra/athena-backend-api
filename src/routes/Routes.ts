@@ -4,6 +4,7 @@ import SchoolController from "../controllers/SchoolController";
 import TaskController from "../controllers/TaskController";
 import Middlewares from "../middlewares/Middlewares";
 import ClassController from "../controllers/ClassController";
+import AuthMiddlware from "../middlewares/AuthMiddleware";
 
 class Routes {
   public routes: Router;
@@ -27,6 +28,7 @@ class Routes {
   }
   private TaskRoutes(){
     this.routes.post("/taks", Middlewares.authTaskCreationMiddleware, TaskController.create);
+    this.routes.post("/taks/response", AuthMiddlware.Authenticator , AuthMiddlware.getRole ,TaskController.addStudentResponse)
   }
   private ClassRoutes(){
     this.routes.post("/class", Middlewares.authClassCreationMiddleware,ClassController.create);

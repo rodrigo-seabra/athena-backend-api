@@ -44,6 +44,7 @@ class Token {
       const cpf = decoded.cpf;
       const user: UsersModel | null = await User.findOne({ cpf: cpf });
       
+      
       if (user) {
         switch (user.role) {
           case 'diretor':
@@ -52,7 +53,7 @@ class Token {
             return 'professor';
           case 'estudante':
             return 'estudante';
-          case 'cordenador':
+          case 'coordenador':
             return 'coordenador';
           case 'inspetor':
             return 'inspetor';
