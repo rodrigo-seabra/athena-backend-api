@@ -1,4 +1,3 @@
-
 import { Schema, model, Document } from "mongoose";
 import { SchoolInterface } from "../interfaces/School.interface";
 
