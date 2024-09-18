@@ -2,7 +2,6 @@ import { Router } from "express";
 import UserController from "../controllers/UserController";
 import SchoolController from "../controllers/SchoolController";
 import TaskController from "../controllers/TaskController";
-// import Middlewares from "../middlewares/Middlewares";
 import ClassController from "../controllers/ClassController";
 import AuthMiddlware from "../middlewares/AuthMiddleware";
 
