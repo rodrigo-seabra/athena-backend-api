@@ -26,10 +26,10 @@ class Routes {
     this.routes.post("/school/login", SchoolController.login);
   }
   private TaskRoutes(){
-    this.routes.post("/taks/create", AuthMiddlware.Authorization, TaskController.create);
-    this.routes.post("/taks/response", AuthMiddlware.Authorization ,TaskController.addStudentResponse)
-    this.routes.post("/taks/correction", AuthMiddlware.Authorization,TaskController.addTeacherResponse)
-    this.routes.get("/taks/stats/:professorId", TaskController.getTeacherStats)
+    this.routes.post("/tasks/create", AuthMiddlware.Authorization, TaskController.create);
+    this.routes.post("/tasks/response", AuthMiddlware.Authorization ,TaskController.addStudentResponse)
+    this.routes.post("/tasks/correction", AuthMiddlware.Authorization,TaskController.addTeacherResponse)
+    this.routes.get("/tasks/stats/:professorId", TaskController.getTeacherStats)
 
   }
   private ClassRoutes(){
