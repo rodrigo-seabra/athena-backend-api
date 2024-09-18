@@ -5,7 +5,7 @@ export interface TaskInterface {
     recipients: string[];           
     attachment?: string[];         
     professorId: string;                        
-    studentResponses?: {            
+    studentResponses?: {
       studentId: string;            
       responseContent: string;      
       attachment?: string[];        
