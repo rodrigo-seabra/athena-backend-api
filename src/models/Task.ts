@@ -33,6 +33,9 @@ const TaskSchema = new Schema(
   class: {
     type: String,
   },
+  school: {
+    type: String,
+  },
     studentResponses: [
       {
         studentId: {
