@@ -25,16 +25,16 @@ class AuthMiddlware {
             }
 
             const path = req.path;
-    
-            if (!role) {
-                return res.status(403).json({ message: 'Acesso negado!' });
-            }
-            
+
 
             if (path.includes('/taks/create') && !['professor', 'coordenador', 'diretor'].includes(role)) {
                 return res.status(403).json({ message: 'Acesso negado!' });
             }
             
+            if (path.includes('/taks/correction') && !['professor', 'coordenador', 'diretor'].includes(role)) {
+                return res.status(403).json({ message: 'Acesso negado!' });
+            }
+
             if (path.includes('/class') && !['coordenador', 'diretor'].includes(role)) {
                 return res.status(403).json({ message: 'Acesso negado!' });
             }

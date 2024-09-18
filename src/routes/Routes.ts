@@ -28,6 +28,8 @@ class Routes {
   private TaskRoutes(){
     this.routes.post("/taks/create", AuthMiddlware.Authorization, TaskController.create);
     this.routes.post("/taks/response", AuthMiddlware.Authorization ,TaskController.addStudentResponse)
+    this.routes.post("/taks/correction", AuthMiddlware.Authorization,TaskController.addTeacherResponse)
+
   }
   private ClassRoutes(){
     this.routes.post("/class", AuthMiddlware.Authorization ,ClassController.create);
