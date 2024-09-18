@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import Task from "../models/Task";
-
-import { Req } from "../interfaces/Req.interface";
+import { UsersInterface } from "../interfaces/User.interface";
+import TokenHelper from "../helpers/TokenHelper";
+import { UsersModel } from "../models/User";
 class TaskController {
     public async create(req: Request, res: Response): Promise<Response> {
         try {
@@ -46,7 +47,7 @@ class TaskController {
         }
     }
     public async addStudentResponse(
-        req: Req,
+        req: Request,
         res: Response
     ): Promise<Response> {
         try {
@@ -57,9 +58,8 @@ class TaskController {
                 date
             } = req.body;
 
-            let user = req.user;
-            console.log(user)
-
+            let user : UsersModel | null = TokenHelper.User; 
+            console.log(user);
             if (!idTask || !user?._id || !responseContent) {
                 return res.status(400).json({ message: 'Missing required fields: idTask, studentId, or responseContent' });
             }
