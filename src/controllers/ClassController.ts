@@ -54,7 +54,19 @@ class ClassController{
               message: 'Erro ao criar a turma.',
             });
           }}
-
+    public async index (req: Request, res: Response) : Promise <Response>
+    {
+      try{
+        let classes : ClassInterface[] | null= await Class.find();
+        if ( !classes) {
+          throw new Error( "Erro ao buscar turma" )
+        }
+        return res.status(200).json({message : classes})
+      }catch( err : any)
+      {
+        return res.status(500).json({message: err})
+      }
+    }
 }
 
 export default new ClassController();

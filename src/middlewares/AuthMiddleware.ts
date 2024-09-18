@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import User, { UsersModel } from "../models/User";
-import { Req } from "../interfaces/Req.interface";
 import TokenHelper from "../helpers/TokenHelper";
 import { UsersInterface } from "../interfaces/User.interface";
 
@@ -21,7 +20,6 @@ class AuthMiddlware {
             }
 
             const role = TokenHelper.Role;
-
             if (!role) {
                 return res.status(403).json({ message: 'Usuário não encontrado!' });
             }
@@ -32,10 +30,11 @@ class AuthMiddlware {
                 return res.status(403).json({ message: 'Acesso negado!' });
             }
             
-            if (path.includes('/taks') && !['professor', 'coordenador', 'diretor'].includes(role)) {
+
+            if (path.includes('/taks/create') && !['professor', 'coordenador', 'diretor'].includes(role)) {
                 return res.status(403).json({ message: 'Acesso negado!' });
             }
-    
+            
             if (path.includes('/class') && !['coordenador', 'diretor'].includes(role)) {
                 return res.status(403).json({ message: 'Acesso negado!' });
             }

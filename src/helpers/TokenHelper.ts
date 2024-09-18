@@ -11,7 +11,7 @@ interface JwtPayloadWithCPF extends JwtPayload {
 
 class TokenHelper{
     private readonly secret = "athena-secret";
-    public User!: UsersInterface | null;
+    public User!: UsersModel | null;
     public Role!: string | undefined;
 
     private getToken(req: Request): string | null {

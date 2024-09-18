@@ -27,11 +27,13 @@ class Routes {
     this.routes.post("/school/login", SchoolController.login);
   }
   private TaskRoutes(){
-    this.routes.post("/taks", AuthMiddlware.Authorization, TaskController.create);
+    this.routes.post("/taks/create", AuthMiddlware.Authorization, TaskController.create);
     this.routes.post("/taks/response", AuthMiddlware.Authorization ,TaskController.addStudentResponse)
   }
   private ClassRoutes(){
     this.routes.post("/class", AuthMiddlware.Authorization ,ClassController.create);
+    this.routes.get("/getall/class",  ClassController.index);
+
   }
 
 
