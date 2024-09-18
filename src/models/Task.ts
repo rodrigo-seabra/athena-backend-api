@@ -26,6 +26,13 @@ const TaskSchema = new Schema(
       type: String,
       required: true,
     },
+    status: {
+      type: String,
+      enum: ['em andamento', 'pronto'], 
+  },
+  class: {
+    type: String,
+  },
     studentResponses: [
       {
         studentId: {
