@@ -2,7 +2,7 @@ import { Router } from "express";
 import UserController from "../controllers/UserController";
 import SchoolController from "../controllers/SchoolController";
 import TaskController from "../controllers/TaskController";
-import Middlewares from "../middlewares/Middlewares";
+// import Middlewares from "../middlewares/Middlewares";
 import ClassController from "../controllers/ClassController";
 import AuthMiddlware from "../middlewares/AuthMiddleware";
 
@@ -27,11 +27,11 @@ class Routes {
     this.routes.post("/school/login", SchoolController.login);
   }
   private TaskRoutes(){
-    this.routes.post("/taks", AuthMiddlware.Authenticator , AuthMiddlware.Authorization, TaskController.create);
-    this.routes.post("/taks/response", AuthMiddlware.Authenticator , AuthMiddlware.Authorization ,TaskController.addStudentResponse)
+    this.routes.post("/taks", AuthMiddlware.Authorization, TaskController.create);
+    this.routes.post("/taks/response", AuthMiddlware.Authorization ,TaskController.addStudentResponse)
   }
   private ClassRoutes(){
-    this.routes.post("/class", AuthMiddlware.Authenticator , AuthMiddlware.Authorization ,ClassController.create);
+    this.routes.post("/class", AuthMiddlware.Authorization ,ClassController.create);
   }
 
 

@@ -1,7 +1,7 @@
 import { json, Request, Response } from "express";
 import User, {UsersModel} from "../models/User";
 import bcrypt from "bcrypt";
-import Token from "../helpers/Token";
+import TokenHelper from "../helpers/TokenHelper";
 
 const saltRounds = 10;
 class UserController {
@@ -40,7 +40,7 @@ class UserController {
       });
 
       let created = await User.create(newUser);
-      return await Token.createUserToken(created, res);
+      return await TokenHelper.createUserToken(created, res);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Erro ao criar usuário." });
@@ -63,7 +63,7 @@ class UserController {
           message: "Senha inválida",
         });
       }
-      return await Token.createUserToken(userFind, res);
+      return await TokenHelper.createUserToken(userFind, res);
     } else {
       return res.status(422).json({
         message: "Não há usuário cadastrado com esse e-mail",

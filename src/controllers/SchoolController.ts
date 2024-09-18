@@ -1,8 +1,6 @@
 import { json, Request, Response } from "express";
 import School, {SchoolsModels} from "../models/School";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import Token from "../helpers/Token";
 
 const saltRounds = 10;
 

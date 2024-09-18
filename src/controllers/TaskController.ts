@@ -1,9 +1,6 @@
 import { Request, Response } from "express";
 import Task from "../models/Task";
-import User from "../models/User";
-import Token from "../helpers/Token";
-import Middleware from "../middlewares/Middlewares";
-import AuthMiddleware from "../middlewares/AuthMiddleware";
+
 import { Req } from "../interfaces/Req.interface";
 class TaskController {
     public async create(req: Request, res: Response): Promise<Response> {
