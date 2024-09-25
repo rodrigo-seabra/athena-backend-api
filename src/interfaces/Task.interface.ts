@@ -7,10 +7,15 @@ export interface TaskInterface {
     professorId: string;   
     class?: string;      
     status?: "em andamento" | "pronto";   
-    school?: string,            
+    school?: string,    
+    alternatives?: {
+      text: string;            
+      isCorrect: boolean;      
+    }[];                     
     studentResponses?: {
       studentId: string;            
-      responseContent: string;      
+      responseContent: string;    
+      selectedAlternative?: string;  
       attachment?: string[];        
       submissionDate?: Date;        
       graded?: boolean;             

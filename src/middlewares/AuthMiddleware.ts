@@ -26,6 +26,7 @@ class AuthMiddlware {
 
             const path = req.path;
 
+
             if (path.includes('/tasks/create') && !['professor', 'coordenador', 'diretor'].includes(role)) {
                 return res.status(403).json({ message: 'Acesso negado!' });
             }
@@ -34,9 +35,7 @@ class AuthMiddlware {
 
                 return res.status(403).json({ message: 'Acesso negado!' });
             }
-            if (path.includes('/tasks') && !['coordenador', 'diretor'].includes(role)) {
-                return res.status(403).json({ message: 'Acesso negado!' });
-            }
+
             if (path.includes('/tasks/response') && role !== 'estudante') {
                 return res.status(403).json({ message: 'Acesso negado!' });                
             }
