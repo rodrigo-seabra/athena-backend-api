@@ -61,7 +61,7 @@ class UserController {
       ) {
         return res.status(400).json({ message: "Role inválida." });
       }
-      
+
       if (IdSchool) {
         if (!mongoose.Types.ObjectId.isValid(IdSchool)) {
           return res.status(400).json({ message: "ID da escola inválido." });
@@ -160,17 +160,14 @@ class UserController {
   public async approveUser(req: Request, res: Response): Promise<Response> {
     try {
       const { userId, IdSchool, IdClass } = req.body;
-
       const user = await User.findById(userId);
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado." });
       }
-
       const school = await School.findById(IdSchool);
       if (!school) {
         return res.status(404).json({ message: "Escola não encontrada." });
       }
-
       school.pendingRequests = school.pendingRequests.filter(
         (request) => request !== userId
       );
