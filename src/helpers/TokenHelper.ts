@@ -29,7 +29,7 @@ class TokenHelper{
             { expiresIn: '36h' } 
         );
 
-        return res.json({
+        return res.status(200).json({
             message: "Você está autenticado!",
             token: token,
             cpf: user.cpf,
