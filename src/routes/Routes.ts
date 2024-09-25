@@ -19,11 +19,14 @@ class Routes {
     this.routes.get("/user", UserController.index);
     this.routes.post("/user/create", UserController.create);
     this.routes.post("/login", UserController.login);
+    this.routes.post('/user/approve', UserController.approveUser);
+    this.routes.post('/user/reject', UserController.rejectUser); 
   }
   private SchoolRoutes(){
     this.routes.get("/school", SchoolController.index);
     this.routes.post("/school/create", SchoolController.create);
     this.routes.post("/school/login", SchoolController.login);
+    this.routes.get('/schools/:schoolId/pending-requests', SchoolController.listPendingRequests); 
   }
   private TaskRoutes(){
     this.routes.post("/tasks/create", AuthMiddlware.Authorization, TaskController.create);
@@ -33,7 +36,7 @@ class Routes {
 
   }
   private ClassRoutes(){
-    this.routes.post("/class", AuthMiddlware.Authorization ,ClassController.create);
+    this.routes.post("/class",ClassController.create);
     this.routes.get("/getall/class",  ClassController.index);
 
   }
