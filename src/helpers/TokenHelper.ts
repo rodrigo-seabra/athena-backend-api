@@ -33,6 +33,7 @@ class TokenHelper{
             message: "Você está autenticado!",
             token: token,
             cpf: user.cpf,
+            role: user.role,
         });
         
     }
