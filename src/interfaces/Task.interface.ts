@@ -6,7 +6,8 @@ export interface TaskInterface {
     attachment?: string[];         
     professorId: string;   
     class?: string;      
-    status?: "em andamento" | "pronto";               
+    status?: "em andamento" | "pronto";   
+    school?: string,            
     studentResponses?: {
       studentId: string;            
       responseContent: string;      

@@ -4,6 +4,7 @@ export interface UsersInterface {
     phone: string;
     password: string;
     IdSchool?: String;
+    IdClass?: string; 
     cpf: string;
     image?: string;
     confirmpassword?: string;
@@ -13,5 +14,6 @@ export interface UsersInterface {
         cep: string;
         state: string;
         city: string;
-    }
+    };
+    approved: boolean;
   }

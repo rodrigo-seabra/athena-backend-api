@@ -51,6 +51,9 @@ const SchoolsSchema = new Schema(
       },
       certificadoFuncionamento:{
         type: String,
+      },
+      pendingRequests: {
+        type: [String]
       }
     },
     {

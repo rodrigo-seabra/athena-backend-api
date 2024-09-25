@@ -26,21 +26,19 @@ class AuthMiddlware {
 
             const path = req.path;
 
-
-            if (path.includes('/taks/create') && !['professor', 'coordenador', 'diretor'].includes(role)) {
+            if (path.includes('/tasks/create') && !['professor', 'coordenador', 'diretor'].includes(role)) {
                 return res.status(403).json({ message: 'Acesso negado!' });
             }
             
-            if (path.includes('/taks/correction') && !['professor', 'coordenador', 'diretor'].includes(role)) {
-                return res.status(403).json({ message: 'Acesso negado!' });
-            }
+            if (path.includes('/tasks/correction') && !['professor', 'coordenador', 'diretor'].includes(role)) {
 
-            if (path.includes('/class') && !['coordenador', 'diretor'].includes(role)) {
                 return res.status(403).json({ message: 'Acesso negado!' });
             }
-    
-            if (path.includes('/taks/response') && role !== 'estudante') {
+            if (path.includes('/tasks') && !['coordenador', 'diretor'].includes(role)) {
                 return res.status(403).json({ message: 'Acesso negado!' });
+            }
+            if (path.includes('/tasks/response') && role !== 'estudante') {
+                return res.status(403).json({ message: 'Acesso negado!' });                
             }
     
         } catch( err: any ) {
