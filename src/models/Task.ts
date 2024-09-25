@@ -28,19 +28,32 @@ const TaskSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ['em andamento', 'pronto'], 
-  },
-  class: {
-    type: String,
-  },
-  school: {
-    type: String,
-  },
+      enum: ["em andamento", "pronto"],
+    },
+    class: {
+      type: String,
+    },
+    school: {
+      type: String,
+    },
+    alternatives: [
+      {
+        text: {
+          type: String,
+        },
+        isCorrect: {
+          type: Boolean,
+        },
+      },
+    ],
     studentResponses: [
       {
         studentId: {
           type: String,
           required: true,
+        },
+        selectedAlternative: {
+          type: String,
         },
         responseContent: {
           type: String,

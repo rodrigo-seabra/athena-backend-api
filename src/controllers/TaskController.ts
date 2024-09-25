@@ -11,18 +11,21 @@ class TaskController {
         subject,
         content,
         dueDate,
-        classes, 
+        classes,
         status,
         recipients,
         attachment,
         professorId,
         studentResponses,
+        alternatives, // Adicionando as alternativas
       } = req.body;
+
       if (!subject || !content || !dueDate || !recipients || !professorId) {
         return res.status(400).json({
           message: "Todos os campos obrigatórios devem ser preenchidos.",
         });
       }
+
       const existingTask = await Task.findOne({ subject, dueDate });
       if (existingTask) {
         return res.status(400).json({
@@ -30,6 +33,7 @@ class TaskController {
             "Já existe uma tarefa com o mesmo assunto e data de vencimento.",
         });
       }
+
       const newTask = new Task({
         subject,
         content,
@@ -39,8 +43,10 @@ class TaskController {
         professorId,
         studentResponses,
         status,
-        class : classes,
+        class: classes,
+        alternatives,
       });
+
       const createdTask = await Task.create(newTask);
       return res.status(201).json({
         message: "Tarefa criada com sucesso.",
@@ -56,53 +62,60 @@ class TaskController {
     res: Response
   ): Promise<Response> {
     try {
-      const { idTask, responseContent, attachment, date } = req.body;
-
+      const { idTask, responseContent, selectedAlternative, attachment } =
+        req.body;
       let user: UsersModel | null = TokenHelper.User;
-      console.log(user);
-      if (!idTask || !user?._id || !responseContent) {
+
+      if (!idTask || !user?._id || (!responseContent && !selectedAlternative)) {
         return res.status(400).json({
           message:
-            "Missing required fields: idTask, studentId, or responseContent",
+            "Campos obrigatórios faltando: idTask, studentId, ou resposta/alternativa.",
         });
       }
 
       const existingTask = await Task.findOne({ _id: idTask });
       if (!existingTask) {
-        return res.status(404).json({ message: "Task not found" });
+        return res.status(404).json({ message: "Tarefa não encontrada." });
       }
 
-      const existingResponse: any = existingTask.studentResponses?.filter(
-        (data) => data.studentId == user._id
+      const existingResponse = existingTask.studentResponses?.find(
+        (data) => data.studentId === user._id?.toString()
       );
-
-      if (existingResponse && existingResponse.length > 0) {
-        return res
-          .status(409)
-          .json({ message: "Student already responded to this task" });
-      }
 
       if (existingResponse) {
         return res
           .status(409)
           .json({ message: "Student already responded to this task" });
       }
+
+
+
+      let isCorrect = false;
+
+      if (selectedAlternative && existingTask.alternatives) {
+        const alternative = existingTask.alternatives.find(
+          (alt) => alt.text === selectedAlternative
+        );
+        if (alternative) {
+          isCorrect = alternative.isCorrect;
+        }
+      }
+
       existingTask.studentResponses?.push({
         studentId: user._id.toString(),
-        responseContent: responseContent,
+        responseContent: responseContent || selectedAlternative,
+        selectedAlternative: selectedAlternative,
         attachment: attachment,
         graded: false,
         submissionDate: new Date(),
       });
-      existingTask.save();
-      const response: any = existingTask.studentResponses?.filter(
-        (data) => data.studentId == user._id
-      );
-      if (!response && response.length == 0) {
-        throw new Error("Respose not found.");
-      }
 
-      return res.status(200).json({ message: response[0]._id });
+      await existingTask.save();
+
+      return res.status(200).json({
+        message: "Resposta enviada com sucesso.",
+        isCorrect,
+      });
     } catch (error: any) {
       return res.status(400).json({ message: error.message });
     }
