@@ -16,7 +16,7 @@ class Routes {
   }
 
   private UserRoutes() {
-    this.routes.get("/user", UserController.index);
+    this.routes.get("/user", AuthMiddlware.Authorization, UserController.index);
     this.routes.post("/user/create", UserController.create);
     this.routes.post("/user/login", UserController.login);
     this.routes.post('/user/approve', UserController.approveUser);

@@ -10,7 +10,13 @@ const saltRounds = 10;
 
 class UserController {
   public async index(req: Request, res: Response): Promise<Response> {
-    return res.status(200).json({ message: "Deu bom!" });
+    let user = TokenHelper.User;
+    console.log(user)
+    if (!user)
+    {
+      return res.status(404).send({message: "User not found!"})
+    }
+    return res.status(200).send({message: user})
   }
 
 public async userFunction (req: Request, res:Response) : Promise<Response>{
@@ -36,6 +42,8 @@ public async userFunction (req: Request, res:Response) : Promise<Response>{
         IdSchool,
         IdClass,
       } = req.body;
+
+      console.log('Dados recebidos:', req.body);
 
       if (!name || !email || !password || !phone || !cpf || !role || !address) {
         return res
