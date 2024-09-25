@@ -38,6 +38,12 @@ const UsersSchema = new Schema(
       },
       IdSchool: {
         type: String,
+      },
+      IdClass: {
+        type: String,
+      },
+      approved: {
+        type: Boolean,
       }
     },
     {

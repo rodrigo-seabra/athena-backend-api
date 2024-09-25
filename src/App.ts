@@ -16,7 +16,7 @@ class App{
       private middleware(): void {
         this.express.use(express.json());
         this.express.use(express.static("public"));
-        this.express.use(cors());
+      this.express.use(cors());
       }
     
       private database(): void {
