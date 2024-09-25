@@ -11,23 +11,21 @@ const saltRounds = 10;
 class UserController {
   public async index(req: Request, res: Response): Promise<Response> {
     let user = TokenHelper.User;
-    console.log(user)
-    if (!user)
-    {
-      return res.status(404).send({message: "User not found!"})
+    console.log(user);
+    if (!user) {
+      return res.status(404).send({ message: "User not found!" });
     }
-    return res.status(200).send({message: user})
+    return res.status(200).send({ message: user });
   }
 
-public async userFunction (req: Request, res:Response) : Promise<Response>{
-  const token = req.body;
-  let functionUser = TokenHelper.Role;
-  if(!functionUser)
-  {
-    return res.status(404).send({message: "Função nao encontrada"})
+  public async userFunction(req: Request, res: Response): Promise<Response> {
+    const token = req.body;
+    let functionUser = TokenHelper.Role;
+    if (!functionUser) {
+      return res.status(404).send({ message: "Função nao encontrada" });
+    }
+    return res.status(200).send({ message: functionUser });
   }
-  return res.status(200).send({message: functionUser})
-}
 
   public async create(req: Request, res: Response): Promise<Response> {
     try {
@@ -43,12 +41,36 @@ public async userFunction (req: Request, res:Response) : Promise<Response>{
         IdClass,
       } = req.body;
 
-      console.log('Dados recebidos:', req.body);
+      console.log("Dados recebidos:", req.body);
 
       if (!name || !email || !password || !phone || !cpf || !role || !address) {
         return res
           .status(400)
           .json({ message: "Todos os campos são obrigatórios." });
+      }
+
+      if (
+        role !== "diretor" ||
+        role !== "professor" ||
+        role !== "estudante" ||
+        role !== "coordenador" ||
+        role !== "inspetor" ||
+        role !== "limpeza" ||
+        role !== "cozinha" ||
+        role !== "outro"
+      ) {
+        return res.status(400).json({ message: "Role inválida." });
+      }
+      
+      if (IdSchool) {
+        if (!mongoose.Types.ObjectId.isValid(IdSchool)) {
+          return res.status(400).json({ message: "ID da escola inválido." });
+        }
+      }
+      if (IdClass) {
+        if (!mongoose.Types.ObjectId.isValid(IdClass)) {
+          return res.status(400).json({ message: "ID da turma inválido." });
+        }
       }
 
       const existingUser = await User.findOne({ email });
@@ -90,37 +112,22 @@ public async userFunction (req: Request, res:Response) : Promise<Response>{
       );
       if (createdUser && createdUser._id) {
         const userId = createdUser._id.toString();
-
-        if (IdSchool) {
-          if (!mongoose.Types.ObjectId.isValid(IdSchool)) {
-            return res.status(400).json({ message: "ID da escola inválido." });
-          }
-
-          const school = await School.findById(IdSchool);
-          if (school) {
-            school.pendingRequests.push(userId);
-            await school.save();
-          } else {
-            return res.status(404).json({ message: "Escola não encontrada." });
-          }
+        const school = await School.findById(IdSchool);
+        if (school) {
+          school.pendingRequests.push(userId);
+          await school.save();
+        } else {
+          return res.status(404).json({ message: "Escola não encontrada." });
         }
-
-        if (IdClass) {
-          if (!mongoose.Types.ObjectId.isValid(IdClass)) {
-            return res.status(400).json({ message: "ID da turma inválido." });
-          }
-
-          const classEntity = await Class.findById(IdClass);
-          if (classEntity) {
-            classEntity.pendingRequests = classEntity.pendingRequests || [];
-            classEntity.pendingRequests.push(userId);
-            await classEntity.save();
-          } else {
-            return res.status(404).json({ message: "Turma não encontrada." });
-          }
+        const classEntity = await Class.findById(IdClass);
+        if (classEntity) {
+          classEntity.pendingRequests = classEntity.pendingRequests || [];
+          classEntity.pendingRequests.push(userId);
+          await classEntity.save();
+        } else {
+          return res.status(404).json({ message: "Turma não encontrada." });
         }
       }
-
       return await TokenHelper.createUserToken(createdUser, res);
     } catch (error) {
       console.error(error);
@@ -221,11 +228,9 @@ public async userFunction (req: Request, res:Response) : Promise<Response>{
 
       await User.findByIdAndDelete(userId);
 
-      return res
-        .status(200)
-        .json({
-          message: "Solicitação do usuário rejeitada e usuário removido.",
-        });
+      return res.status(200).json({
+        message: "Solicitação do usuário rejeitada e usuário removido.",
+      });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Erro ao rejeitar usuário." });
