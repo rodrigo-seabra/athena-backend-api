@@ -18,9 +18,10 @@ class Routes {
   private UserRoutes() {
     this.routes.get("/user", UserController.index);
     this.routes.post("/user/create", UserController.create);
-    this.routes.post("/login", UserController.login);
+    this.routes.post("/user/login", UserController.login);
     this.routes.post('/user/approve', UserController.approveUser);
     this.routes.post('/user/reject', UserController.rejectUser); 
+    this.routes.get("/user/function", AuthMiddlware.Authorization, UserController.userFunction)
   }
   private SchoolRoutes(){
     this.routes.get("/school", SchoolController.index);

@@ -13,6 +13,16 @@ class UserController {
     return res.status(200).json({ message: "Deu bom!" });
   }
 
+public async userFunction (req: Request, res:Response) : Promise<Response>{
+  const token = req.body;
+  let functionUser = TokenHelper.Role;
+  if(!functionUser)
+  {
+    return res.status(404).send({message: "Função nao encontrada"})
+  }
+  return res.status(200).send({message: functionUser})
+}
+
   public async create(req: Request, res: Response): Promise<Response> {
     try {
       const {
