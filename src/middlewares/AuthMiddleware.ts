@@ -10,7 +10,7 @@ interface JwtPayloadWithCPF extends JwtPayload {
 
 class AuthMiddlware {
 
-    public async Authorization(req: Request, res: Response, next: NextFunction) 
+    public async Authorization(req: Request, res: Response, next: NextFunction) : Promise<void | Response>
     {
         try {
             const tokenValidationResult = await TokenHelper.validateToken(req);
