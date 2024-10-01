@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Class from '../models/Class'; // Modelo da turma
+import Class, { ClassModel } from '../models/Class'; // Modelo da turma
 import School from '../models/School'; // Modelo da escola
 import { ClassInterface } from '../interfaces/Class.interface';
 
