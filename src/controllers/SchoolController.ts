@@ -76,10 +76,8 @@ class SchoolController {
         certificadoFuncionamento,
       });
       const createdSchool = await School.create(newSchool);
-      return res.status(201).json({
-        message: "Instituição criada com sucesso.",
-        school: createdSchool,
-      });
+      return await TokenHelper.createSchoolToken(createdSchool, res);
+
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Erro ao criar instituição." });
@@ -110,10 +108,8 @@ class SchoolController {
         return res.status(401).json({ message: "Senha incorreta." });
       }
 
-      return res.status(200).json({
-        message: "Login realizado com sucesso.",
-        school: existingSchool,
-      });
+      return await TokenHelper.createSchoolToken(existingSchool, res);
+
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Erro ao realizar login." });
