@@ -67,6 +67,25 @@ class ClassController{
         return res.status(500).json({message: err})
       }
     }
+    public async getClassBySchool(req: Request, res: Response): Promise<Response> {
+      try {
+        const { idschool } = req.params;
+        if(!idschool)
+        {
+          return res.status(404).send({message: "School not found"})
+        }
+        let classes: ClassInterface[] | null = await Class.find({ IdSchool: idschool }); 
+    
+        if (!classes || classes.length === 0) {
+          return res.status(404).json({ message: "Nenhuma turma encontrada para este idschool" });
+        }
+    
+        return res.status(200).json({ message: classes });
+      } catch (err: any) {
+        return res.status(500).json({ message: err.message || "Erro interno do servidor" });
+      }
+    }
+    
 }
 
 export default new ClassController();

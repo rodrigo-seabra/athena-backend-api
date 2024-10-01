@@ -5,47 +5,69 @@ import TokenHelper from "../helpers/TokenHelper";
 import { UsersInterface } from "../interfaces/User.interface";
 
 interface JwtPayloadWithCPF extends JwtPayload {
-    cpf: string | undefined;
+  cpf: string | undefined;
 }
 
 class AuthMiddlware {
+  public async Authorization(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void | Response> {
+    try {
+      const tokenValidationResult = await TokenHelper.validateToken(req);
 
-    public async Authorization(req: Request, res: Response, next: NextFunction) : Promise<void | Response>
-    {
-        try {
-            const tokenValidationResult = await TokenHelper.validateToken(req);
-            
-            if (tokenValidationResult !== true) {
-                return res.status(403).json({ message: 'Acesso negado!' });
-            }
+      if (tokenValidationResult !== true) {
+        return res.status(403).json({ message: "Acesso negado!" });
+      }
 
-            const role = TokenHelper.Role;
-            if (!role) {
-                return res.status(403).json({ message: 'Usuário não encontrado!' });
-            }
+      const role = TokenHelper.Role;
+      if (!role) {
+        return res.status(403).json({ message: "Usuário não encontrado!" });
+      }
 
-            const path = req.path;
+      const path = req.path;
 
+      if (
+        path.includes("/tasks/create") &&
+        !["professor", "coordenador", "diretor"].includes(role)
+      ) {
+        return res.status(403).json({ message: "Acesso negado!" });
+      }
 
-            if (path.includes('/tasks/create') && !['professor', 'coordenador', 'diretor'].includes(role)) {
-                return res.status(403).json({ message: 'Acesso negado!' });
-            }
-            
-            if (path.includes('/tasks/correction') && !['professor', 'coordenador', 'diretor'].includes(role)) {
+      if (
+        path.includes("/tasks/correction") &&
+        !["professor", "coordenador", "diretor"].includes(role)
+      ) {
+        return res.status(403).json({ message: "Acesso negado!" });
+      }
 
-                return res.status(403).json({ message: 'Acesso negado!' });
-            }
-
-            if (path.includes('/tasks/response') && role !== 'estudante') {
-                return res.status(403).json({ message: 'Acesso negado!' });                
-            }
-    
-        } catch( err: any ) {
-            return res.status( 401 ).json( { message: err.message } );
-        }
-        
-        next();
+      if (path.includes("/tasks/response") && role !== "estudante") {
+        return res.status(403).json({ message: "Acesso negado!" });
+      }
+    } catch (err: any) {
+      return res.status(401).json({ message: err.message });
     }
+
+    next();
+  }
+  public async schoolAuthorization(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void | Response> {
+    try {
+      const tokenValidationResult = await TokenHelper.validateTokenSchool(req);
+
+      if (tokenValidationResult !== true) {
+        return res.status(403).json({ message: "Acesso negado!" });
+      }
+    } catch (err: any) {
+      return res.status(401).json({ message: err.message });
+    }
+
+    next();
+  }
 }
 
 export default new AuthMiddlware();

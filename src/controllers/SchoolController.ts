@@ -2,6 +2,7 @@ import { json, Request, Response } from "express";
 import School, { SchoolsModels } from "../models/School";
 import bcrypt from "bcrypt";
 import User from "../models/User";
+import TokenHelper from "../helpers/TokenHelper";
 
 const saltRounds = 10;
 
@@ -16,6 +17,17 @@ class SchoolController {
     }
   }
 
+
+  public async schoolData (req: Response, res: Response) : Promise<Response>
+  {
+    const school = TokenHelper.School;
+    if(!school)
+    {
+      return res.status(404).send({message: "Escola não encontrada!"})
+    }
+    return res.status(200).send({message: school})
+  }
+  
   public async create(req: Request, res: Response): Promise<Response> {
     try {
       const {

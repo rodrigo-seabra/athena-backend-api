@@ -28,6 +28,7 @@ class Routes {
     this.routes.post("/school/create", SchoolController.create);
     this.routes.post("/school/login", SchoolController.login);
     this.routes.get('/schools/:schoolId/pending-requests', SchoolController.listPendingRequests); 
+    this.routes.get("/school/data", AuthMiddlware.schoolAuthorization, SchoolController.schoolData)
   }
   private TaskRoutes(){
     this.routes.post("/tasks/create", AuthMiddlware.Authorization, TaskController.create);
@@ -38,6 +39,7 @@ class Routes {
   }
   private ClassRoutes(){
     this.routes.post("/class",ClassController.create);
+    this.routes.get("/class/:idschool", ClassController.getClassBySchool)
     this.routes.get("/getall/class",  ClassController.index);
 
   }
