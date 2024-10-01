@@ -11,7 +11,6 @@ const saltRounds = 10;
 class UserController {
   public async index(req: Request, res: Response): Promise<Response> {
     let user = TokenHelper.User;
-    console.log(user);
     if (!user) {
       return res.status(404).send({ message: "User not found!" });
     }
@@ -41,7 +40,6 @@ class UserController {
         IdClass,
       } = req.body;
 
-      console.log("Dados recebidos:", req.body);
 
       if (!name || !email || !password || !phone || !cpf || !role || !address) {
         return res
@@ -50,27 +48,28 @@ class UserController {
       }
 
       if (
-        role !== "diretor" ||
-        role !== "professor" ||
-        role !== "estudante" ||
-        role !== "coordenador" ||
-        role !== "inspetor" ||
-        role !== "limpeza" ||
-        role !== "cozinha" ||
+        role !== "diretor" &&
+        role !== "professor" &&
+        role !== "estudante" &&
+        role !== "coordenador" &&
+        role !== "inspetor" &&
+        role !== "limpeza" &&
+        role !== "cozinha" &&
         role !== "outro"
       ) {
         return res.status(400).json({ message: "Role inválida." });
       }
+      const classEntity = await Class.findById(IdClass);
+      const school = await School.findById(IdSchool);
 
-      if (IdSchool) {
-        if (!mongoose.Types.ObjectId.isValid(IdSchool)) {
-          return res.status(400).json({ message: "ID da escola inválido." });
-        }
+
+      if (!school) {
+        return res.status(400).json({ message: "ID da escola inválido." });
+
       }
-      if (IdClass) {
-        if (!mongoose.Types.ObjectId.isValid(IdClass)) {
-          return res.status(400).json({ message: "ID da turma inválido." });
-        }
+      if (role == "estudante" && !classEntity) {
+        return res.status(400).json({ message: "ID da turma inválido." });
+
       }
 
       const existingUser = await User.findOne({ email });
@@ -107,30 +106,35 @@ class UserController {
         approved: false,
       });
 
+
       const createdUser: UsersModel | undefined | null = await User.create(
         newUser
       );
+
       if (createdUser && createdUser._id) {
         const userId = createdUser._id.toString();
-        const school = await School.findById(IdSchool);
+
         if (school) {
           school.pendingRequests.push(userId);
           await school.save();
         } else {
           return res.status(404).json({ message: "Escola não encontrada." });
         }
-        const classEntity = await Class.findById(IdClass);
-        if (classEntity) {
-          classEntity.pendingRequests = classEntity.pendingRequests || [];
-          classEntity.pendingRequests.push(userId);
-          await classEntity.save();
-        } else {
-          return res.status(404).json({ message: "Turma não encontrada." });
+        if (createdUser.role === "estudante") {
+          if (classEntity) {
+            classEntity.pendingRequests = classEntity.pendingRequests || [];
+            classEntity.pendingRequests.push(userId);
+            await classEntity.save();
+          } else {
+            return res.status(404).json({ message: "Turma não encontrada." });
+          }
         }
+
       }
+
       return await TokenHelper.createUserToken(createdUser, res);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao criar usuário:", error);
       return res.status(500).json({ message: "Erro ao criar usuário." });
     }
   }
@@ -160,14 +164,17 @@ class UserController {
   public async approveUser(req: Request, res: Response): Promise<Response> {
     try {
       const { userId, IdSchool, IdClass } = req.body;
+
       const user = await User.findById(userId);
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado." });
       }
+
       const school = await School.findById(IdSchool);
       if (!school) {
         return res.status(404).json({ message: "Escola não encontrada." });
       }
+
       school.pendingRequests = school.pendingRequests.filter(
         (request) => request !== userId
       );
@@ -176,7 +183,7 @@ class UserController {
       if (user.role === "estudante") {
         const turma = await Class.findById(IdClass);
         if (!turma) {
-          return res.status(404).json({ message: "Escola não encontrada." });
+          return res.status(404).json({ message: "Turma não encontrada." });
         }
 
         turma.pendingRequests = turma.pendingRequests?.filter(
@@ -199,7 +206,7 @@ class UserController {
         .status(200)
         .json({ message: "Usuário aprovado com sucesso.", user: user });
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao aprovar usuário:", error);
       return res.status(500).json({ message: "Erro ao aprovar usuário." });
     }
   }
@@ -229,7 +236,7 @@ class UserController {
         message: "Solicitação do usuário rejeitada e usuário removido.",
       });
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao rejeitar usuário:", error);
       return res.status(500).json({ message: "Erro ao rejeitar usuário." });
     }
   }
