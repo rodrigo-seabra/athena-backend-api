@@ -116,7 +116,8 @@ class UserController {
           id: createdUser._id.toString(),
           name: createdUser.name,
           cpf: createdUser.cpf
-        }
+        };
+        
 
         if (school) {
           school.pendingRequests.push(userReq);
@@ -133,7 +134,6 @@ class UserController {
             return res.status(404).json({ message: "Turma não encontrada." });
           }
         }
-
       }
 
       return await TokenHelper.createUserToken(createdUser, res);

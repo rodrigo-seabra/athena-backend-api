@@ -35,9 +35,9 @@ const ClassSchema = new Schema(
       required: true,
     },
     pendingRequests:[{
-      id: { type: String, required: true },
-      name: { type: String, required: true },
-      cpf: { type: String, required: true },
+      id: { type: String},
+      name: { type: String},
+      cpf: { type: String},
     }]
   },
   {
