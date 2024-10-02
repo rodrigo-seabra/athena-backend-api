@@ -184,7 +184,12 @@ class UserController {
       );
       await school.save();
 
-      const turma = await Class.find()
+      if( user.role == "estudante")
+      {
+        const classFound = await Class.findById(user.IdClass)
+        classFound?.students.push(userId);
+        await classFound?.save()
+      }
 
       user.approved = true;
       user.IdSchool = IdSchool;
