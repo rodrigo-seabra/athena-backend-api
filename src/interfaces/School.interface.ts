@@ -37,5 +37,9 @@ export interface SchoolInterface {
   password: string;
   confirmpassword?: string;
   image?: string;
-  pendingRequests: string[];
+  pendingRequests:{
+    id: string,
+    name: string,
+    cpf: string
+  }[];
 }

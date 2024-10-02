@@ -8,5 +8,9 @@ export interface ClassInterface {
   IdSchool: string;
   year: number;
   subject: string[];
-  pendingRequests?: string[];
+  pendingRequests:{
+    id: string,
+    name: string,
+    cpf: string
+  }[];
 }

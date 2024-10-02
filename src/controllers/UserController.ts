@@ -112,10 +112,14 @@ class UserController {
       );
 
       if (createdUser && createdUser._id) {
-        const userId = createdUser._id.toString();
+        const userReq = {
+          id: createdUser._id.toString(),
+          name: createdUser.name,
+          cpf: createdUser.cpf
+        }
 
         if (school) {
-          school.pendingRequests.push(userId);
+          school.pendingRequests.push(userReq);
           await school.save();
         } else {
           return res.status(404).json({ message: "Escola não encontrada." });
@@ -123,7 +127,7 @@ class UserController {
         if (createdUser.role === "estudante") {
           if (classEntity) {
             classEntity.pendingRequests = classEntity.pendingRequests || [];
-            classEntity.pendingRequests.push(userId);
+            classEntity.pendingRequests.push(userReq);
             await classEntity.save();
           } else {
             return res.status(404).json({ message: "Turma não encontrada." });
