@@ -110,33 +110,36 @@ class SchoolController {
       return res.status(500).json({ message: "Erro ao realizar login." });
     }
   }
-  public async listPendingRequests(
-    req: Request,
-    res: Response
-  ): Promise<Response> {
+  public async listPendingRequests(req: Request, res: Response): Promise<Response> {
     try {
       const { schoolId } = req.params;
-
+  
       const school = await School.findById(schoolId);
       if (!school) {
         return res.status(404).json({ message: "Escola não encontrada." });
       }
-
+  
+      const pendingRequestIds = school.pendingRequests.map((request) => request.id);
+  
+      console.log("Pending Requests IDs:", pendingRequestIds);
+  
       const pendingUsers = await User.find({
-        _id: { $in: school.pendingRequests },
+        _id: { $in: pendingRequestIds },
       });
-
+  
+      console.log("Pending Users Found:", pendingUsers.length);
+  
       return res.status(200).json({
         message: "Solicitações pendentes encontradas com sucesso.",
-        pendingUsers: pendingUsers,
+        pendingUsers,
       });
     } catch (error) {
       console.error(error);
-      return res
-        .status(500)
-        .json({ message: "Erro ao listar solicitações pendentes." });
+      return res.status(500).json({ message: "Erro ao listar solicitações pendentes." });
     }
   }
+  
+  
 }
 
 export default new SchoolController();

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Class, { ClassModel } from '../models/Class'; // Modelo da turma
 import School from '../models/School'; // Modelo da escola
 import { ClassInterface } from '../interfaces/Class.interface';
+import User from '../models/User';
 
 class ClassController{
     public async create (req:Request, res:Response) : Promise<Response>{
@@ -85,7 +86,34 @@ class ClassController{
         return res.status(500).json({ message: err.message || "Erro interno do servidor" });
       }
     }
+    public async listPendingRequests(req: Request, res: Response): Promise<Response> {
+      try {
+        const { classId } = req.params;
     
+        const turma = await School.findById(classId);
+        if (!classId) {
+          return res.status(404).json({ message: "Escola não encontrada." });
+        }
+    
+        const pendingRequestIds = turma?.pendingRequests.map((request) => request.id);
+    
+        console.log("Pending Requests IDs:", pendingRequestIds);
+    
+        const pendingUsers = await User.find({
+          _id: { $in: pendingRequestIds },
+        });
+    
+        console.log("Pending Users Found:", pendingUsers.length);
+    
+        return res.status(200).json({
+          message: "Solicitações pendentes encontradas com sucesso.",
+          pendingUsers,
+        });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Erro ao listar solicitações pendentes." });
+      }
+    }
     
 }
 

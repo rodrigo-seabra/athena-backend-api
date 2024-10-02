@@ -49,6 +49,7 @@ class Routes {
     this.routes.post("/class", ClassController.create);
     this.routes.get("/class/:idschool", ClassController.getClassBySchool)
     this.routes.get("/getall/class",  ClassController.index);
+    this.routes.get('/class/:classId/pending-requests', ClassController.listPendingRequests); 
   }
 
   private StatsRoutes()
