@@ -184,7 +184,7 @@ class UserController {
       );
       await school.save();
 
-
+      const turma = await Class.find()
 
       user.approved = true;
       user.IdSchool = IdSchool;
@@ -219,10 +219,8 @@ class UserController {
       );
       await school.save();
 
-      await User.findByIdAndDelete(userId);
-
       return res.status(200).json({
-        message: "Solicitação do usuário rejeitada e usuário removido.",
+        message: "Solicitação do usuário rejeitada.",
       });
     } catch (error) {
       console.error("Erro ao rejeitar usuário:", error);
