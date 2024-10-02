@@ -181,8 +181,7 @@ class TaskController {
       const upcomingDueDate = new Date(currentDate);
       upcomingDueDate.setHours(currentDate.getHours() + 48);
 
-      if(userId)
-      {
+      if ( userId != "null")      {
         const dueSoonTasks = await Task.find({
           dueDate: { $gte: currentDate, $lt: upcomingDueDate },
           recipients: userId,
@@ -217,7 +216,7 @@ class TaskController {
     try {
       const { userId, teacherId } = req.params; 
 
-      if ( userId)
+      if ( userId != "null")
       {
         const allTasks = await Task.find({ 
           recipients: userId,
@@ -228,6 +227,7 @@ class TaskController {
         });
       }else if ( teacherId )
       {
+
         const allTasks = await Task.find({ 
           IdTeacher: teacherId 
         });

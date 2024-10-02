@@ -167,7 +167,7 @@ class UserController {
 
   public async approveUser(req: Request, res: Response): Promise<Response> {
     try {
-      const { userId, IdSchool, IdClass } = req.body;
+      const { userId, IdSchool } = req.body;
 
       const user = await User.findById(userId);
       if (!user) {
@@ -183,6 +183,35 @@ class UserController {
         (request) => request !== userId
       );
       await school.save();
+
+
+
+      user.approved = true;
+      user.IdSchool = IdSchool;
+      await user.save();
+
+      return res
+        .status(200)
+        .json({ message: "Usuário aprovado com sucesso.", user: user });
+    } catch (error) {
+      console.error("Erro ao aprovar usuário:", error);
+      return res.status(500).json({ message: "Erro ao aprovar usuário." });
+    }
+  }
+  
+  public async approveUserSchool(req: Request, res: Response): Promise<Response> {
+    try {
+      const { IdClass, userId } = req.body;
+
+      const turma = await Class.findById(IdClass);
+      if (!turma) {
+        return res.status(404).json({ message: "Classe não encontrado." });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "Usuário não encontrado." });
+      }
 
       if (user.role === "estudante") {
         const turma = await Class.findById(IdClass);
@@ -202,7 +231,6 @@ class UserController {
       }
 
       user.approved = true;
-      user.IdSchool = IdSchool;
       user.IdClass = user.role === "estudante" ? IdClass : "";
       await user.save();
 
