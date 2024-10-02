@@ -22,7 +22,7 @@ const TaskSchema = new Schema(
     attachment: {
       type: [String],
     },
-    professorId: {
+    IdTeacher: {
       type: String,
       required: true,
     },

@@ -4,7 +4,7 @@ export interface TaskInterface {
     dueDate: Date;                  
     recipients: string[];           
     attachment?: string[];         
-    professorId: string;   
+    IdTeacher: string;   
     class?: string;      
     status?: "em andamento" | "pronto";   
     school?: string,    

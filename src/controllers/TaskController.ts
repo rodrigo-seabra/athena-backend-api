@@ -37,14 +37,14 @@ class TaskController {
         status,
         recipients,
         attachment,
-        professorId,
+        IdTeacher,
         studentResponses,
         alternatives,
       } = req.body;
 
       console.log("Dados da tarefa recebidos:", req.body);
 
-      if (!subject || !content || !dueDate || !recipients || !professorId) {
+      if (!subject || !content || !dueDate || !recipients || !IdTeacher) {
         console.log("Erro: Campos obrigatórios não preenchidos.");
         return res.status(400).json({
           message: "Todos os campos obrigatórios devem ser preenchidos.",
@@ -68,7 +68,7 @@ class TaskController {
         dueDate,
         recipients,
         attachment,
-        professorId,
+        IdTeacher,
         studentResponses,
         status,
         class: classes,
@@ -206,122 +206,6 @@ class TaskController {
         .json({ message: "Response updated successfully", existingResponse });
     } catch (error: any) {
       console.error("Erro ao adicionar resposta do professor:", error);
-      return res.status(500).json({ message: error.message });
-    }
-  }
-
-  public async getTeacherStats(req: Request, res: Response): Promise<Response> {
-    try {
-      console.log("Obtendo estatísticas do professor...");
-
-      const { professorId } = req.params;
-      console.log("ID do professor recebido:", professorId);
-
-      if (!professorId) {
-        console.log("Erro: Professor ID está faltando.");
-        throw new Error("Professor ID está faltando");
-      }
-
-      const tasks = await Task.find({ professorId });
-      console.log("Tarefas encontradas para o professor:", tasks);
-
-      if (!tasks.length) {
-        console.log("Nenhuma tarefa encontrada para o professor.");
-        return res.status(200).json({
-          totalTasks: 0,
-          averageGrade: null,
-          overdueTasks: 0,
-          completedPercentage: 0,
-          inProgressPercentage: 0,
-          overduePercentage: 0,
-          dueSoonTasks: [],
-          overallClassGrade: null,
-        });
-      }
-
-      const totalTasks = tasks.length;
-      console.log("Total de tarefas encontradas:", totalTasks);
-
-      let totalGrade = 0;
-      let totalGradesCount = 0;
-      let overallClassGradeSum = 0;
-      let completedTasks = 0;
-      let inProgressTasks = 0;
-      let overdueTasks = 0;
-
-      const now = new Date();
-      const dueSoonTasks = tasks.filter((task) => {
-        const dueDate = new Date(task.dueDate);
-        return (
-          dueDate > now &&
-          dueDate <= new Date(now.getTime() + 48 * 60 * 60 * 1000)
-        );
-      });
-
-      console.log("Tarefas que estão quase vencendo:", dueSoonTasks);
-
-      tasks.forEach((task) => {
-        if (task.status === "pronto") completedTasks++;
-        if (task.status === "em andamento") inProgressTasks++;
-        if (task.dueDate < now) overdueTasks++;
-
-        const grades =
-          task.studentResponses
-            ?.map((response) => response.grade)
-            .filter((grade) => grade !== undefined) || [];
-        overallClassGradeSum += grades.reduce(
-          (acc, grade) => acc + (grade || 0),
-          0
-        );
-        totalGradesCount += grades.length;
-
-        totalGrade += grades.reduce((acc, grade) => acc + (grade || 0), 0);
-        totalGradesCount += grades.length;
-      });
-
-      console.log("Total de notas:", totalGrade);
-      console.log("Total de notas contadas:", totalGradesCount);
-
-      const averageGrade =
-        totalGradesCount > 0 ? totalGrade / totalGradesCount : null;
-      console.log("Média das notas:", averageGrade);
-
-      const completedPercentage = (
-        totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0
-      ).toFixed(2);
-      const inProgressPercentage = (
-        totalTasks > 0 ? (inProgressTasks / totalTasks) * 100 : 0
-      ).toFixed(2);
-      const overduePercentage = (
-        totalTasks > 0 ? (overdueTasks / totalTasks) * 100 : 0
-      ).toFixed(2);
-
-      const overallClassGrade =
-        totalGradesCount > 0 ? overallClassGradeSum / totalGradesCount : null;
-
-      console.log("Estatísticas do professor:", {
-        totalTasks,
-        averageGrade,
-        overdueTasks,
-        completedPercentage,
-        inProgressPercentage,
-        overduePercentage,
-        dueSoonTasks,
-        overallClassGrade,
-      });
-
-      return res.status(200).json({
-        totalTasks,
-        averageGrade,
-        overdueTasks,
-        completedPercentage,
-        inProgressPercentage,
-        overduePercentage,
-        dueSoonTasks,
-        overallClassGrade,
-      });
-    } catch (error: any) {
-      console.error("Erro ao obter estatísticas do professor:", error);
       return res.status(500).json({ message: error.message });
     }
   }

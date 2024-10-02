@@ -4,6 +4,7 @@ import SchoolController from "../controllers/SchoolController";
 import TaskController from "../controllers/TaskController";
 import ClassController from "../controllers/ClassController";
 import AuthMiddlware from "../middlewares/AuthMiddleware";
+import StatsController from "../controllers/StatsController";
 
 class Routes {
   public routes: Router;
@@ -13,6 +14,7 @@ class Routes {
     this.SchoolRoutes();
     this.TaskRoutes();
     this.ClassRoutes();
+    this.StatsRoutes();
   }
 
   private UserRoutes() {
@@ -34,15 +36,17 @@ class Routes {
     this.routes.post("/tasks/create", AuthMiddlware.Authorization, TaskController.create);
     this.routes.post("/tasks/response", AuthMiddlware.Authorization ,TaskController.addStudentResponse)
     this.routes.post("/tasks/correction", AuthMiddlware.Authorization,TaskController.addTeacherResponse)
-    this.routes.get("/tasks/stats/:professorId", TaskController.getTeacherStats)
     this.routes.get("/tasks/getId/:id", TaskController.getTaskById)
-
   }
   private ClassRoutes(){
-    this.routes.post("/class",ClassController.create);
+    this.routes.post("/class", ClassController.create);
     this.routes.get("/class/:idschool", ClassController.getClassBySchool)
     this.routes.get("/getall/class",  ClassController.index);
+  }
 
+  private StatsRoutes()
+  {
+    this.routes.get("/stats/:IdTeacher", StatsController.getTeacherStats)
   }
 
 
