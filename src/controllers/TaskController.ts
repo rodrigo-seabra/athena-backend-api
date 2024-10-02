@@ -6,6 +6,25 @@ import { UsersModel } from "../models/User";
 import { TaskInterface } from "../interfaces/Task.interface";
 
 class TaskController {
+
+  public async getTaskById(req: Request, res: Response): Promise<Response> {
+    try {  
+      const { id } = req.params;  
+      if (!id) {
+        return res.status(400).json({ message: "ID da tarefa não fornecido." });
+      }
+      const task = await Task.findById(id);
+      console.log("Tarefa encontrada:", task);
+      if (!task) {
+        return res.status(404).json({ message: "Tarefa não encontrada." });
+      }
+      return res.status(200).json(task);
+    } catch (error: any) {
+      return res.status(500).json({ message: "Erro ao buscar a tarefa." });
+    }
+  }
+  
+
   public async create(req: Request, res: Response): Promise<Response> {
     try {
       console.log("Iniciando a criação da tarefa...");
