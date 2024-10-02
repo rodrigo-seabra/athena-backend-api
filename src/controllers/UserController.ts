@@ -165,6 +165,23 @@ class UserController {
     }
   }
 
+  public async TeacherInSchool(req: Request, res: Response): Promise<Response> {
+    try {
+        const { IdSchool } = req.params;
+
+        if (!IdSchool) {
+            return res.status(400).json({ message: 'schoolId é obrigatório' });
+        }
+
+        const professores = await User.find({ role: 'professor', IdSchool });
+
+        return res.status(200).json(professores);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Erro ao buscar professores' });
+    }
+}
+
   public async approveUser(req: Request, res: Response): Promise<Response> {
     try {
       const { userId, IdSchool } = req.body;
