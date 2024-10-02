@@ -5,7 +5,7 @@ export interface TaskInterface {
     recipients: string[];           
     attachment?: string[];         
     IdTeacher: string;   
-    class?: string;      
+    IdClass?: string;      
     status?: "em andamento" | "pronto";   
     school?: string,    
     alternatives?: {

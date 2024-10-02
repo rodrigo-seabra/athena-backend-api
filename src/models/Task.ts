@@ -30,7 +30,7 @@ const TaskSchema = new Schema(
       type: String,
       enum: ["em andamento", "pronto"],
     },
-    class: {
+    IdClass: {
       type: String,
     },
     school: {

@@ -1,8 +1,238 @@
 import { Request, Response } from "express";
 import Task from "../models/Task";
 import Stats from "../models/Stats";
+import Class from "../models/Class";
 
 class StatsController {
+
+  public async getStatsBySchool(req: Request, res: Response): Promise<Response> {
+    try {
+      const { IdSchool } = req.params; 
+
+      if (!IdSchool) {
+        return res.status(400).json({ message: "ID da escola não fornecido." });
+      }
+
+      const tasks = await Task.find({});
+      const filteredTasks = tasks.filter(task => task.school === IdSchool);
+            if (!tasks.length) {
+        return res.status(200).json({
+          totalTasks: 0,
+          averageGrade: null,
+          overdueTasks: 0,
+          completedPercentage: 0,
+          inProgressPercentage: 0,
+          overduePercentage: 0,
+          dueSoonTasks: [],
+          overallClassGrade: null,
+        });
+      }
+
+      const totalTasks = tasks.length;
+      let totalGrade = 0;
+      let totalGradesCount = 0;
+      let completedTasks = 0;
+      let inProgressTasks = 0;
+      let overdueTasks = 0;
+
+      const now = new Date();
+      const dueSoonTasks = tasks.filter((task) => {
+        const dueDate = new Date(task.dueDate);
+        return (
+          dueDate > now &&
+          dueDate <= new Date(now.getTime() + 48 * 60 * 60 * 1000)
+        );
+      });
+
+      tasks.forEach((task) => {
+        if (task.status === "pronto") completedTasks++;
+        if (task.status === "em andamento") inProgressTasks++;
+        if (task.dueDate < now) overdueTasks++;
+
+        const grades =
+          task.studentResponses
+            ?.map((response) => response.grade)
+            .filter((grade) => grade !== undefined) || [];
+        
+        totalGrade += grades.reduce((acc, grade) => acc + (grade || 0), 0);
+        totalGradesCount += grades.length;
+      });
+
+      const averageGrade = totalGradesCount > 0 ? totalGrade / totalGradesCount : null;
+
+      const completedPercentage = (totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0).toFixed(2);
+      const inProgressPercentage = (totalTasks > 0 ? (inProgressTasks / totalTasks) * 100 : 0).toFixed(2);
+      const overduePercentage = (totalTasks > 0 ? (overdueTasks / totalTasks) * 100 : 0).toFixed(2);
+      const overallClassGrade = totalGradesCount > 0 ? totalGrade / totalGradesCount : null;
+
+      return res.status(200).json({
+        totalTasks,
+        averageGrade,
+        overdueTasks,
+        completedPercentage,
+        inProgressPercentage,
+        overduePercentage,
+        dueSoonTasks,
+        overallClassGrade,
+      });
+    } catch (error: any) {
+      console.error("Erro ao obter estatísticas da escola:", error);
+      return res.status(500).json({ message: "Erro ao obter estatísticas da escola." });
+    }
+  }
+
+  public async getStatsByClass(req: Request, res: Response): Promise<Response> {
+    try {
+      const { IdClass } = req.params; 
+
+      if (!IdClass) {
+        return res.status(400).json({ message: "ID da classe não fornecido." });
+      }
+
+      const tasks = await Task.find({ IdClass }); 
+      if (!tasks.length) {
+        return res.status(200).json({
+          totalTasks: 0,
+          averageGrade: null,
+          overdueTasks: 0,
+          completedPercentage: 0,
+          inProgressPercentage: 0,
+          overduePercentage: 0,
+          dueSoonTasks: [],
+          overallClassGrade: null,
+        });
+      }
+
+      const totalTasks = tasks.length;
+      let totalGrade = 0;
+      let totalGradesCount = 0;
+      let completedTasks = 0;
+      let inProgressTasks = 0;
+      let overdueTasks = 0;
+
+      const now = new Date();
+      const dueSoonTasks = tasks.filter((task) => {
+        const dueDate = new Date(task.dueDate);
+        return (
+          dueDate > now &&
+          dueDate <= new Date(now.getTime() + 48 * 60 * 60 * 1000)
+        );
+      });
+
+      tasks.forEach((task) => {
+        if (task.status === "pronto") completedTasks++;
+        if (task.status === "em andamento") inProgressTasks++;
+        if (task.dueDate < now) overdueTasks++;
+
+        const grades =
+          task.studentResponses
+            ?.map((response) => response.grade)
+            .filter((grade) => grade !== undefined) || [];
+        
+        totalGrade += grades.reduce((acc, grade) => acc + (grade || 0), 0);
+        totalGradesCount += grades.length;
+      });
+
+      const averageGrade = totalGradesCount > 0 ? totalGrade / totalGradesCount : null;
+
+      const completedPercentage = (totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0).toFixed(2);
+      const inProgressPercentage = (totalTasks > 0 ? (inProgressTasks / totalTasks) * 100 : 0).toFixed(2);
+      const overduePercentage = (totalTasks > 0 ? (overdueTasks / totalTasks) * 100 : 0).toFixed(2);
+      const overallClassGrade = totalGradesCount > 0 ? totalGrade / totalGradesCount : null;
+
+      return res.status(200).json({
+        totalTasks,
+        averageGrade,
+        overdueTasks,
+        completedPercentage,
+        inProgressPercentage,
+        overduePercentage,
+        dueSoonTasks,
+        overallClassGrade,
+      });
+    } catch (error: any) {
+      console.error("Erro ao obter estatísticas da classe:", error);
+      return res.status(500).json({ message: "Erro ao obter estatísticas da classe." });
+    }
+  }
+
+  public async getStatsByStudent(req: Request, res: Response): Promise<Response> {
+    try {
+      const { studentId } = req.params;
+      if (!studentId) {
+        return res.status(400).json({ message: "ID do aluno não fornecido." });
+      }
+      const userClass = await Class.findOne({ students: studentId });
+      if (!userClass) {
+        return res.status(404).json({ message: "Usuário não está em nenhuma classe." });
+      }
+
+      const tasks = await Task.find({ 
+        recipients: userClass._id,  
+      });
+
+      if (!tasks.length) {
+        return res.status(200).json({
+          totalTasks: 0,
+          averageGrade: null,
+          overdueTasks: 0,
+          completedPercentage: 0,
+          inProgressPercentage: 0,
+          overduePercentage: 0,
+          dueSoonTasks: [],
+        });
+      }
+
+      const totalTasks = tasks.length;
+      let totalGrade = 0;
+      let totalGradesCount = 0;
+      let completedTasks = 0;
+      let inProgressTasks = 0;
+      let overdueTasks = 0;
+
+      const now = new Date();
+      const dueSoonTasks = tasks.filter((task) => {
+        const dueDate = new Date(task.dueDate);
+        return (
+          dueDate > now &&
+          dueDate <= new Date(now.getTime() + 48 * 60 * 60 * 1000)
+        );
+      });
+
+      tasks.forEach((task) => {
+        const response = task.studentResponses?.find((resp) => resp.studentId === studentId);
+        if (response) {
+          if (response.grade !== undefined) {
+            totalGrade += response.grade;
+            totalGradesCount++;
+          }
+        }
+        if (task.status === "pronto") completedTasks++;
+        if (task.status === "em andamento") inProgressTasks++;
+        if (task.dueDate < now) overdueTasks++;
+      });
+
+      const averageGrade = totalGradesCount > 0 ? totalGrade / totalGradesCount : null;
+
+      const completedPercentage = (totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0).toFixed(2);
+      const inProgressPercentage = (totalTasks > 0 ? (inProgressTasks / totalTasks) * 100 : 0).toFixed(2);
+      const overduePercentage = (totalTasks > 0 ? (overdueTasks / totalTasks) * 100 : 0).toFixed(2);
+
+      return res.status(200).json({
+        totalTasks,
+        averageGrade,
+        overdueTasks,
+        completedPercentage,
+        inProgressPercentage,
+        overduePercentage,
+        dueSoonTasks,
+      });
+    } catch (error: any) {
+      console.error("Erro ao obter estatísticas do aluno:", error);
+      return res.status(500).json({ message: "Erro ao obter estatísticas do aluno." });
+    }
+  }
+
   public async generateAndSaveStats(req: Request, res: Response): Promise<Response> {
     try {
       const {
