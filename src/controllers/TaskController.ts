@@ -4,8 +4,101 @@ import { UsersInterface } from "../interfaces/User.interface";
 import TokenHelper from "../helpers/TokenHelper";
 import { UsersModel } from "../models/User";
 import { TaskInterface } from "../interfaces/Task.interface";
+import Class from "../models/Class";
 
 class TaskController {
+
+  public async getAllByUserByClass(req: Request, res: Response): Promise<Response> {
+    try {
+      const { userId } = req.params;
+  
+      if (userId) {
+        const userClass = await Class.findOne({ students: userId });
+        if (!userClass) {
+          return res.status(404).json({ message: "Usuário não está em nenhuma classe." });
+        }
+        const allTasks = await Task.find({ 
+          recipients: userClass._id,  
+        });
+        return res.status(200).json({
+          count: allTasks.length,
+          tasks: allTasks,
+        });
+      } 
+      return res.status(400).json({
+        message: "Invalid IDs"
+      });
+    } catch (error: any) {
+      console.error("Erro ao buscar todas as tarefas:", error);
+      return res.status(500).json({ message: "Erro ao buscar todas as tarefas." });
+    }
+  }
+
+  public async getTasksDueSoonByClass(req: Request, res: Response): Promise<Response> {
+    try {
+      const { userId } = req.params;
+      const currentDate = new Date();
+      const upcomingDueDate = new Date(currentDate);
+      upcomingDueDate.setHours(currentDate.getHours() + 48);
+  
+      if (userId) {
+        const userClass = await Class.findOne({ students: userId });
+        if (!userClass) {
+          return res.status(404).json({ message: "Usuário não está em nenhuma classe." });
+        }
+  
+        const dueSoonTasks = await Task.find({
+          dueDate: { $gte: currentDate, $lt: upcomingDueDate },
+          recipients: userClass._id,  
+        });
+  
+        return res.status(200).json({
+          count: dueSoonTasks.length,
+          tasks: dueSoonTasks,
+        });
+      } else {
+        return res.status(400).json({
+          message: "Invalid IDs"
+        });
+      }
+    } catch (error: any) {
+      console.error("Erro ao buscar tarefas em risco de atraso:", error);
+      return res.status(500).json({ message: "Erro ao buscar tarefas em risco de atraso." });
+    }
+  }
+
+  public async getOverdueTasksByClass(req: Request, res: Response): Promise<Response> {
+    try {
+      const { userId, teacherId } = req.params;
+      const currentDate = new Date();
+  
+      if (userId) {
+        const userClass = await Class.findOne({ students: userId });
+        if (!userClass) {
+          return res.status(404).json({ message: "Usuário não está em nenhuma classe." });
+        }
+  
+        const overdueTasks = await Task.find({ 
+          dueDate: { $lt: currentDate },
+          recipients: userClass._id,  
+        });
+  
+        return res.status(200).json({
+          count: overdueTasks.length,
+          tasks: overdueTasks,
+        });
+      }  else {
+        return res.status(400).json({
+          message: "Invalid IDs"
+        });
+      }
+  
+    } catch (error: any) {
+      console.error("Erro ao buscar tarefas atrasadas:", error);
+      return res.status(500).json({ message: "Erro ao buscar tarefas atrasadas." });
+    }
+  }
+
   public async getCompletedTasks(
     req: Request,
     res: Response

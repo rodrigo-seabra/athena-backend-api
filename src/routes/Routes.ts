@@ -41,6 +41,9 @@ class Routes {
     this.routes.get("/tasks/dueSoon/:userId?/:teacherId?", TaskController.getTasksDueSoon)
     this.routes.get("/tasks/overdue/:userId?/:teacherId?",  TaskController.getOverdueTasks)
     this.routes.get('/tasks/getalluser/:userId?/:teacherId?', TaskController.getAllTasks)
+    this.routes.get("/task/getall/userbyclass/:userId", TaskController.getAllByUserByClass)
+    this.routes.get("/tasks/overdue/userbyclass/:userId", TaskController.getOverdueTasksByClass )
+    this.routes.get("/tasks/dueSoon/userbyclass/:userId", TaskController.getTasksDueSoonByClass)
   }
   private ClassRoutes(){
     this.routes.post("/class", ClassController.create);
