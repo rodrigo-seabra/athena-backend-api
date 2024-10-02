@@ -6,10 +6,157 @@ import { UsersModel } from "../models/User";
 import { TaskInterface } from "../interfaces/Task.interface";
 
 class TaskController {
+  public async getCompletedTasks(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
+    try {
+      const { userId, teacherId } = req.body;
+      if (userId) {
+        const completedTasks = await Task.find({
+          "studentResponses.graded": true,
+          "studentResponses.studentId": userId,
+        });
+        return res.status(200).json({
+          count: completedTasks.length,
+          tasks: completedTasks,
+        });
+      } else if (teacherId) {
+        const completedTasks = await Task.find({
+          "studentResponses.graded": true,
+          IdTeacher: teacherId,
+        });
+        return res.status(200).json({
+          count: completedTasks.length,
+          tasks: completedTasks,
+        });
+      } else{
+        return res.status(404).send({
+          message: "Tasks not found"
+        })
+      }
+    } catch (error: any) {
+      console.error("Erro ao buscar tarefas concluídas:", error);
+      return res
+        .status(500)
+        .json({ message: "Erro ao buscar tarefas concluídas." });
+    }
+  }
 
+
+  public async getOverdueTasks(req: Request, res: Response): Promise<Response> {
+    try {
+      const { userId, teacherId } = req.params; 
+      const currentDate = new Date();
+      if(userId)
+      {
+        const overdueTasks = await Task.find({ 
+          dueDate: { $lt: currentDate },
+          recipients: userId,
+        });
+        return res.status(200).json({
+          count: overdueTasks.length,
+          tasks: overdueTasks,
+        });
+      }else if (teacherId)
+      {
+        const overdueTasks = await Task.find({ 
+          dueDate: { $lt: currentDate },
+          IdTeacher: teacherId 
+        });
+  
+        return res.status(200).json({
+          count: overdueTasks.length,
+          tasks: overdueTasks,
+        });
+      }else{
+        return res.status(400).json({
+          message: "Invalid IDS"
+        });      
+      }
+
+    } catch (error: any) {
+      console.error("Erro ao buscar tarefas atrasadas:", error);
+      return res.status(500).json({ message: "Erro ao buscar tarefas atrasadas." });
+    }
+  }
+
+  public async getTasksDueSoon(req: Request, res: Response): Promise<Response> {
+    try {
+      const { userId, teacherId } = req.params; // Obtém userId e teacherId da requisição
+      const currentDate = new Date();
+      const upcomingDueDate = new Date(currentDate);
+      upcomingDueDate.setHours(currentDate.getHours() + 48);
+
+      if(userId)
+      {
+        const dueSoonTasks = await Task.find({
+          dueDate: { $gte: currentDate, $lt: upcomingDueDate },
+          recipients: userId,
+        });
+        return res.status(200).json({
+          count: dueSoonTasks.length,
+          tasks: dueSoonTasks,
+        });
+      }else if( teacherId )
+      {
+        const dueSoonTasks = await Task.find({
+          dueDate: { $gte: currentDate, $lt: upcomingDueDate },
+          IdTeacher: teacherId
+        });
+        return res.status(200).json({
+          count: dueSoonTasks.length,
+          tasks: dueSoonTasks,
+        });
+      }else{
+
+        return res.status(400).json({
+          message: "Invalid IDS"
+        });      
+      }
+    } catch (error: any) {
+      console.error("Erro ao buscar tarefas em risco de atraso:", error);
+      return res.status(500).json({ message: "Erro ao buscar tarefas em risco de atraso." });
+    }
+  }
+
+  public async getAllTasks(req: Request, res: Response): Promise<Response> {
+    try {
+      const { userId, teacherId } = req.params; 
+
+      if ( userId)
+      {
+        const allTasks = await Task.find({ 
+          recipients: userId,
+        });
+        return res.status(200).json({
+          count: allTasks.length,
+          tasks: allTasks,
+        });
+      }else if ( teacherId )
+      {
+        const allTasks = await Task.find({ 
+          IdTeacher: teacherId 
+        });
+        return res.status(200).json({
+          count: allTasks.length,
+          tasks: allTasks,
+        });
+      }
+
+
+      return res.status(400).json({
+        message: "Invalid IDS"
+      });
+    } catch (error: any) {
+      console.error("Erro ao buscar todas as tarefas:", error);
+      return res.status(500).json({ message: "Erro ao buscar todas as tarefas." });
+    }
+  }
+  
   public async getTaskById(req: Request, res: Response): Promise<Response> {
-    try {  
-      const { id } = req.params;  
+    try {
+      const { id } = req.params;
       if (!id) {
         return res.status(400).json({ message: "ID da tarefa não fornecido." });
       }
@@ -23,7 +170,6 @@ class TaskController {
       return res.status(500).json({ message: "Erro ao buscar a tarefa." });
     }
   }
-  
 
   public async create(req: Request, res: Response): Promise<Response> {
     try {
@@ -53,9 +199,11 @@ class TaskController {
 
       const existingTask = await Task.findOne({ subject, dueDate });
       console.log("Verificando se a tarefa já existe:", existingTask);
-      
+
       if (existingTask) {
-        console.log("Erro: Já existe uma tarefa com o mesmo assunto e data de vencimento.");
+        console.log(
+          "Erro: Já existe uma tarefa com o mesmo assunto e data de vencimento."
+        );
         return res.status(400).json({
           message:
             "Já existe uma tarefa com o mesmo assunto e data de vencimento.",
@@ -90,11 +238,15 @@ class TaskController {
     }
   }
 
-  public async addStudentResponse(req: Request, res: Response): Promise<Response> {
+  public async addStudentResponse(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
     try {
       console.log("Adicionando resposta do estudante...");
 
-      const { idTask, responseContent, selectedAlternative, attachment } = req.body;
+      const { idTask, responseContent, selectedAlternative, attachment } =
+        req.body;
       let user: UsersModel | null = TokenHelper.User;
 
       console.log("Dados recebidos para adicionar resposta:", req.body);
@@ -148,7 +300,10 @@ class TaskController {
         submissionDate: new Date(),
       });
 
-      console.log("Respostas do estudante atualizadas:", existingTask.studentResponses);
+      console.log(
+        "Respostas do estudante atualizadas:",
+        existingTask.studentResponses
+      );
 
       await existingTask.save();
       console.log("Tarefa salva com a nova resposta.");
@@ -163,14 +318,20 @@ class TaskController {
     }
   }
 
-  public async addTeacherResponse(req: Request, res: Response): Promise<Response> {
+  public async addTeacherResponse(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
     try {
       console.log("Adicionando resposta do professor...");
 
       const { idStudent, idTask } = req.body;
 
       const existingTask = await Task.findOne({ _id: idTask });
-      console.log("Verificando a tarefa para resposta do professor:", existingTask);
+      console.log(
+        "Verificando a tarefa para resposta do professor:",
+        existingTask
+      );
 
       if (!existingTask) {
         console.log("Erro: Tarefa não encontrada.");
@@ -199,7 +360,10 @@ class TaskController {
       existingResponse.graded = true;
 
       await existingTask.save();
-      console.log("Resposta do estudante atualizada com sucesso:", existingResponse);
+      console.log(
+        "Resposta do estudante atualizada com sucesso:",
+        existingResponse
+      );
 
       return res
         .status(200)

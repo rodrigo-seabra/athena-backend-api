@@ -86,6 +86,7 @@ class ClassController{
       }
     }
     
+    
 }
 
 export default new ClassController();

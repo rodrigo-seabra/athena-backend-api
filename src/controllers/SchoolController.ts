@@ -16,8 +16,6 @@ class SchoolController {
       return res.status(500).json({ message: "Erro ao buscar instituições" });
     }
   }
-
-
   public async schoolData (req: Request, res: Response) : Promise<Response>
   {
     const school = TokenHelper.School;
@@ -27,7 +25,6 @@ class SchoolController {
     }
     return res.status(200).send({message: school})
   }
-  
   public async create(req: Request, res: Response): Promise<Response> {
     try {
       const {
@@ -59,9 +56,7 @@ class SchoolController {
             message: "Esta instituição já está cadastrada com este CNPJ.",
           });
       }
-
       const hashedPassword = await bcrypt.hash(password, saltRounds);
-
       const newSchool: SchoolsModels = new School({
         name,
         inepCode,
@@ -122,13 +117,11 @@ class SchoolController {
     try {
       const { schoolId } = req.params;
 
-      // Verificar se a escola existe
       const school = await School.findById(schoolId);
       if (!school) {
         return res.status(404).json({ message: "Escola não encontrada." });
       }
 
-      // Buscar usuários pendentes
       const pendingUsers = await User.find({
         _id: { $in: school.pendingRequests },
       });

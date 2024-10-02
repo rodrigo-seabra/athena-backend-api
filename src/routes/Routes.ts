@@ -37,6 +37,10 @@ class Routes {
     this.routes.post("/tasks/response", AuthMiddlware.Authorization ,TaskController.addStudentResponse)
     this.routes.post("/tasks/correction", AuthMiddlware.Authorization,TaskController.addTeacherResponse)
     this.routes.get("/tasks/getId/:id", TaskController.getTaskById)
+    this.routes.get("/tasks/completed/:userId?/:teacherId?", TaskController.getCompletedTasks)
+    this.routes.get("/tasks/dueSoon/:userId?/:teacherId?", TaskController.getTasksDueSoon)
+    this.routes.get("/tasks/overdue/:userId?/:teacherId?",  TaskController.getOverdueTasks)
+    this.routes.get('/tasks/getalluser/:userId?/:teacherId?', TaskController.getAllTasks)
   }
   private ClassRoutes(){
     this.routes.post("/class", ClassController.create);
