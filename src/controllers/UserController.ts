@@ -102,7 +102,7 @@ class UserController {
           city: address.city,
         },
         IdSchool: "",
-        IdClass: "",
+        IdClass: IdClass,
         approved: false,
       });
 
@@ -199,49 +199,6 @@ class UserController {
     }
   }
   
-  public async approveUserSchool(req: Request, res: Response): Promise<Response> {
-    try {
-      const { IdClass, userId } = req.body;
-
-      const turma = await Class.findById(IdClass);
-      if (!turma) {
-        return res.status(404).json({ message: "Classe não encontrado." });
-      }
-
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: "Usuário não encontrado." });
-      }
-
-      if (user.role === "estudante") {
-        const turma = await Class.findById(IdClass);
-        if (!turma) {
-          return res.status(404).json({ message: "Turma não encontrada." });
-        }
-
-        turma.pendingRequests = turma.pendingRequests?.filter(
-          (request) => request !== userId
-        );
-        if (!turma.students) {
-          turma.students = [];
-        }
-        turma.students.push(userId);
-
-        await turma.save();
-      }
-
-      user.approved = true;
-      user.IdClass = user.role === "estudante" ? IdClass : "";
-      await user.save();
-
-      return res
-        .status(200)
-        .json({ message: "Usuário aprovado com sucesso.", user: user });
-    } catch (error) {
-      console.error("Erro ao aprovar usuário:", error);
-      return res.status(500).json({ message: "Erro ao aprovar usuário." });
-    }
-  }
 
   public async rejectUser(req: Request, res: Response): Promise<Response> {
     try {
