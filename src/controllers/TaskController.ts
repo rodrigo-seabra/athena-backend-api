@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Task from "../models/Task";
 import { UsersInterface } from "../interfaces/User.interface";
 import TokenHelper from "../helpers/TokenHelper";
-import { UsersModel } from "../models/User";
+import User, { UsersModel } from "../models/User";
 import { TaskInterface } from "../interfaces/Task.interface";
 import Class from "../models/Class";
 
@@ -17,14 +17,25 @@ class TaskController {
         if (!userClass) {
           return res.status(404).json({ message: "Usuário não está em nenhuma classe." });
         }
+  
         const allTasks = await Task.find({ 
           recipients: userClass._id,  
         });
+  
+        const tasksWithTeacherNames = await Promise.all(allTasks.map(async (task) => {
+          const teacher = await User.findById(task.IdTeacher); 
+          return {
+            ...task.toObject(), 
+            teacherName: teacher ? teacher.name : "Professor não encontrado", 
+          };
+        }));
+  
         return res.status(200).json({
-          count: allTasks.length,
-          tasks: allTasks,
+          count: tasksWithTeacherNames.length,
+          tasks: tasksWithTeacherNames,
         });
       } 
+      
       return res.status(400).json({
         message: "Invalid IDs"
       });
@@ -33,24 +44,43 @@ class TaskController {
       return res.status(500).json({ message: "Erro ao buscar todas as tarefas." });
     }
   }
+  
   public async getAllCompleteByUserByClass(req: Request, res: Response): Promise<Response> {
     try {
       const { userId } = req.params;
   
       if (userId) {
+      
         const userClass = await Class.findOne({ students: userId });
         if (!userClass) {
           return res.status(404).json({ message: "Usuário não está em nenhuma classe." });
         }
+  
         const allTasks = await Task.find({ 
           recipients: userClass._id,
           status: "pronto"  
         });
+  
+        if (allTasks.length === 0) {
+          return res.status(200).json({
+            count: 0,
+            tasks: [],
+          });
+        }
+          const tasksWithTeacherNames = await Promise.all(allTasks.map(async (task) => {
+          const teacher = await User.findById(task.IdTeacher); 
+          return {
+            ...task.toObject(), 
+            teacherName: teacher ? teacher.name : "Professor não encontrado", 
+          };
+        }));
+  
         return res.status(200).json({
-          count: allTasks.length,
-          tasks: allTasks,
+          count: tasksWithTeacherNames.length,
+          tasks: tasksWithTeacherNames,
         });
       } 
+      
       return res.status(400).json({
         message: "Invalid IDs"
       });
@@ -79,9 +109,17 @@ class TaskController {
           recipients: userClass._id,  
         });
   
+        const tasksWithTeacherNames = await Promise.all(dueSoonTasks.map(async (task) => {
+          const teacher = await User.findById(task.IdTeacher); 
+          return {
+            ...task.toObject(), 
+            teacherName: teacher ? teacher.name : "Professor não encontrado", 
+          };
+        }));
+  
         return res.status(200).json({
-          count: dueSoonTasks.length,
-          tasks: dueSoonTasks,
+          count: tasksWithTeacherNames.length,
+          tasks: tasksWithTeacherNames,
         });
       } else {
         return res.status(400).json({
@@ -93,10 +131,11 @@ class TaskController {
       return res.status(500).json({ message: "Erro ao buscar tarefas em risco de atraso." });
     }
   }
+  
 
   public async getOverdueTasksByClass(req: Request, res: Response): Promise<Response> {
     try {
-      const { userId, teacherId } = req.params;
+      const { userId } = req.params;
       const currentDate = new Date();
   
       if (userId) {
@@ -110,11 +149,20 @@ class TaskController {
           recipients: userClass._id,  
         });
   
+       
+        const tasksWithTeacherNames = await Promise.all(overdueTasks.map(async (task) => {
+          const teacher = await User.findById(task.IdTeacher); 
+          return {
+            ...task.toObject(), 
+            teacherName: teacher ? teacher.name : "Professor não encontrado", 
+          };
+        }));
+  
         return res.status(200).json({
-          count: overdueTasks.length,
-          tasks: overdueTasks,
+          count: tasksWithTeacherNames.length,
+          tasks: tasksWithTeacherNames,
         });
-      }  else {
+      } else {
         return res.status(400).json({
           message: "Invalid IDs"
         });
@@ -125,6 +173,7 @@ class TaskController {
       return res.status(500).json({ message: "Erro ao buscar tarefas atrasadas." });
     }
   }
+  
 
   public async getCompletedTasks(
     req: Request,

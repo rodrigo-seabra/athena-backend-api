@@ -35,6 +35,7 @@ class AuthMiddlware {
 
     next();
   }
+  
 
   public async BasicAuth(req: Request, res: Response, next: NextFunction) : Promise<void | Response>
   {

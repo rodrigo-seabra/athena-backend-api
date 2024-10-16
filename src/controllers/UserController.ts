@@ -143,6 +143,7 @@ class UserController {
     }
   }
 
+  
   public async login(req: Request, res: Response): Promise<Response> {
     const { email, password } = req.body as UsersModel;
     let userFind: UsersModel | null = await User.findOne({ email: email });

@@ -169,8 +169,9 @@ class StatsController {
       }
 
       const tasks = await Task.find({ 
-        recipients: String(userClass._id),  
+        recipients: userClass._id,  
       });
+
 
       if (!tasks.length) {
         return res.status(200).json({
