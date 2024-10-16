@@ -5,6 +5,8 @@ import TaskController from "../controllers/TaskController";
 import ClassController from "../controllers/ClassController";
 import AuthMiddlware from "../middlewares/AuthMiddleware";
 import StatsController from "../controllers/StatsController";
+import AssisthenaRoutes from './AssisthenaRoutes';
+
 
 class Routes {
   public routes: Router;
@@ -15,6 +17,11 @@ class Routes {
     this.TaskRoutes();
     this.ClassRoutes();
     this.StatsRoutes();
+    this.AssisthenaRoutes(); 
+
+  }
+  private AssisthenaRoutes() {
+    this.routes.use('/teste', AssisthenaRoutes);
   }
 
   private UserRoutes() {

@@ -1,0 +1,93 @@
+{
+  "tarefas": {
+    "criar_tarefa": [
+      "Para criar uma nova tarefa, acesse o menu de turmas e siga as instruções na tela.",
+      "Você pode adicionar uma nova tarefa clicando na opção de criação no menu de turmas. É simples e rápido!",
+      "Acesse o menu de turmas para iniciar a criação de uma nova tarefa. Lembre-se de preencher todos os campos obrigatórios.",
+      "Se você deseja criar uma tarefa, vá até o menu de turmas e selecione a opção de 'Adicionar Tarefa'.",
+      "Para iniciar a criação de uma tarefa, acesse o menu de turmas e clique na opção correspondente."
+    ],
+    "consultar_tarefas": [
+      "As suas tarefas podem ser consultadas na aba de avaliações. Basta selecionar a matéria desejada para visualizar os detalhes.",
+      "Para verificar suas tarefas, dirija-se até a aba de avaliações e clique na disciplina que deseja conferir."
+    ],
+    "finalizar_tarefa": [
+      "Ótimo! Se você concluiu a tarefa, lembre-se de marcar como finalizada no sistema para manter seu registro atualizado."
+    ]
+  },
+  "ajuda": {
+    "pedir_ajuda": [
+      "Se precisar de ajuda, entre em contato com o suporte pelo chat ou consulte a seção de FAQ. Estamos aqui para ajudar!",
+      "Não hesite em buscar assistência através do suporte ou verificando as perguntas frequentes disponíveis."
+    ]
+  },
+  "materiais_de_estudo": {
+    "pedir_material_de_estudo": [
+      "Você pode acessar o portal da biblioteca para encontrar materiais de estudo. Precisa de ajuda para encontrar algo específico?",
+      "Recomendo dar uma olhada na nossa coleção de livros digitais na área de história. Posso enviar o link?"
+    ],
+    "pedir_sugestoes_de_estudo": [
+      "Sugiro focar primeiro nos temas principais das aulas recentes. Se precisar de um cronograma de estudo, posso ajudar a montar.",
+      "Para a prova de história, o ideal é começar com os períodos mais importantes, como a Era Colonial."
+    ]
+  },
+  "disciplinas": {
+    "matematica": {
+      "duvidas": [
+        "Para resolver essa equação, comece isolando a variável. Quer que eu te explique o passo a passo?",
+        "A próxima prova de matemática terá questões sobre equações e geometria. Posso sugerir exercícios?"
+      ],
+      "videos": [
+        "Para aprimorar seus conhecimentos em matemática, assista a este vídeo sobre resolução de equações: {{math_video_link}}.",
+        "Este vídeo explica de forma clara como resolver equações: {{math_video_link}}."
+      ],
+      "pedir_explicacao_de_conceito": [
+        "Uma equação de segundo grau é uma equação polinomial que tem o formato ax² + bx + c = 0. Quer saber como resolver?"
+      ]
+    },
+    "portugues": {
+      "duvidas": [
+        "Quer entender melhor a gramática portuguesa? Confira este vídeo: {{portuguese_video_link}}.",
+        "Este vídeo oferece uma explicação abrangente das regras gramaticais: {{portuguese_video_link}}."
+      ],
+      "pedir_explicacao_de_conceito": [
+        "A análise sintática é fundamental para entender a estrutura das frases. Quer que eu explique como funciona?"
+      ]
+    },
+    "historia": {
+      "duvidas": [
+        "A Revolução Industrial foi uma grande mudança na produção. Precisa de mais informações sobre as causas e efeitos?",
+        "A prova de história vai abordar a Era Moderna e o Brasil Colonial. Quer um resumo de cada tema?"
+      ]
+    },
+    "ciencias": {
+      "duvidas": [
+        "A fotossíntese é o processo pelo qual as plantas transformam luz solar em energia. Quer que eu explique com mais detalhes?"
+      ]
+    }
+  },
+  "desempenho": {
+    "pedir_comentarios": [
+      "Você teve um bom desempenho na prova de química, acertou 80% das questões! Se precisar de ajuda para melhorar, estou aqui.",
+      "Seu desempenho nas últimas tarefas foi consistente. Acertou 85% na média. Quer revisar os pontos onde teve mais dificuldade?"
+    ]
+  },
+  "roteiro_de_estudos": {
+    "pedir_roteiro": [
+      "Claro! Vamos criar um plano de estudos. Quantas horas por dia você pode dedicar aos estudos?",
+      "Vamos organizar um cronograma eficiente. Qual matéria você gostaria de estudar primeiro?"
+    ]
+  },
+  "datas_de_provas": {
+    "perguntar_datas": [
+      "A prova de matemática será na próxima terça-feira. Está se preparando bem?",
+      "A prova de português será daqui a duas semanas. Posso te ajudar a planejar os estudos até lá?"
+    ]
+  },
+  "duvidas_sobre_teste": {
+    "duvida_sobre_testes": [
+      "A prova de matemática terá 20 questões objetivas. Precisa de ajuda para revisar algum conteúdo?",
+      "A prova de história será composta por questões dissertativas. Quer dicas sobre como estruturar suas respostas?"
+    ]
+  }
+}
