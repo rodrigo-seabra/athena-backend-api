@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
 import Task from "../models/Task";
-import { UsersInterface } from "../interfaces/User.interface";
 import TokenHelper from "../helpers/TokenHelper";
 import User, { UsersModel } from "../models/User";
-import { TaskInterface } from "../interfaces/Task.interface";
 import Class from "../models/Class";
 
 class TaskController {
