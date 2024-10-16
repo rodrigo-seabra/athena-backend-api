@@ -35,6 +35,7 @@ class Routes {
     this.routes.get("/school/data", AuthMiddlware.schoolAuthorization, SchoolController.schoolData)
   }
   private TaskRoutes(){
+    this.routes.get("/tasks/responsesbytask/:taskId", TaskController.getTaskResponsesById)
     this.routes.post("/tasks/create", AuthMiddlware.Authorization, TaskController.create);
     this.routes.post("/tasks/response", AuthMiddlware.Authorization ,TaskController.addStudentResponse)
     this.routes.post("/tasks/correction", AuthMiddlware.Authorization,TaskController.addTeacherResponse)

@@ -322,6 +322,35 @@ class TaskController {
       return res.status(500).json({ message: "Erro ao buscar todas as tarefas." });
     }
   }
+
+  public async getTaskResponsesById(req: Request, res: Response): Promise<Response> {
+    try {
+      const { taskId } = req.params;
+
+      if (!taskId) {
+        return res.status(400).json({ message: "ID da tarefa não fornecido." });
+      }
+
+      const task = await Task.findById(taskId);
+
+      if (!task) {
+        return res.status(404).json({ message: "Tarefa não encontrada." });
+      }
+
+      const responses = task.studentResponses;
+      if (!responses || responses.length === 0) {
+        return res.status(404).json({ message: "Nenhuma resposta encontrada para esta tarefa." });
+      }
+
+      return res.status(200).json({
+        taskId: task._id,
+        responses: responses,
+      });
+    } catch (error: any) {
+      console.error("Erro ao buscar respostas da tarefa:", error);
+      return res.status(500).json({ message: "Erro ao buscar respostas da tarefa." });
+    }
+  }
   
   public async getTaskById(req: Request, res: Response): Promise<Response> {
     try {
