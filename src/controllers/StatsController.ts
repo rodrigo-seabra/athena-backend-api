@@ -158,6 +158,7 @@ class StatsController {
 
   public async getStatsByStudent(req: Request, res: Response): Promise<Response> {
     try {
+
       const { studentId } = req.params;
       if (!studentId) {
         return res.status(400).json({ message: "ID do aluno não fornecido." });
@@ -168,7 +169,7 @@ class StatsController {
       }
 
       const tasks = await Task.find({ 
-        recipients: userClass._id,  
+        recipients: String(userClass._id),  
       });
 
       if (!tasks.length) {

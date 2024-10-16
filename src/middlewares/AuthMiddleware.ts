@@ -9,6 +9,54 @@ interface JwtPayloadWithCPF extends JwtPayload {
 }
 
 class AuthMiddlware {
+  public async teacherAuth(req: Request, res: Response, next: NextFunction) : Promise<void | Response>
+  {
+    try {
+      const tokenValidationResult = await TokenHelper.validateToken(req);
+
+      if (tokenValidationResult !== true) {
+        return res.status(403).json({ message: "Acesso negado!" });
+      }
+
+      const role = TokenHelper.Role;
+      if (!role) {
+        return res.status(403).json({ message: "Usuário não encontrado!" });
+      }
+
+      const path = req.path;
+      if( role !== "professor")
+      {
+        return res.status(403).json({ message: "Acesso negado!" });
+      }
+
+    } catch (err: any) {
+      return res.status(401).json({ message: err.message });
+    }
+
+    next();
+  }
+
+  public async BasicAuth(req: Request, res: Response, next: NextFunction) : Promise<void | Response>
+  {
+    try {
+      const tokenValidationResult = await TokenHelper.validateToken(req);
+
+      if (tokenValidationResult !== true) {
+        return res.status(403).json({ message: "Acesso negado!" });
+      }
+
+      const role = TokenHelper.Role;
+      if (!role) {
+        return res.status(403).json({ message: "Usuário não encontrado!" });
+      }
+
+    } catch (err: any) {
+      return res.status(401).json({ message: err.message });
+    }
+
+    next();
+  }
+
   public async Authorization(
     req: Request,
     res: Response,

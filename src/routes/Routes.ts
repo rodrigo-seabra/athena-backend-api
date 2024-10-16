@@ -31,24 +31,26 @@ class Routes {
     this.routes.get("/school", SchoolController.index);
     this.routes.post("/school/create", SchoolController.create);
     this.routes.post("/school/login", SchoolController.login);
-    this.routes.get('/schools/:schoolId/pending-requests', SchoolController.listPendingRequests); 
+    this.routes.get('/schools/:schoolId/pending-requests', AuthMiddlware.schoolAuthorization , SchoolController.listPendingRequests); 
     this.routes.get("/school/data", AuthMiddlware.schoolAuthorization, SchoolController.schoolData)
   }
   private TaskRoutes(){
     this.routes.post("/tasks/create", AuthMiddlware.Authorization, TaskController.create);
     this.routes.post("/tasks/response", AuthMiddlware.Authorization ,TaskController.addStudentResponse)
     this.routes.post("/tasks/correction", AuthMiddlware.Authorization,TaskController.addTeacherResponse)
-    this.routes.get("/tasks/getId/:id", TaskController.getTaskById)
-    this.routes.get("/tasks/completed/:userId?/:teacherId?", TaskController.getCompletedTasks)
+    this.routes.get("/tasks/getId/:id", AuthMiddlware.BasicAuth ,TaskController.getTaskById)
+    this.routes.get("/tasks/completed/:userId?/:teacherId?", AuthMiddlware.BasicAuth ,TaskController.getCompletedTasks)
     this.routes.get("/tasks/dueSoon/:userId?/:teacherId?", TaskController.getTasksDueSoon)
     this.routes.get("/tasks/overdue/:userId?/:teacherId?",  TaskController.getOverdueTasks)
     this.routes.get('/tasks/getalluser/:userId?/:teacherId?', TaskController.getAllTasks)
     this.routes.get("/task/getall/userbyclass/:userId", TaskController.getAllByUserByClass)
     this.routes.get("/tasks/overdue/userbyclass/:userId", TaskController.getOverdueTasksByClass )
     this.routes.get("/tasks/dueSoon/userbyclass/:userId", TaskController.getTasksDueSoonByClass)
+    this.routes.get("/tasks/completed/userbyclass/:userId", TaskController.getAllCompleteByUserByClass)
+
   }
   private ClassRoutes(){
-    this.routes.post("/class", ClassController.create);
+    this.routes.post("/class", AuthMiddlware.schoolAuthorization, ClassController.create);
     this.routes.get("/class/:idschool", ClassController.getClassBySchool)
     this.routes.get("/getall/class",  ClassController.index);
     this.routes.get('/class/:classId/pending-requests', ClassController.listPendingRequests); 

@@ -33,6 +33,33 @@ class TaskController {
       return res.status(500).json({ message: "Erro ao buscar todas as tarefas." });
     }
   }
+  public async getAllCompleteByUserByClass(req: Request, res: Response): Promise<Response> {
+    try {
+      const { userId } = req.params;
+  
+      if (userId) {
+        const userClass = await Class.findOne({ students: userId });
+        if (!userClass) {
+          return res.status(404).json({ message: "Usuário não está em nenhuma classe." });
+        }
+        const allTasks = await Task.find({ 
+          recipients: userClass._id,
+          status: "pronto"  
+        });
+        return res.status(200).json({
+          count: allTasks.length,
+          tasks: allTasks,
+        });
+      } 
+      return res.status(400).json({
+        message: "Invalid IDs"
+      });
+    } catch (error: any) {
+      console.error("Erro ao buscar todas as tarefas:", error);
+      return res.status(500).json({ message: "Erro ao buscar todas as tarefas." });
+    }
+  }
+  
 
   public async getTasksDueSoonByClass(req: Request, res: Response): Promise<Response> {
     try {
