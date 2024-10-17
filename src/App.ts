@@ -12,6 +12,7 @@ class App{
         this.middleware();
         this.routes();
         this.express.listen(process.env.PORT || 8080);
+        console.log(`run on port ${process.env.PORT}`)
       }
       private middleware(): void {
         this.express.use(express.json());
