@@ -21,6 +21,10 @@ export class AssisthenaService {
   }
 
   private trainClassifier() {
+    //pedido de feedback professor
+    this.classifier.addDocument('o professor esta pedindo mais detalhes e feedbacks e insights sobre o 7 ano B', 'response_for_7B_class_professor' )
+    this.classifier.addDocument('o professor esta pedindo mais detalhes e feedbacks e insights sobre o 7 ano B', 'response_for_7B_class_professor');
+
     // História
     this.classifier.addDocument('quais temas são importantes na história', 'duvidas_historicas_conteudo');
     this.classifier.addDocument('como ensinar revolução industrial', 'metodologia_historica');
@@ -83,7 +87,7 @@ export class AssisthenaService {
   classifyMessage(message: string): string {
     const result = this.classifier.getClassifications(message);
     if (result.length > 0) {
-      return result[0].label; // Retorna a intenção mais provável
+      return result[0].label; 
     }
     return 'default';
   }
@@ -99,12 +103,13 @@ export class AssisthenaService {
     return sentiment >= 0 ? 'positive' : 'negative';
   }
 
-  // Método para obter a resposta para a intenção classificada
   getResponseForIntent(intent: string, userType: string): string {
-    if (!this.answers[intent] || !this.answers[intent][userType]) {
-      return 'Desculpe, não entendi sua pergunta.';
-    }
-    const responses = this.answers[intent][userType];
-    return responses[Math.floor(Math.random() * responses.length)];
+      if (!this.answers[intent] || !this.answers[intent][userType]) {
+        return 'Desculpe, não entendi sua pergunta.';
+      }
+      const responses = this.answers[intent][userType];
+      return responses[Math.floor(Math.random() * responses.length)];
+
+    
   }
 }
