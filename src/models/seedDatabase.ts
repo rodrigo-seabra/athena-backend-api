@@ -2,8 +2,9 @@ import mongoose from 'mongoose';
 import School from './School'; // ajuste o caminho conforme necessário
 import User from './User'; // ajuste o caminho conforme necessário
 import Task from './Task'; // ajuste o caminho conforme necessário
+import "dotenv/config";
 
-const mongoURI = 'mongodb://localhost:27017/Athena'; // substitua pelo seu URI do MongoDB
+const mongoURI =  process.env.CONNECTIONSTRING ||'mongodb://localhost:27017/Athena'; // substitua pelo seu URI do MongoDB
 
 async function seedDatabase() {
   await mongoose.connect(mongoURI);
