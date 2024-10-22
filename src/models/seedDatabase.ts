@@ -165,7 +165,32 @@ async function seedDatabase() {
                   school: school._id,
                 });
             
-                console.log('Tarefa 4 criada:', task4);
+                console.log('Tarefa 6 criada:', task4);
+                const task6 = await Task.create({
+                  subject: 'História',
+                  content: 'Teste.',
+                  dueDate: new Date('2024-08-25'),
+                  recipients: [String(class9A._id)], 
+                  IdTeacher: teacher._id,
+                  IdClass: String(class9A._id),
+                  status: 'pronto',
+                  school: school._id,
+                  studentResponses: [ // Adiciona a resposta do usuário aqui
+                    {
+                        studentId: student1._id, // ID do estudante que está respondendo
+                        studentName: student1.name, // Nome do estudante (se disponível)
+                        responseContent: 'Minha resposta ao teste.', // Conteúdo da resposta
+                        selectedAlternative: null, // Alterna a resposta, se necessário
+                        attachment: [], // Anexos, se houver
+                        submissionDate: new Date(), // Data da submissão
+                        graded: false, // Se a tarefa foi avaliada
+                        grade: null, // Nota, se já disponível
+                        feedback: null, // Feedback do professor, se disponível
+                    }
+                ],
+                });
+            
+                console.log('Tarefa 4 criada:', task6);
 
   } catch (error) {
     console.error('Erro ao popular o banco de dados:', error);

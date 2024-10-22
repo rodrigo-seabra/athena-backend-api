@@ -3,6 +3,7 @@ import Task from "../models/Task";
 import TokenHelper from "../helpers/TokenHelper";
 import User, { UsersModel } from "../models/User";
 import Class from "../models/Class";
+import { TaskModel } from '../models/Task';
 
 class TaskController {
 
@@ -93,6 +94,8 @@ class TaskController {
     try {
       const { userId } = req.params;
       const currentDate = new Date();
+      console.log("Recebido userId:", userId); 
+
       const upcomingDueDate = new Date(currentDate);
       upcomingDueDate.setHours(currentDate.getHours() + 48);
   
@@ -106,6 +109,7 @@ class TaskController {
           dueDate: { $gte: currentDate, $lt: upcomingDueDate },
           recipients: userClass._id,  
         });
+
   
         const tasksWithTeacherNames = await Promise.all(dueSoonTasks.map(async (task) => {
           const teacher = await User.findById(task.IdTeacher); 
@@ -135,25 +139,32 @@ class TaskController {
         const { userId } = req.params;
         const currentDate = new Date();
         
-        console.log("Recebido userId:", userId); // Log do userId recebido
-        console.log("Data atual:", currentDate); // Log da data atual
+        console.log("Recebido userId:", userId); 
+        console.log("Data atual:", currentDate); 
 
         if (userId) {
             const userClass = await Class.findOne({ students: userId });
-            console.log("Classe do usuário encontrada:", userClass); // Log da classe do usuário
+            console.log("Classe do usuário encontrada:", userClass); 
             
             if (!userClass) {
-                console.log("Usuário não está em nenhuma classe."); // Log caso não encontre a classe
+                console.log("Usuário não está em nenhuma classe."); 
                 return res.status(404).json({ message: "Usuário não está em nenhuma classe." });
             }
 
+            
             const overdueTasks = await Task.find({ 
-                dueDate: { $lt: currentDate },
+                dueDate: { $lt: currentDate }, 
                 recipients: userClass._id,  
+                status: { $ne: "pronto" } 
             });
-            console.log("Tarefas atrasadas encontradas:", overdueTasks); // Log das tarefas encontradas
 
-            const tasksWithTeacherNames = await Promise.all(overdueTasks.map(async (task) => {
+            console.log("Tarefas atrasadas encontradas:", overdueTasks); 
+            const tasksToDisplay = overdueTasks.filter(task => {
+                const hasResponded = task.studentResponses?.some(response => response.studentId === userId);
+                return !hasResponded;
+            });
+
+            const tasksWithTeacherNames = await Promise.all(tasksToDisplay.map(async (task) => {
                 const teacher = await User.findById(task.IdTeacher); 
                 return {
                     ...task.toObject(), 
@@ -177,6 +188,7 @@ class TaskController {
         return res.status(500).json({ message: "Erro ao buscar tarefas atrasadas." });
     }
 }
+
 
   
 
