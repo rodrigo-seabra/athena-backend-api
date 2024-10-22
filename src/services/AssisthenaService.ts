@@ -6,16 +6,23 @@ export class AssisthenaService {
   private tokenizer: natural.WordTokenizer;
   private classifier: natural.BayesClassifier;
   private answers: { [intent: string]: { [userType: string]: string[] } };
+  private insights: { [userType: string]: { [context: string]: string[] } }; 
 
   constructor() {
     this.tokenizer = new natural.WordTokenizer();
     this.classifier = new natural.BayesClassifier();
     this.answers = this.loadAnswersFromJSON(); 
+    this.insights = this.loadInsightsFromJSON(); 
     this.trainClassifier();
   }
 
   private loadAnswersFromJSON(): { [intent: string]: { [userType: string]: string[] } } {
     const filePath = path.join(__dirname, '../data/answers.json'); 
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  }
+  private loadInsightsFromJSON(): { [userType: string]: { [context: string]: string[] } } {
+    const filePath = path.join(__dirname, '../data/insights.json'); 
     const data = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(data);
   }
@@ -110,6 +117,24 @@ export class AssisthenaService {
       const responses = this.answers[intent][userType];
       return responses[Math.floor(Math.random() * responses.length)];
 
-    
   }
+  getInsights(userType: string, context: string = 'default'): string {
+    // Primeiro, verifique se o tipo de usuário existe
+    if (!this.insights[userType]) {
+      return 'Sem insights disponíveis para este tipo de usuário.';
+    }
+  
+    // Agora, pegue os insights de acordo com o contexto, ou o default se o contexto não existir
+    const userInsights = this.insights[userType];
+    const insightsArray = userInsights[context] || userInsights['default'];
+  
+    // Verifique se o insightsArray tem itens
+    if (!insightsArray || insightsArray.length === 0) {
+      return 'Não há insights disponíveis para este contexto.';
+    }
+  
+    // Retorne um insight aleatório
+    return insightsArray[Math.floor(Math.random() * insightsArray.length)];
+  }
+  
 }
