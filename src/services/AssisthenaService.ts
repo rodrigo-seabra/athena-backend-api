@@ -59,15 +59,15 @@ export class AssisthenaService {
 
     // Anos do Ensino Médio
     this.classifier.addDocument(
-      "o professor está pedindo mais detalhes e feedbacks e insights sobre o 1ano",
+      "o professor está pedindo mais detalhes e feedbacks e insights sobre o 1medio",
       "response_for_1_high_school_professor"
     );
     this.classifier.addDocument(
-      "o professor está pedindo mais detalhes e feedbacks e insights sobre o 2ano",
+      "o professor está pedindo mais detalhes e feedbacks e insights sobre o 2medio",
       "response_for_2_high_school_professor"
     );
     this.classifier.addDocument(
-      "o professor está pedindo mais detalhes e feedbacks e insights sobre o 3ano",
+      "o professor está pedindo mais detalhes e feedbacks e insights sobre o 3medio",
       "response_for_3_high_school_professor"
     );
 
