@@ -8,7 +8,7 @@ export class AssisthenaController {
     this.assisthenaService = new AssisthenaService();
   }
 
-  async handleMessage(req: Request, res: Response): Promise<Response> {
+  public async handleMessage(req: Request, res: Response): Promise<Response> {
     const { message, userId, userType } = req.body; // Adicionado userType
 
     try {
@@ -22,4 +22,12 @@ export class AssisthenaController {
       return res.status(500).json({ error: 'Erro ao processar mensagem.' });
     }
   }
+
+  public async handleInsights(req: Request, res: Response) {
+    const { userType, context } = req.body; 
+    const insight = this.assisthenaService.getInsights(userType, context); // Passe o contexto se necessário
+    
+    res.json({ insight });
+  }
+  
 }

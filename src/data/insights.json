@@ -1,0 +1,16 @@
+{
+    "professor": {
+      "7B": ["A turma 7B tem 90% de aprovação, com 75% dos alunos indo bem em ciências."],
+      "9A": ["A turma 9A está enfrentando dificuldades em matemática, com 40% de reprovação."],
+      "default": ["Você pode acessar relatórios detalhados de suas turmas para obter mais insights."]
+    },
+    "estudante": {
+      "matematica": ["Você teve um desempenho excelente em matemática, com 85% de aproveitamento."],
+      "ciencias": ["Você precisa melhorar seu desempenho em ciências, com 50% de aproveitamento."],
+      "default": ["Acesse seu relatório de desempenho para mais detalhes sobre suas notas."]
+    },
+    "escola": {
+      "default": ["A Escola tem 85% de aprovação geral e está atingindo metas em várias áreas."]
+    }
+  }
+  

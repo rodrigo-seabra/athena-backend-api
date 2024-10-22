@@ -13,6 +13,8 @@ class AssisthenaRoutes {
   private initRoutes() {
     const assisthenaController = new AssisthenaController();
     this.routes.post('/assisthena/message', (req, res) => assisthenaController.handleMessage(req, res));
+    this.routes.post('/assisthena/insights', (req, res) => assisthenaController.handleInsights(req, res));
+
   }
 }
 
