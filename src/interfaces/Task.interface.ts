@@ -13,7 +13,8 @@ export interface TaskInterface {
       isCorrect: boolean;      
     }[];                     
     studentResponses?: {
-      studentId: string;            
+      studentId: string;
+      studentName: string,            
       responseContent: string;    
       selectedAlternative?: string;  
       attachment?: string[];        

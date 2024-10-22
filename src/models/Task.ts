@@ -52,6 +52,9 @@ const TaskSchema = new Schema(
           type: String,
           required: true,
         },
+        studentName: {
+          type: String,
+        },
         selectedAlternative: {
           type: String,
         },
