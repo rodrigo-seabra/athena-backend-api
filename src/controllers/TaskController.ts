@@ -130,47 +130,54 @@ class TaskController {
     }
   }
   
-
   public async getOverdueTasksByClass(req: Request, res: Response): Promise<Response> {
     try {
-      const { userId } = req.params;
-      const currentDate = new Date();
-  
-      if (userId) {
-        const userClass = await Class.findOne({ students: userId });
-        if (!userClass) {
-          return res.status(404).json({ message: "Usuário não está em nenhuma classe." });
+        const { userId } = req.params;
+        const currentDate = new Date();
+        
+        console.log("Recebido userId:", userId); // Log do userId recebido
+        console.log("Data atual:", currentDate); // Log da data atual
+
+        if (userId) {
+            const userClass = await Class.findOne({ students: userId });
+            console.log("Classe do usuário encontrada:", userClass); // Log da classe do usuário
+            
+            if (!userClass) {
+                console.log("Usuário não está em nenhuma classe."); // Log caso não encontre a classe
+                return res.status(404).json({ message: "Usuário não está em nenhuma classe." });
+            }
+
+            const overdueTasks = await Task.find({ 
+                dueDate: { $lt: currentDate },
+                recipients: userClass._id,  
+            });
+            console.log("Tarefas atrasadas encontradas:", overdueTasks); // Log das tarefas encontradas
+
+            const tasksWithTeacherNames = await Promise.all(overdueTasks.map(async (task) => {
+                const teacher = await User.findById(task.IdTeacher); 
+                return {
+                    ...task.toObject(), 
+                    teacherName: teacher ? teacher.name : "Professor não encontrado", 
+                };
+            }));
+
+            return res.status(200).json({
+                count: tasksWithTeacherNames.length,
+                tasks: tasksWithTeacherNames,
+            });
+        } else {
+            console.log("ID do usuário inválido recebido."); // Log caso o userId não seja fornecido
+            return res.status(400).json({
+                message: "Invalid IDs"
+            });
         }
-  
-        const overdueTasks = await Task.find({ 
-          dueDate: { $lt: currentDate },
-          recipients: userClass._id,  
-        });
-  
-       
-        const tasksWithTeacherNames = await Promise.all(overdueTasks.map(async (task) => {
-          const teacher = await User.findById(task.IdTeacher); 
-          return {
-            ...task.toObject(), 
-            teacherName: teacher ? teacher.name : "Professor não encontrado", 
-          };
-        }));
-  
-        return res.status(200).json({
-          count: tasksWithTeacherNames.length,
-          tasks: tasksWithTeacherNames,
-        });
-      } else {
-        return res.status(400).json({
-          message: "Invalid IDs"
-        });
-      }
-  
+
     } catch (error: any) {
-      console.error("Erro ao buscar tarefas atrasadas:", error);
-      return res.status(500).json({ message: "Erro ao buscar tarefas atrasadas." });
+        console.error("Erro ao buscar tarefas atrasadas:", error);
+        return res.status(500).json({ message: "Erro ao buscar tarefas atrasadas." });
     }
-  }
+}
+
   
 
   public async getCompletedTasks(
@@ -289,29 +296,31 @@ class TaskController {
   public async getAllTasks(req: Request, res: Response): Promise<Response> {
     try {
       const { userId, teacherId } = req.params; 
-
-      if ( userId != "null")
-      {
+      console.log("Recebido userId e teacherId:", userId, teacherId);
+  
+      if (userId !== "null") {
+        console.log("Buscando tarefas para o usuário:", userId);
         const allTasks = await Task.find({ 
           recipients: userId,
         });
+        console.log("Tarefas encontradas para o usuário:", allTasks);
         return res.status(200).json({
           count: allTasks.length,
           tasks: allTasks,
         });
-      }else if ( teacherId )
-      {
-
+      } else if (teacherId) {
+        console.log("Buscando tarefas para o professor:", teacherId);
         const allTasks = await Task.find({ 
           IdTeacher: teacherId 
         });
+        console.log("Tarefas encontradas para o professor:", allTasks);
         return res.status(200).json({
           count: allTasks.length,
           tasks: allTasks,
         });
       }
-
-
+  
+      console.log("IDs inválidos recebidos.");
       return res.status(400).json({
         message: "Invalid IDS"
       });
@@ -320,35 +329,47 @@ class TaskController {
       return res.status(500).json({ message: "Erro ao buscar todas as tarefas." });
     }
   }
+  
 
   public async getTaskResponsesById(req: Request, res: Response): Promise<Response> {
     try {
       const { taskId } = req.params;
-
+  
+      console.log("Recebido taskId:", taskId); // Log do taskId recebido
+  
       if (!taskId) {
+        console.log("ID da tarefa não fornecido."); // Log caso o taskId não seja fornecido
         return res.status(400).json({ message: "ID da tarefa não fornecido." });
       }
-
+  
       const task = await Task.findById(taskId);
-
+  
+      console.log("Tarefa encontrada:", task); // Log da tarefa encontrada
+  
       if (!task) {
+        console.log("Tarefa não encontrada para o ID:", taskId); // Log caso a tarefa não seja encontrada
         return res.status(404).json({ message: "Tarefa não encontrada." });
       }
-
+  
       const responses = task.studentResponses;
+      console.log("Respostas dos estudantes:", responses); // Log das respostas dos estudantes
+  
       if (!responses || responses.length === 0) {
+        console.log("Nenhuma resposta encontrada para a tarefa ID:", taskId); // Log caso não haja respostas
         return res.status(404).json({ message: "Nenhuma resposta encontrada para esta tarefa." });
       }
-
+  
+      console.log("Retornando respostas com sucesso para a tarefa ID:", taskId); // Log de sucesso
       return res.status(200).json({
         taskId: task._id,
         responses: responses,
       });
     } catch (error: any) {
-      console.error("Erro ao buscar respostas da tarefa:", error);
+      console.error("Erro ao buscar respostas da tarefa:", error); // Log do erro capturado no catch
       return res.status(500).json({ message: "Erro ao buscar respostas da tarefa." });
     }
   }
+  
   
   public async getTaskById(req: Request, res: Response): Promise<Response> {
     try {
@@ -489,6 +510,7 @@ class TaskController {
 
       existingTask.studentResponses?.push({
         studentId: user._id.toString(),
+        studentName: user.name,
         responseContent: responseContent || selectedAlternative,
         selectedAlternative: selectedAlternative,
         attachment: attachment,
