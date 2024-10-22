@@ -84,7 +84,24 @@ async function seedDatabase() {
       cpf: '12312312300',
     });
 
-    console.log('Usuários (alunos) criados:', student1, student2);
+    const student3 = await User.create({
+      name: 'Aluno Exemplo 3',
+      email: 'aluno3@escolaexemplo.com',
+      phone: '3213213221',
+      password: 'senhaSegura',
+      role: 'estudante',
+      IdSchool: school._id,
+      approved: true,
+      address: {
+        street: 'Rua do Aluno 5',
+        cep: '65432-133',
+        state: 'SP',
+        city: 'São Paulo',
+      },
+      cpf: '15312312300',
+    });
+
+    console.log('Usuários (alunos) criados:', student1, student2, student3);
 
     // 4. Criar classe
     const class9A = await Class.create({
@@ -98,6 +115,18 @@ async function seedDatabase() {
     });
 
     console.log('Classe criada:', class9A);
+
+    const class8A = await Class.create({
+      name: 'Turma 8A',
+      grade: '8º Ano',
+      teacher: [teacher._id], 
+      students: [student3._id], 
+      IdSchool: school._id, 
+      year: 2024,
+      subject: ['Matemática', 'História'],
+    });
+
+    console.log('Classe criada:', class8A);
 
     // 5. Criar tarefa 1
     const task1 = await Task.create({

@@ -3,8 +3,33 @@ import Class, { ClassModel } from '../models/Class'; // Modelo da turma
 import School from '../models/School'; // Modelo da escola
 import { ClassInterface } from '../interfaces/Class.interface';
 import User from '../models/User';
+import mongoose from 'mongoose';
+import { Token } from 'natural';
+import TokenHelper from '../helpers/TokenHelper';
 
 class ClassController{
+  public async getClassesByTeacher(req: Request, res: Response): Promise<Response> {
+    try {
+        const teacherId = TokenHelper.User?._id
+        console.log(teacherId)
+        if (!teacherId) {
+            return res.status(400).json({ message: "ID do professor não fornecido." });
+        }
+        const classes: ClassInterface[] | null = await Class.find({
+            teacher: teacherId 
+        });
+
+        if (!classes || classes.length === 0) {
+            return res.status(404).json({ message: "Nenhuma turma encontrada para este professor." });
+        }
+
+        return res.status(200).json({ message: classes });
+    } catch (err: any) {
+        console.error(err);
+        return res.status(500).json({ message: err.message || "Erro interno do servidor" });
+    }
+}
+
     public async create (req:Request, res:Response) : Promise<Response>{
         try {
             const {
