@@ -6,6 +6,7 @@ import ClassController from "../controllers/ClassController";
 import AuthMiddlware from "../middlewares/AuthMiddleware";
 import StatsController from "../controllers/StatsController";
 import AssisthenaRoutes from './AssisthenaRoutes';
+import UpdateStatusesMiddleware from "../middlewares/UpdateStatusesMiddleware ";
 
 
 class Routes {
@@ -52,11 +53,11 @@ class Routes {
     this.routes.get("/tasks/dueSoon/:teacherId?", TaskController.getTasksDueSoon)
     this.routes.get("/tasks/overdue/:teacherId?",  TaskController.getOverdueTasks)
     this.routes.get('/tasks/getalluser/:teacherId?', TaskController.getAllTasks)
-    this.routes.get("/task/getall/userbyclass/:userId", TaskController.getAllByUser)
-    this.routes.get("/tasks/completed/:userId", TaskController.getAllCompleteByUser)
-    this.routes.get("/tasks/delay/:userId", TaskController.getOverdueTasksByUser)
-    this.routes.get("/tasks/duesoon/:userId", TaskController.getTasksDueSoonByUser)
-    this.routes.get("/tasks/inprogress/:userId", TaskController.getPendingTasksByUser)
+    this.routes.get("/task/getall/userbyclass/:userId", UpdateStatusesMiddleware.update, TaskController.getAllByUser)
+    this.routes.get("/tasks/completed/:userId",  UpdateStatusesMiddleware.update, TaskController.getAllCompleteByUser)
+    this.routes.get("/tasks/delay/:userId", UpdateStatusesMiddleware.update ,TaskController.getOverdueTasksByUser)
+    this.routes.get("/tasks/duesoon/:userId",  UpdateStatusesMiddleware.update,TaskController.getTasksDueSoonByUser)
+    this.routes.get("/tasks/inprogress/:userId", UpdateStatusesMiddleware.update ,TaskController.getPendingTasksByUser)
 
   }
   private ClassRoutes(){
