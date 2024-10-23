@@ -6,12 +6,17 @@ export interface TaskInterface {
     attachment?: string[];         
     IdTeacher: string;   
     IdClass?: string;      
-    status?: "em andamento" | "pronto";   
+    status?: "em andamento" | "pronto" | "atrasada" | "cancelada" | "pendente";   
     school?: string,    
     alternatives?: {
       text: string;            
       isCorrect: boolean;      
-    }[];                     
+    }[];      
+    studentStatus?: {
+      studentId: string;
+      studentName: string;
+      status: "em andamento" | "pronto" | "atrasada" | "pendente";  
+    }[];               
     studentResponses?: {
       studentId: string;
       studentName: string,            

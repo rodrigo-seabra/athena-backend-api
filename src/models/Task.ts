@@ -28,7 +28,7 @@ const TaskSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["em andamento", "pronto"],
+      enum: ["em andamento", "pronto", "cancelada", "atrasada", "pendente"],
     },
     IdClass: {
       type: String,
@@ -76,6 +76,21 @@ const TaskSchema = new Schema(
         },
         feedback: {
           type: String,
+        },
+      },
+    ],
+    studentStatus: [
+      {
+        studentId: {
+          type: String,
+        },
+        studentName: {
+          type: String,
+        },
+        status: {
+          type: String,
+          enum: ["em andamento", "pronto", "atrasada"],
+          default: "em andamento", 
         },
       },
     ],

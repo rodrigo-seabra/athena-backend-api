@@ -47,16 +47,14 @@ class Routes {
     this.routes.post("/tasks/response", AuthMiddlware.Authorization ,TaskController.addStudentResponse)
     this.routes.post("/tasks/correction", AuthMiddlware.Authorization,TaskController.addTeacherResponse)
     this.routes.get("/tasks/getId/:id", AuthMiddlware.BasicAuth ,TaskController.getTaskById)
-    this.routes.get("/tasks/completed/:userId?/:teacherId?",TaskController.getCompletedTasks)
-    this.routes.get("/tasks/dueSoon/:userId?/:teacherId?", TaskController.getTasksDueSoon)
-    this.routes.get("/tasks/overdue/:userId?/:teacherId?",  TaskController.getOverdueTasks)
-    this.routes.get('/tasks/getalluser/:userId?/:teacherId?', TaskController.getAllTasks)
+    this.routes.get("/tasks/completed/:teacherId?",TaskController.getCompletedTasks)
+    this.routes.get("/tasks/dueSoon/:teacherId?", TaskController.getTasksDueSoon)
+    this.routes.get("/tasks/overdue/:teacherId?",  TaskController.getOverdueTasks)
+    this.routes.get('/tasks/getalluser/:teacherId?', TaskController.getAllTasks)
     this.routes.get("/task/getall/userbyclass/:userId", TaskController.getAllByUserByClass)
-    // this.routes.get("/tasks/overdue/:userId", TaskController.getOverdueTasksByClass )
     this.routes.get("/tasks/completed/:userId", TaskController.getAllCompleteByUserByClass)
     this.routes.get("/overdue/:userId", TaskController.getOverdueTasksByClass)
     this.routes.get("/duesoon/:userId", TaskController.getTasksDueSoonByClass)
-    // this.routes.get("/tasks/dueSoon/:userId", TaskController.getTasksDueSoonByClass)
 
   }
   private ClassRoutes(){
