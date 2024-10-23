@@ -32,6 +32,7 @@ class Routes {
     this.routes.post('/user/reject', UserController.rejectUser); 
     this.routes.get("/user/function", AuthMiddlware.Authorization, UserController.userFunction)
     this.routes.get("/user/allteachers/:IdSchool", UserController.TeacherInSchool)
+    this.routes.put("/user/edit/:userId", AuthMiddlware.Authorization, UserController.editUser);
   }
   
   private SchoolRoutes(){
