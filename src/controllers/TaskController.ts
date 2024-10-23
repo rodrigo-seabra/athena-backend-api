@@ -21,7 +21,6 @@ class TaskController {
           .json({ message: "ID do usuário não fornecido." });
       }
 
-      // Busca todas as tarefas pendentes no studentStatus
       const pendingTasks = await Task.find({
         "studentStatus.studentId": userId,
         "studentStatus.status": "em andamento",
@@ -66,7 +65,6 @@ class TaskController {
           .json({ message: "ID do usuário não fornecido." });
       }
 
-      // Define a query para buscar todas as tarefas com base no status
       const query: any = { "studentStatus.studentId": userId };
       if (status === "pendente") {
         query["studentStatus.status"] = "em andamento";
@@ -111,7 +109,6 @@ class TaskController {
           .json({ message: "ID do usuário não fornecido." });
       }
 
-      // Busca todas as tarefas completas do aluno
       const completedTasks = await Task.find({
         "studentStatus.studentId": userId,
         "studentStatus.status": "pronto",
@@ -239,6 +236,50 @@ class TaskController {
         .json({ message: "Erro ao buscar tarefas atrasadas." });
     }
   }
+
+
+
+  public async getUserGrades(req: Request, res: Response): Promise<Response> {
+    try {
+      const { userId } = req.params;
+
+      if (!userId) {
+        return res.status(400).json({ message: "ID do usuário não fornecido." });
+      }
+
+      const tasksWithGrades = await Task.find({
+        "studentResponses.studentId": userId,
+        "studentResponses.graded": true,
+      });
+
+      if (tasksWithGrades.length === 0) {
+        return res.status(404).json({ message: "Nenhuma nota encontrada." });
+      }
+
+      const grades = tasksWithGrades.map(task => {
+        const studentResponse = task.studentResponses?.find(
+          response => response.studentId.toString() === userId
+        );
+        
+        return {
+          taskId: task._id,
+          taskTitle: task.content,
+          grade: studentResponse?.grade, 
+          feedback: studentResponse?.feedback, 
+        };
+      });
+
+      return res.status(200).json({
+        count: grades.length,
+        grades,
+      });
+    } catch (error: any) {
+      console.error("Erro ao buscar notas do usuário:", error);
+      return res.status(500).json({ message: "Erro ao buscar notas do usuário." });
+    }
+  }
+
+
   public async getCompletedTasks(
     req: Request,
     res: Response
