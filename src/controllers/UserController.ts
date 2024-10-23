@@ -253,27 +253,25 @@ class UserController {
   public async editUser(req: Request, res: Response): Promise<Response> {
     try {
       const { userId } = req.params;
+      console.log("userId:", userId); 
       const { name, email, phone, cpf, address } = req.body;
   
-      // Verifica se o ID do usuário foi fornecido
-      if (!userId) {
+  
+      if (!userId || userId === undefined) {
         return res.status(400).json({ message: "ID do usuário é obrigatório." });
       }
   
-      // Procura o usuário pelo ID
       const user = await User.findById(userId);
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado." });
       }
   
-      // Verifica se o email já está em uso
       const existingUser = await User.findOne({ email });
-
+  
       if (existingUser && String(existingUser._id) !== String(user._id)) {
         return res.status(400).json({ message: "Este email já está em uso." });
       }
   
-      // Atualiza os dados do usuário
       user.name = name || user.name;
       user.email = email || user.email;
       user.phone = phone || user.phone;
@@ -285,12 +283,11 @@ class UserController {
         city: address?.city || user.address.city,
       };
   
-      // Salva as alterações
       await user.save();
   
       return res.status(200).json({ message: "Usuário atualizado com sucesso.", user });
     } catch (error) {
-      console.error("Erro ao atualizar usuário:", error);
+      console.error("Erro ao atualizar usuário:", error); 
       return res.status(500).json({ message: "Erro ao atualizar usuário." });
     }
   }
