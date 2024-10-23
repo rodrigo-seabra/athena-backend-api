@@ -55,6 +55,7 @@ class Routes {
     this.routes.get('/tasks/getalluser/:teacherId?', TaskController.getAllTasks)
     this.routes.get("/task/getall/userbyclass/:userId", UpdateStatusesMiddleware.update, TaskController.getAllByUser)
     this.routes.get("/tasks/completed/:userId",  UpdateStatusesMiddleware.update, TaskController.getAllCompleteByUser)
+    this.routes.get("/tasks/completed-user/:userId",  UpdateStatusesMiddleware.update, TaskController.getAllCompleteByUser)
     this.routes.get("/tasks/delay/:userId", UpdateStatusesMiddleware.update ,TaskController.getOverdueTasksByUser)
     this.routes.get("/tasks/duesoon/:userId",  UpdateStatusesMiddleware.update,TaskController.getTasksDueSoonByUser)
     this.routes.get("/tasks/inprogress/:userId", UpdateStatusesMiddleware.update ,TaskController.getPendingTasksByUser)
