@@ -15,7 +15,7 @@ export interface TaskInterface {
     studentStatus?: {
       studentId: string;
       studentName: string;
-      status: "em andamento" | "pronto" | "atrasada" | "pendente";  
+      status: "em andamento" | "pronto" | "atrasada" ;  
     }[];               
     studentResponses?: {
       studentId: string;

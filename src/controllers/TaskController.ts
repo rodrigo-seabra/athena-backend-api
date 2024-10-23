@@ -8,86 +8,86 @@ import { UsersInterface } from "../interfaces/User.interface";
 class TaskController {
   constructor() {
     this.updateOverdueTasksStatus();
-    this.updateStudentStatus()
-    this.updateAllStudentStatuses()
+    this.updateStudentStatus();
+    this.updateAllStudentStatuses();
   }
   private async updateAllStudentStatuses() {
     try {
-      const classes: ClassModel[] = await Class.find().populate('students');
-  
+      const classes: ClassModel[] = await Class.find().populate("students");
+
       for (const classInstance of classes) {
         const studentIds = classInstance.students;
-  
+
         const students = await User.find({
           _id: { $in: studentIds },
-          role: 'estudante',
+          role: "estudante",
         });
-  
+
         for (const student of students) {
-          if (!student) continue; 
-  
+          if (!student) continue;
+
           const tasks = await Task.find({
             recipients: classInstance._id,
-          }).populate('studentResponses');
-  
+          }).populate("studentResponses");
+
           for (const task of tasks) {
-            if (!task) continue; 
-  
-            const response = task.studentResponses?.find(r => r.studentId.toString() === String(student._id));
-            let status: "em andamento" | "pronto" | "atrasada" | "pendente" = "pendente"; 
-  
+            if (!task) continue;
+
+            const response = task.studentResponses?.find(
+              (r) => r.studentId.toString() === String(student._id)
+            );
+            let status: "em andamento" | "pronto" | "atrasada" = "em andamento";
             const dueDate = task.dueDate ? new Date(task.dueDate) : null;
-            const submissionDate = response?.submissionDate ? new Date(response.submissionDate) : null;
-  
+            const submissionDate = response?.submissionDate
+              ? new Date(response.submissionDate)
+              : null;
+
             if (response) {
               if (response.graded) {
-                status = 'pronto';
-              } else if (dueDate && submissionDate && dueDate < submissionDate) {
-                status = 'atrasada';
+                status = "pronto";
+              } else if (
+                dueDate &&
+                submissionDate &&
+                dueDate < submissionDate
+              ) {
+                status = "atrasada"; 
               } else {
-                status = 'em andamento';
+                status = "em andamento"; 
               }
-            } else {
-              status = 'em andamento';
+            } else if (dueDate && dueDate < new Date()) {
+              status = "atrasada"; 
             }
-  
+
             const studentStatus = {
               studentId: String(student._id),
-              studentName: student.name || 'Nome não disponível',
+              studentName: student.name || "Nome não disponível",
               status: status,
             };
-  
+
             const updatedTask = await Task.findById(task._id);
-  
+
             if (updatedTask && updatedTask.studentStatus) {
-              const existingStatusIndex = updatedTask.studentStatus.findIndex(ss => ss.studentId === studentStatus.studentId);
-  
+              const existingStatusIndex = updatedTask.studentStatus.findIndex(
+                (ss) => ss.studentId === studentStatus.studentId
+              );
+
               if (existingStatusIndex !== -1) {
                 updatedTask.studentStatus[existingStatusIndex] = studentStatus;
               } else {
                 updatedTask.studentStatus.push(studentStatus);
               }
-  
-              await updatedTask.save(); 
+
+              await updatedTask.save();
             }
           }
         }
       }
-  
-      console.log('Todos os studentStatus foram atualizados com sucesso.');
-  
+
+      console.log("Todos os studentStatus foram atualizados com sucesso.");
     } catch (error) {
-      console.error('Erro ao atualizar studentStatus:', error);
+      console.error("Erro ao atualizar studentStatus:", error);
     }
   }
-  
-  
-  
-
-  
-  
-  
-  
 
   private async updateOverdueTasksStatus(): Promise<void> {
     const currentDate = new Date();
@@ -102,9 +102,7 @@ class TaskController {
         return;
       }
 
-      // Iterar sobre cada tarefa vencida
       for (const task of overdueTasks) {
-        // Buscar a classe associada à tarefa
         const userClass = await Class.findById(task.recipients);
 
         if (!userClass) {
@@ -116,7 +114,7 @@ class TaskController {
         if (task.studentResponses) {
           const studentsWhoAnswered = task.studentResponses.map(
             (response) => response.studentId
-          ); // Supondo que task.responses contém as respostas
+          );
           const allStudentsAnswered = allStudents.every((studentId) =>
             studentsWhoAnswered.includes(String(studentId))
           );
@@ -125,6 +123,8 @@ class TaskController {
           } else {
             task.status = "atrasada";
           }
+        } else {
+          task.status = "atrasada"; 
         }
         await task.save();
       }
@@ -141,9 +141,9 @@ class TaskController {
 
       for (const task of tasks) {
         if (task.studentResponses) {
-          task.studentStatus?.forEach(studentStatus => {
+          task.studentStatus?.forEach((studentStatus) => {
             const response = task.studentResponses?.find(
-              response => response.studentId === studentStatus.studentId
+              (response) => response.studentId === studentStatus.studentId
             );
 
             if (response) {
@@ -167,158 +167,191 @@ class TaskController {
     }
   }
 
-  public async getAllByUserByClass(
+  public async getPendingTasksByUser(
     req: Request,
     res: Response
   ): Promise<Response> {
     try {
       const { userId } = req.params;
 
-      if (userId) {
-        const userClass = await Class.findOne({ students: userId });
-        if (!userClass) {
-          return res
-            .status(404)
-            .json({ message: "Usuário não está em nenhuma classe." });
-        }
-
-        const allTasks = await Task.find({
-          recipients: userClass._id,
-        });
-
-        const tasksWithTeacherNames = await Promise.all(
-          allTasks.map(async (task) => {
-            const teacher = await User.findById(task.IdTeacher);
-            return {
-              ...task.toObject(),
-              teacherName: teacher ? teacher.name : "Professor não encontrado",
-            };
-          })
-        );
-
-        return res.status(200).json({
-          count: tasksWithTeacherNames.length,
-          tasks: tasksWithTeacherNames,
-        });
+      if (!userId) {
+        return res
+          .status(400)
+          .json({ message: "ID do usuário não fornecido." });
       }
 
-      return res.status(400).json({
-        message: "Invalid IDs",
+      // Busca todas as tarefas pendentes no studentStatus
+      const pendingTasks = await Task.find({
+        "studentStatus.studentId": userId,
+        "studentStatus.status": "em andamento",
+      });
+
+      if (pendingTasks.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "Nenhuma tarefa pendente encontrada." });
+      }
+
+      const tasksWithTeacherNames = await Promise.all(
+        pendingTasks.map(async (task) => {
+          const teacher = await User.findById(task.IdTeacher);
+          return {
+            ...task.toObject(),
+            teacherName: teacher ? teacher.name : "Professor não encontrado",
+          };
+        })
+      );
+
+      return res.status(200).json({
+        count: tasksWithTeacherNames.length,
+        tasks: tasksWithTeacherNames,
       });
     } catch (error: any) {
-      console.error("Erro ao buscar todas as tarefas:", error);
+      console.error("Erro ao buscar tarefas pendentes:", error);
       return res
         .status(500)
-        .json({ message: "Erro ao buscar todas as tarefas." });
+        .json({ message: "Erro ao buscar tarefas pendentes." });
     }
   }
 
-  public async getAllCompleteByUserByClass(
+  public async getAllByUser(req: Request, res: Response): Promise<Response> {
+    try {
+      const { userId, status } = req.params;
+      const currentDate = new Date();
+
+      if (!userId) {
+        return res
+          .status(400)
+          .json({ message: "ID do usuário não fornecido." });
+      }
+
+      // Define a query para buscar todas as tarefas com base no status
+      const query: any = { "studentStatus.studentId": userId };
+      if (status === "pendente") {
+        query["studentStatus.status"] = "em andamento";
+      } else if (status === "atrasada") {
+        query.dueDate = { $lt: currentDate };
+        query["studentStatus.status"] = { $ne: "pronto" };
+      } else if (status === "pronto") {
+        query["studentStatus.status"] = "pronto";
+      }
+
+      const tasks = await Task.find(query);
+      const tasksWithTeacherNames = await Promise.all(
+        tasks.map(async (task) => {
+          const teacher = await User.findById(task.IdTeacher);
+          return {
+            ...task.toObject(),
+            teacherName: teacher ? teacher.name : "Professor não encontrado",
+          };
+        })
+      );
+
+      return res.status(200).json({
+        count: tasksWithTeacherNames.length,
+        tasks: tasksWithTeacherNames,
+      });
+    } catch (error: any) {
+      console.error("Erro ao buscar tarefas:", error);
+      return res.status(500).json({ message: "Erro ao buscar tarefas." });
+    }
+  }
+
+  public async getAllCompleteByUser(
     req: Request,
     res: Response
   ): Promise<Response> {
     try {
       const { userId } = req.params;
 
-      if (userId) {
-        const userClass = await Class.findOne({ students: userId });
-        if (!userClass) {
-          return res
-            .status(404)
-            .json({ message: "Usuário não está em nenhuma classe." });
-        }
-
-        const allTasks = await Task.find({
-          recipients: userClass._id,
-          status: "pronto",
-        });
-
-        if (allTasks.length === 0) {
-          return res.status(200).json({
-            count: 0,
-            tasks: [],
-          });
-        }
-        const tasksWithTeacherNames = await Promise.all(
-          allTasks.map(async (task) => {
-            const teacher = await User.findById(task.IdTeacher);
-            return {
-              ...task.toObject(),
-              teacherName: teacher ? teacher.name : "Professor não encontrado",
-            };
-          })
-        );
-
-        return res.status(200).json({
-          count: tasksWithTeacherNames.length,
-          tasks: tasksWithTeacherNames,
-        });
+      if (!userId) {
+        return res
+          .status(400)
+          .json({ message: "ID do usuário não fornecido." });
       }
 
-      return res.status(400).json({
-        message: "Invalid IDs",
+      // Busca todas as tarefas completas do aluno
+      const completedTasks = await Task.find({
+        "studentStatus.studentId": userId,
+        "studentStatus.status": "pronto",
+      });
+
+      const tasksWithTeacherNames = await Promise.all(
+        completedTasks.map(async (task) => {
+          const teacher = await User.findById(task.IdTeacher);
+          return {
+            ...task.toObject(),
+            teacherName: teacher ? teacher.name : "Professor não encontrado",
+          };
+        })
+      );
+
+      return res.status(200).json({
+        count: tasksWithTeacherNames.length,
+        tasks: tasksWithTeacherNames,
       });
     } catch (error: any) {
-      console.error("Erro ao buscar todas as tarefas:", error);
+      console.error("Erro ao buscar tarefas completas:", error);
       return res
         .status(500)
-        .json({ message: "Erro ao buscar todas as tarefas." });
+        .json({ message: "Erro ao buscar tarefas completas." });
     }
   }
 
-  public async getTasksDueSoonByClass(
+  public async getTasksDueSoonByUser(
     req: Request,
     res: Response
   ): Promise<Response> {
     try {
       const { userId } = req.params;
       const currentDate = new Date();
-      console.log("Recebido userId:", userId);
 
       const upcomingDueDate = new Date(currentDate);
       upcomingDueDate.setHours(currentDate.getHours() + 48);
 
-      if (userId) {
-        const userClass = await Class.findOne({ students: userId });
-        if (!userClass) {
-          return res
-            .status(404)
-            .json({ message: "Usuário não está em nenhuma classe." });
-        }
-
-        const dueSoonTasks = await Task.find({
-          dueDate: { $gte: currentDate, $lt: upcomingDueDate },
-          recipients: userClass._id,
-        });
-
-        const tasksWithTeacherNames = await Promise.all(
-          dueSoonTasks.map(async (task) => {
-            const teacher = await User.findById(task.IdTeacher);
-            return {
-              ...task.toObject(),
-              teacherName: teacher ? teacher.name : "Professor não encontrado",
-            };
-          })
-        );
-
-        return res.status(200).json({
-          count: tasksWithTeacherNames.length,
-          tasks: tasksWithTeacherNames,
-        });
-      } else {
+      if (!userId) {
         return res.status(400).json({
-          message: "Invalid IDs",
+          message: "ID do usuário não fornecido.",
         });
       }
+
+      const dueSoonTasks = await Task.find({
+        dueDate: { $gte: currentDate, $lt: upcomingDueDate },
+        "studentStatus.studentId": userId,
+        "studentStatus.status": "em andamento",
+      });
+
+      if (dueSoonTasks.length === 0) {
+        return res
+          .status(404)
+          .json({
+            message: "Nenhuma tarefa com vencimento próximo encontrada.",
+          });
+      }
+
+      const tasksWithTeacherNames = await Promise.all(
+        dueSoonTasks.map(async (task) => {
+          const teacher = await User.findById(task.IdTeacher);
+          return {
+            ...task.toObject(),
+            teacherName: teacher ? teacher.name : "Professor não encontrado",
+          };
+        })
+      );
+
+      return res.status(200).json({
+        count: tasksWithTeacherNames.length,
+        tasks: tasksWithTeacherNames,
+      });
     } catch (error: any) {
-      console.error("Erro ao buscar tarefas em risco de atraso:", error);
+      console.error("Erro ao buscar tarefas com vencimento próximo:", error);
       return res
         .status(500)
-        .json({ message: "Erro ao buscar tarefas em risco de atraso." });
+        .json({ message: "Erro ao buscar tarefas com vencimento próximo." });
     }
   }
 
-  public async getOverdueTasksByClass(
+  public async getOverdueTasksByUser(
     req: Request,
     res: Response
   ): Promise<Response> {
@@ -326,54 +359,38 @@ class TaskController {
       const { userId } = req.params;
       const currentDate = new Date();
 
-      console.log("Recebido userId:", userId);
-      console.log("Data atual:", currentDate);
-
-      if (userId) {
-        const userClass = await Class.findOne({ students: userId });
-        console.log("Classe do usuário encontrada:", userClass);
-
-        if (!userClass) {
-          console.log("Usuário não está em nenhuma classe.");
-          return res
-            .status(404)
-            .json({ message: "Usuário não está em nenhuma classe." });
-        }
-
-        const overdueTasks = await Task.find({
-          dueDate: { $lt: currentDate },
-          recipients: userClass._id,
-          status: { $ne: "pronto" },
-        });
-
-        console.log("Tarefas atrasadas encontradas:", overdueTasks);
-        const tasksToDisplay = overdueTasks.filter((task) => {
-          const hasResponded = task.studentResponses?.some(
-            (response) => response.studentId === userId
-          );
-          return !hasResponded;
-        });
-
-        const tasksWithTeacherNames = await Promise.all(
-          tasksToDisplay.map(async (task) => {
-            const teacher = await User.findById(task.IdTeacher);
-            return {
-              ...task.toObject(),
-              teacherName: teacher ? teacher.name : "Professor não encontrado",
-            };
-          })
-        );
-
-        return res.status(200).json({
-          count: tasksWithTeacherNames.length,
-          tasks: tasksWithTeacherNames,
-        });
-      } else {
-        console.log("ID do usuário inválido recebido."); // Log caso o userId não seja fornecido
-        return res.status(400).json({
-          message: "Invalid IDs",
-        });
+      if (!userId) {
+        return res
+          .status(400)
+          .json({ message: "ID do usuário não fornecido." });
       }
+
+      const overdueTasks = await Task.find({
+        dueDate: { $lt: currentDate },
+        "studentStatus.studentId": userId,
+        "studentStatus.status": "atrasada",
+      });
+
+      if (overdueTasks.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "Nenhuma tarefa atrasada encontrada." });
+      }
+
+      const tasksWithTeacherNames = await Promise.all(
+        overdueTasks.map(async (task) => {
+          const teacher = await User.findById(task.IdTeacher);
+          return {
+            ...task.toObject(),
+            teacherName: teacher ? teacher.name : "Professor não encontrado",
+          };
+        })
+      );
+
+      return res.status(200).json({
+        count: tasksWithTeacherNames.length,
+        tasks: tasksWithTeacherNames,
+      });
     } catch (error: any) {
       console.error("Erro ao buscar tarefas atrasadas:", error);
       return res
@@ -381,7 +398,6 @@ class TaskController {
         .json({ message: "Erro ao buscar tarefas atrasadas." });
     }
   }
-
   public async getCompletedTasks(
     req: Request,
     res: Response

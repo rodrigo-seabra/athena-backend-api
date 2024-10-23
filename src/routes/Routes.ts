@@ -52,10 +52,11 @@ class Routes {
     this.routes.get("/tasks/dueSoon/:teacherId?", TaskController.getTasksDueSoon)
     this.routes.get("/tasks/overdue/:teacherId?",  TaskController.getOverdueTasks)
     this.routes.get('/tasks/getalluser/:teacherId?', TaskController.getAllTasks)
-    this.routes.get("/task/getall/userbyclass/:userId", TaskController.getAllByUserByClass)
-    this.routes.get("/tasks/completed/:userId", TaskController.getAllCompleteByUserByClass)
-    this.routes.get("/overdue/:userId", TaskController.getOverdueTasksByClass)
-    this.routes.get("/duesoon/:userId", TaskController.getTasksDueSoonByClass)
+    this.routes.get("/task/getall/userbyclass/:userId", TaskController.getAllByUser)
+    this.routes.get("/tasks/completed/:userId", TaskController.getAllCompleteByUser)
+    this.routes.get("/tasks/delay/:userId", TaskController.getOverdueTasksByUser)
+    this.routes.get("/tasks/duesoon/:userId", TaskController.getTasksDueSoonByUser)
+    this.routes.get("/tasks/inprogress/:userId", TaskController.getPendingTasksByUser)
 
   }
   private ClassRoutes(){
