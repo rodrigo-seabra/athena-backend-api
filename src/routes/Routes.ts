@@ -69,6 +69,8 @@ class Routes {
 
   private StatsRoutes()
   {
+
+    this.routes.get("/stats/performance/:classId", StatsController.getPerformanceByClass)
     this.routes.get("/stats/:IdTeacher", StatsController.getTeacherStats)
     this.routes.post("/stats", StatsController.generateAndSaveStats)
     this.routes.get("/stats/:taskId", StatsController.getStatsByTask)

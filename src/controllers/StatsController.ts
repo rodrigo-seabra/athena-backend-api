@@ -4,6 +4,27 @@ import Stats from "../models/Stats";
 import Class from "../models/Class";
 
 class StatsController {
+  public async getPerformanceByClass(req: Request, res: Response): Promise<Response> {
+    try {
+      const { classId } = req.params;
+
+      if (!classId) {
+        return res.status(400).json({ message: "Class ID is required." });
+      }
+
+      const performanceData = [
+        { name: "Nível 1", value: 10, color: "#405480" },
+        { name: "Nível 2", value: 22, color: "#235BD5" },
+        { name: "Nível 3", value: 27, color: "#394255" },
+        { name: "Nível 4", value: 27, color: "#004FFF" },
+      ];
+
+      return res.status(200).json(performanceData);
+    } catch (error) {
+      console.error("Error fetching performance data:", error);
+      return res.status(500).json({ message: "Error fetching performance data." });
+    }
+  }
 
   public async getStatsBySchool(req: Request, res: Response): Promise<Response> {
     try {
