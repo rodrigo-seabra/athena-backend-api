@@ -18,26 +18,23 @@ class TaskController {
       for (const classInstance of classes) {
         const studentIds = classInstance.students;
   
-        // Buscar usuários (estudantes) correspondentes
         const students = await User.find({
           _id: { $in: studentIds },
-          role: 'estudante', // Filtra apenas usuários com a role de 'estudante'
+          role: 'estudante',
         });
   
         for (const student of students) {
-          if (!student) continue; // Ignora estudantes indefinidos
+          if (!student) continue; 
   
-          // Buscar todas as tarefas para o aluno na classe atual
           const tasks = await Task.find({
             recipients: classInstance._id,
           }).populate('studentResponses');
   
           for (const task of tasks) {
-            if (!task) continue; // Ignora tarefas indefinidas
+            if (!task) continue; 
   
-            // Verificar se a resposta do aluno existe
             const response = task.studentResponses?.find(r => r.studentId.toString() === String(student._id));
-            let status: "em andamento" | "pronto" | "atrasada" | "pendente" = "pendente"; // Estado padrão
+            let status: "em andamento" | "pronto" | "atrasada" | "pendente" = "pendente"; 
   
             const dueDate = task.dueDate ? new Date(task.dueDate) : null;
             const submissionDate = response?.submissionDate ? new Date(response.submissionDate) : null;
@@ -51,7 +48,6 @@ class TaskController {
                 status = 'em andamento';
               }
             } else {
-              // Se não houver resposta, define como "em andamento"
               status = 'em andamento';
             }
   
@@ -61,7 +57,6 @@ class TaskController {
               status: status,
             };
   
-            // Recarregar a tarefa para garantir que temos a versão mais recente
             const updatedTask = await Task.findById(task._id);
   
             if (updatedTask && updatedTask.studentStatus) {
