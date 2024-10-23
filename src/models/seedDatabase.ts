@@ -15,12 +15,18 @@ async function createUser(userData: any) {
   return User.create(userData);
 }
 
+async function createSchool(schoolData: any) {
+  const salt = await bcrypt.genSalt(10);
+  schoolData.password = await bcrypt.hash(schoolData.password, salt);
+  return School.create(schoolData);
+}
+
 async function seedDatabase() {
   await mongoose.connect(mongoURI);
 
   try {
     // Criar escola
-    const school = await School.create({
+    const school = await createSchool({
       name: "Escola Exemplo 3",
       email: "contato3@escolaexemplo.com",
       phone: "987654321",
