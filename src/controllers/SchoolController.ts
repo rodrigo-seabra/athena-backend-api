@@ -27,6 +27,7 @@ class SchoolController {
   }
   public async create(req: Request, res: Response): Promise<Response> {
     try {
+      console.log("Iniciando o processo de criação da instituição...");
       const {
         name,
         inepCode,
@@ -40,23 +41,34 @@ class SchoolController {
         alvara,
         certificadoFuncionamento,
       } = req.body;
-
+      
+      console.log("Dados recebidos:", { name, inepCode, cnpj, phone, email, address, institutionType, educationLevels, alvara, certificadoFuncionamento });
+      
       if (!name || !cnpj || !address || !institutionType) {
+        console.log("Campos obrigatórios faltando:", { name, cnpj, address, institutionType });
         return res
           .status(400)
           .json({
             message: "Todos os campos obrigatórios devem ser preenchidos.",
           });
       }
+      
+      console.log("Verificando se a instituição já existe com o CNPJ:", cnpj);
       const existingSchool = await School.findOne({ cnpj });
       if (existingSchool) {
+        console.log("Instituição já cadastrada:", existingSchool);
         return res
           .status(400)
           .json({
             message: "Esta instituição já está cadastrada com este CNPJ.",
           });
       }
+
+      console.log("Hashing a senha...");
       const hashedPassword = await bcrypt.hash(password, saltRounds);
+      console.log("Senha hashada com sucesso.");
+
+      console.log("Criando nova instância de School...");
       const newSchool: SchoolsModels = new School({
         name,
         inepCode,
@@ -70,14 +82,21 @@ class SchoolController {
         alvara,
         certificadoFuncionamento,
       });
+      console.log("Nova escola criada:", newSchool);
+
+      console.log("Salvando nova escola no banco de dados...");
       const createdSchool = await School.create(newSchool);
+      console.log("Escola criada com sucesso:", createdSchool);
+
+      console.log("Gerando token para a escola...");
       return await TokenHelper.createSchoolToken(createdSchool, res);
 
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao criar instituição:", error);
       return res.status(500).json({ message: "Erro ao criar instituição." });
     }
-  }
+}
+
   public async login(req: Request, res: Response): Promise<Response> {
     try {
       const { cnpj, password } = req.body;
