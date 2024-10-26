@@ -7,6 +7,7 @@ import AuthMiddlware from "../middlewares/AuthMiddleware";
 import StatsController from "../controllers/StatsController";
 import AssisthenaRoutes from './AssisthenaRoutes';
 import UpdateStatusesMiddleware from "../middlewares/UpdateStatusesMiddleware ";
+import StudentStatsController  from "../controllers/StudentStatsController";
 
 
 class Routes {
@@ -80,6 +81,9 @@ class Routes {
     this.routes.get("/stats/getschool/:IdSchool", StatsController.getStatsBySchool)
     this.routes.get("/stats/getclass/:IdClass", StatsController.getStatsByClass)
     this.routes.get("/stats/getstudent/:studentId", StatsController.getStatsByStudent)
+
+  this.routes.post("/stats/proficiency", StudentStatsController.updateProficiency);
+  this.routes.get("/stats/proficiency/:userId", StudentStatsController.getProficiencyByUser);
   }
 
 

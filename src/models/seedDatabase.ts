@@ -3,6 +3,7 @@ import School from "./School";
 import User from "./User";
 import Class from "./Class";
 import Task from "./Task";
+import StudentStats from "./StudentStats"; // Certifique-se de importar o modelo StudentStats
 import "dotenv/config";
 import bcrypt from "bcrypt";
 
@@ -20,6 +21,21 @@ async function createSchool(schoolData: any) {
   schoolData.password = await bcrypt.hash(schoolData.password, salt);
   return School.create(schoolData);
 }
+
+async function createStudentStats(userId: string, subjects: string[]) {
+  const initialStats = subjects.map(subject => ({
+    name: subject,       // Atributo name, conforme definido no schema
+    averageLevel: 1,     // Atributo averageLevel, valor inicial
+    activitiesCount: 0    // Atributo activitiesCount, valor inicial
+  }));
+
+  return StudentStats.create({
+    userId, 
+    subjects: initialStats, // Certifique-se de que isso está correto
+  });
+}
+
+
 
 async function seedDatabase() {
   await mongoose.connect(mongoURI);
@@ -43,257 +59,240 @@ async function seedDatabase() {
 
     console.log("Escola criada:", school);
 
-    // Criar usuário (professor)
-    const teacher = await createUser({
-      name: "Professor Exemplo3",
-      email: "professor3@escolaexemplo.com",
-      phone: "987654321",
-      password: "senhaSegura",
-      role: "professor",
-      IdSchool: school._id,
-      approved: true,
-      address: {
-        street: "Rua do Professor",
-        cep: "12345-678",
-        state: "SP",
-        city: "São Paulo",
-      },
-      cpf: "12345678900",
-    });
-
-    console.log("Usuário (professor) criado:", teacher);
-
+    const teachers = await Promise.all([
+      createUser({
+        name: "Professor Exemplo3",
+        email: "professor3@escolaexemplo.com",
+        phone: "987654321",
+        password: "senhaSegura",
+        role: "professor",
+        IdSchool: school._id,
+        approved: true,
+        address: {
+          street: "Rua do Professor 1",
+          cep: "12345-678",
+          state: "SP",
+          city: "São Paulo",
+        },
+        cpf: "12345678900",
+      }),
+      createUser({
+        name: "Professor Exemplo4",
+        email: "professor4@escolaexemplo.com",
+        phone: "987654322",
+        password: "senhaSegura",
+        role: "professor",
+        IdSchool: school._id,
+        approved: true,
+        address: {
+          street: "Rua do Professor 2",
+          cep: "12345-679",
+          state: "SP",
+          city: "São Paulo",
+        },
+        cpf: "12345678901",
+      }),
+      createUser({
+        name: "Professor Exemplo5",
+        email: "professor5@escolaexemplo.com",
+        phone: "987654323",
+        password: "senhaSegura",
+        role: "professor",
+        IdSchool: school._id,
+        approved: true,
+        address: {
+          street: "Rua do Professor 3",
+          cep: "12345-680",
+          state: "SP",
+          city: "São Paulo",
+        },
+        cpf: "12345678902",
+      }),
+      createUser({
+        name: "Professor Exemplo6",
+        email: "professor6@escolaexemplo.com",
+        phone: "987654324",
+        password: "senhaSegura",
+        role: "professor",
+        IdSchool: school._id,
+        approved: true,
+        address: {
+          street: "Rua do Professor 4",
+          cep: "12345-681",
+          state: "SP",
+          city: "São Paulo",
+        },
+        cpf: "12345678903",
+      }),
+    ]);
+    
+    console.log("Usuários (professores) criados:", teachers);
+    
     // Criar alunos
-    const student1 = await createUser({
-      name: "Aluno Exemplo 1",
-      email: "aluno1@escolaexemplo.com",
-      phone: "123123123",
-      password: "senhaSegura",
-      role: "estudante",
-      IdSchool: school._id,
-      approved: true,
-      address: {
-        street: "Rua do Aluno 1",
-        cep: "98765-432",
-        state: "SP",
-        city: "São Paulo",
-      },
-      cpf: "98765432100",
-    });
-
-    const student2 = await createUser({
-      name: "Aluno Exemplo 2",
-      email: "aluno2@escolaexemplo.com",
-      phone: "321321321",
-      password: "senhaSegura",
-      role: "estudante",
-      IdSchool: school._id,
-      approved: true,
-      address: {
-        street: "Rua do Aluno 2",
-        cep: "65432-123",
-        state: "SP",
-        city: "São Paulo",
-      },
-      cpf: "12312312300",
-    });
-
-    const student3 = await createUser({
-      name: "Aluno Exemplo 3",
-      email: "aluno3@escolaexemplo.com",
-      phone: "3213213221",
-      password: "senhaSegura",
-      role: "estudante",
-      IdSchool: school._id,
-      approved: true,
-      address: {
-        street: "Rua do Aluno 5",
-        cep: "65432-133",
-        state: "SP",
-        city: "São Paulo",
-      },
-      cpf: "15312312300",
-    });
-
-    const student4 = await createUser({
-      name: "Aluno Exemplo 4",
-      email: "aluno4@escolaexemplo.com",
-      phone: "3213243221",
-      password: "senhaSegura",
-      role: "estudante",
-      IdSchool: school._id,
-      approved: true,
-      address: {
-        street: "Rua do Aluno 5",
-        cep: "65432-133",
-        state: "SP",
-        city: "São Paulo",
-      },
-      cpf: "15312312300",
-    });
-
-    console.log("Usuários (alunos) criados:", student1, student2, student3, student4);
-
-    // 4. Criar classe
-    const class9A = await Class.create({
-      name: "Turma 9A",
-      grade: "9º Ano",
-      teacher: [teacher._id], // Referência ao professor
-      students: [student1._id, student2._id], // Referência aos alunos
-      IdSchool: school._id, // Referência à escola
-      year: 2024,
-      subject: ["Matemática", "História"],
-    });
-
-    console.log("Classe criada:", class9A);
-
-    const class8A = await Class.create({
-      name: "Turma 8A",
-      grade: "8º Ano",
-      teacher: [teacher._id],
-      students: [student3._id, student4._id],
-      IdSchool: school._id,
-      year: 2024,
-      subject: ["Matemática", "História"],
-    });
-
-    console.log("Classe criada:", class8A);
-
-    const tasks = [
-      // Tarefas com status "em andamento"
+    const students = [
       {
-        subject: "Matemática",
-        content: "Resolver os exercícios da página 10.",
-        dueDate: new Date("2024-12-31"),
-        recipients: [String(class9A._id)], 
-        IdTeacher: teacher._id,
-        IdClass: String(class9A._id),
-        status: "em andamento",
-        school: school._id,
+        name: "Aluno Exemplo 1",
+        email: "aluno1@escolaexemplo.com",
+        phone: "123123123",
+        cpf: "98765432100",
+        address: {
+          street: "Rua do Aluno 1",
+          cep: "98765-432",
+          state: "SP",
+          city: "São Paulo",
+        },
       },
       {
-        subject: "História",
-        content: "Leia o capítulo 5 e faça um resumo.",
-        dueDate: new Date("2024-12-15"),
-        recipients: [String(class9A._id)], 
-        IdTeacher: teacher._id,
-        IdClass: String(class9A._id),
-        status: "em andamento",
-        school: school._id,
+        name: "Aluno Exemplo 2",
+        email: "aluno2@escolaexemplo.com",
+        phone: "321321321",
+        cpf: "12312312300",
+        address: {
+          street: "Rua do Aluno 2",
+          cep: "65432-123",
+          state: "SP",
+          city: "São Paulo",
+        },
       },
       {
-        subject: "Matemática",
-        content: "Resolver os exercícios da página 15.",
-        dueDate: new Date("2024-10-12"),
-        recipients: [String(class8A._id), String(class9A._id)], 
-        IdTeacher: teacher._id,
-        IdClass: String(class8A._id),
-        status: "em andamento",
-        school: school._id,
-      },
-    
-      {
-        subject: "Matemática",
-        content: "Resolver os exercícios da página 12 e resuma aqui.",
-        dueDate: new Date("2024-10-08"),
-        recipients: [String(class9A._id)], 
-        IdTeacher: teacher._id,
-        IdClass: String(class9A._id),
-        status: "pendente",
-        school: school._id,
-        studentResponses: [
-          {
-            studentId: student1._id, 
-            studentName: student1.name, 
-            responseContent: "Minha resposta ao teste.",
-            selectedAlternative: null,
-            attachment: [], 
-            submissionDate: new Date(), 
-            graded: false, 
-            grade: null,
-            feedback: null, 
-          },
-          {
-            studentId: student2._id, 
-            studentName: student2.name, 
-            responseContent: "Minha resposta ao teste.",
-            selectedAlternative: null,
-            attachment: [], 
-            submissionDate: new Date(), 
-            graded: false, 
-            grade: null,
-            feedback: null, 
-          },
-        ],
-  
+        name: "Aluno Exemplo 3",
+        email: "aluno3@escolaexemplo.com",
+        phone: "3213213221",
+        cpf: "15312312300",
+        address: {
+          street: "Rua do Aluno 5",
+          cep: "65432-133",
+          state: "SP",
+          city: "São Paulo",
+        },
       },
       {
-        subject: "História",
-        content: "Leia o capítulo 5 e faça um resumo.",
-        dueDate: new Date("2024-08-15"), 
-        recipients: [String(class9A._id)],
-        IdTeacher: teacher._id,
-        IdClass: String(class9A._id),
-        status: "atrasada",
-        school: school._id,
-      },
-    
-      // Tarefas com status "pronto"
-      {
-        subject: "História",
-        content: "Resumo de todas as atividades.",
-        dueDate: new Date("2024-08-15"), // Data vencida
-        recipients: [String(class9A._id)],
-        IdTeacher: teacher._id,
-        IdClass: String(class9A._id),
-        status: "pronto",
-        school: school._id,
+        name: "Aluno Exemplo 4",
+        email: "aluno4@escolaexemplo.com",
+        phone: "3213243221",
+        cpf: "15312312300",
+        address: {
+          street: "Rua do Aluno 5",
+          cep: "65432-133",
+          state: "SP",
+          city: "São Paulo",
+        },
       },
       {
-        subject: "História",
-        content: "Teste.",
-        dueDate: new Date("2024-08-25"), // Data vencida
-        recipients: [String(class9A._id)],
-        IdTeacher: teacher._id,
-        IdClass: String(class9A._id),
-        status: "pendente",
-        school: school._id,
-        studentResponses: [
-          {
-            studentId: student1._id,
-            studentName: student1.name,
-            responseContent: "Minha resposta ao teste.",
-            selectedAlternative: null,
-            attachment: [],
-            submissionDate: new Date(), 
-            graded: true, 
-            grade: 9.5,
-            feedback: "Bom trabalho!",
-          },
-          {
-            studentId: student2._id,
-            studentName: student2.name,
-            responseContent: "Minha resposta ao teste.",
-            selectedAlternative: null,
-            attachment: [],
-            submissionDate: new Date(), 
-            graded: true, 
-            grade: 5.5,
-            feedback: "Precisa melhorar",
-          },
-        ],
+        name: "Aluno Exemplo 5",
+        email: "aluno5@escolaexemplo.com",
+        phone: "3213243222",
+        cpf: "15312312301",
+        address: {
+          street: "Rua do Aluno 6",
+          cep: "65432-135",
+          state: "SP",
+          city: "São Paulo",
+        },
+      },
+      {
+        name: "Aluno Exemplo 6",
+        email: "aluno6@escolaexemplo.com",
+        phone: "3213243223",
+        cpf: "15312312302",
+        address: {
+          street: "Rua do Aluno 7",
+          cep: "65432-136",
+          state: "SP",
+          city: "São Paulo",
+        },
       },
     ];
     
-    // Criar as tarefas no banco de dados
-    for (const taskData of tasks) {
-      const task = await Task.create(taskData);
-      console.log(`Tarefa criada: ${task.subject} com status ${task.status}`);
-    }
+    const createdStudents = await Promise.all(students.map(async studentData => {
+      const student = await createUser({
+        ...studentData,
+        password: "senhaSegura",
+        role: "estudante",
+        IdSchool: school._id,
+        approved: true,
+      });
+    
+      await createStudentStats(String(student._id), ["Matemática", "História", "Geografia", "Ciências"]);
+      return student;
+    }));
+    
+    console.log("Usuários (alunos) criados:", createdStudents);
+    
+    // Criar classes
+    const classes = [
+      {
+        name: "Turma 9A",
+        grade: "9º Ano",
+        teacher: [teachers[0]._id, teachers[1]._id, teachers[2]._id, teachers[3]._id],
+        students: [createdStudents[0]._id, createdStudents[1]._id, createdStudents[4]._id],
+        IdSchool: school._id,
+        year: 2024,
+        subject: ["Matemática", "História", "Geografia", "Ciências"],
+      },
+      {
+        name: "Turma 9B",
+        grade: "9º Ano",
+        teacher: [teachers[0]._id, teachers[1]._id, teachers[2]._id, teachers[3]._id],
+        students: [createdStudents[2]._id, createdStudents[3]._id, createdStudents[5]._id],
+        IdSchool: school._id,
+        year: 2024,
+        subject: ["Matemática", "História", "Geografia", "Ciências"],
+      },
+      {
+        name: "Turma 8A",
+        grade: "8º Ano",
+        teacher: [teachers[0]._id, teachers[1]._id, teachers[2]._id, teachers[3]._id],
+        students: [createdStudents[0]._id, createdStudents[1]._id],
+        IdSchool: school._id,
+        year: 2024,
+        subject: ["Matemática", "História", "Geografia", "Ciências"],
+      },
+      {
+        name: "Turma 8B",
+        grade: "8º Ano",
+        teacher: [teachers[0]._id, teachers[1]._id, teachers[2]._id, teachers[3]._id],
+        students: [createdStudents[2]._id, createdStudents[3]._id],
+        IdSchool: school._id,
+        year: 2024,
+        subject: ["Matemática", "História", "Geografia", "Ciências"],
+      },
+    ];
+    
+    const createdClasses = await Class.insertMany(classes);
+    console.log("Classes criadas:", createdClasses);
+    
+    const tasks :  any[] = [];
+    
+    const createTasksForClass = (classId : any, subjects : any) => {
+      subjects.forEach((subject: any, index : any) => {
+        for (let i = 1; i <= 3; i++) {
+          tasks.push({
+            subject,
+            content: `${subject} Tarefa ${i} para ${classId}.`,
+            dueDate: new Date(`2024-12-0${i}`),
+            recipients: [String(classId)],
+            IdTeacher: teachers[index]._id, // Usando o professor correspondente para cada matéria
+            IdClass: String(classId),
+            status: "em andamento",
+            school: school._id,
+          });
+        }
+      });
+    };
+    
+    // Criar tarefas para cada classe
+    createdClasses.forEach(createdClass => {
+      createTasksForClass(createdClass._id, createdClass.subject);
+    });
+    
+    const createdTasks = await Task.insertMany(tasks);
+    console.log("Tarefas criadas:", createdTasks);
+
   } catch (error) {
     console.error("Erro ao popular o banco de dados:", error);
   } finally {
-    await mongoose.connection.close();
+    mongoose.disconnect();
   }
 }
 
