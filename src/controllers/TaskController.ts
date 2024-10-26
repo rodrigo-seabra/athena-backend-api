@@ -113,12 +113,11 @@ class TaskController {
         return res.status(400).json({ message: "ID do usuário não fornecido." });
       }
 
-      // Busca apenas tarefas onde o status do aluno é "pronto"
       const completedTasks = await Task.find({
         "studentStatus": {
           $elemMatch: {
             studentId: userId,
-            status: "pronto" // Verifica se o status é "pronto"
+            status: "pronto"
           }
         }
       }).lean();
@@ -127,7 +126,6 @@ class TaskController {
         completedTasks.map(async (task) => {
           const teacher = await User.findById(task.IdTeacher);
 
-          // Filtra apenas o status e as respostas do aluno
           const filteredStudentStatus = task.studentStatus?.filter(
             (status) => status.studentId === userId
           );
@@ -150,7 +148,6 @@ class TaskController {
         tasks: tasksWithFilteredData,
       });
     } catch (error: any) {
-      console.error("Erro ao buscar tarefas completas:", error);
       return res.status(500).json({ message: "Erro ao buscar tarefas completas." });
     }
   }
@@ -177,7 +174,7 @@ class TaskController {
         "studentStatus": {
           $elemMatch: {
             studentId: userId,
-            status: "em andamento", // Verifica se o status é "em andamento"
+            status: "em andamento", 
           }
         }
       }).lean();
@@ -209,7 +206,6 @@ class TaskController {
         tasks: tasksWithTeacherNames,
       });
     } catch (error: any) {
-      console.error("Erro ao buscar tarefas com vencimento próximo:", error);
       return res.status(500).json({ message: "Erro ao buscar tarefas com vencimento próximo." });
     }
   }
@@ -231,7 +227,7 @@ class TaskController {
         "studentStatus": {
           $elemMatch: {
             studentId: userId,
-            status: "atrasada", // Verifica se o status é "atrasada"
+            status: "atrasada",
           }
         }
       }).lean();
@@ -261,7 +257,6 @@ class TaskController {
         tasks: tasksWithTeacherNames,
       });
     } catch (error: any) {
-      console.error("Erro ao buscar tarefas atrasadas:", error);
       return res.status(500).json({ message: "Erro ao buscar tarefas atrasadas." });
     }
   }
@@ -331,7 +326,6 @@ class TaskController {
         });
       }
     } catch (error: any) {
-      console.error("Erro ao buscar tarefas concluídas:", error);
       return res
         .status(500)
         .json({ message: "Erro ao buscar tarefas concluídas." });
@@ -359,7 +353,6 @@ class TaskController {
         });
       }
     } catch (error: any) {
-      console.error("Erro ao buscar tarefas atrasadas:", error);
       return res
         .status(500)
         .json({ message: "Erro ao buscar tarefas atrasadas." });
@@ -397,7 +390,6 @@ class TaskController {
         });
       }
     } catch (error: any) {
-      console.error("Erro ao buscar tarefas em risco de atraso:", error);
       return res
         .status(500)
         .json({ message: "Erro ao buscar tarefas em risco de atraso." });
@@ -406,37 +398,22 @@ class TaskController {
 
   public async getAllTasks(req: Request, res: Response): Promise<Response> {
     try {
-      const { userId, teacherId } = req.params;
-      console.log("Recebido userId e teacherId:", userId, teacherId);
+      const { teacherId } = req.params;
 
-      if (userId !== "null") {
-        console.log("Buscando tarefas para o usuário:", userId);
-        const allTasks = await Task.find({
-          recipients: userId,
-        });
-        console.log("Tarefas encontradas para o usuário:", allTasks);
-        return res.status(200).json({
-          count: allTasks.length,
-          tasks: allTasks,
-        });
-      } else if (teacherId) {
-        console.log("Buscando tarefas para o professor:", teacherId);
+      if (teacherId) {
         const allTasks = await Task.find({
           IdTeacher: teacherId,
         });
-        console.log("Tarefas encontradas para o professor:", allTasks);
         return res.status(200).json({
           count: allTasks.length,
           tasks: allTasks,
         });
       }
 
-      console.log("IDs inválidos recebidos.");
       return res.status(400).json({
         message: "Invalid IDS",
       });
     } catch (error: any) {
-      console.error("Erro ao buscar todas as tarefas:", error);
       return res
         .status(500)
         .json({ message: "Erro ao buscar todas as tarefas." });
@@ -450,39 +427,31 @@ class TaskController {
     try {
       const { taskId } = req.params;
 
-      console.log("Recebido taskId:", taskId); // Log do taskId recebido
 
       if (!taskId) {
-        console.log("ID da tarefa não fornecido."); // Log caso o taskId não seja fornecido
+        console.log("ID da tarefa não fornecido."); 
         return res.status(400).json({ message: "ID da tarefa não fornecido." });
       }
 
       const task = await Task.findById(taskId);
 
-      console.log("Tarefa encontrada:", task); // Log da tarefa encontrada
-
       if (!task) {
-        console.log("Tarefa não encontrada para o ID:", taskId); // Log caso a tarefa não seja encontrada
         return res.status(404).json({ message: "Tarefa não encontrada." });
       }
 
       const responses = task.studentResponses;
-      console.log("Respostas dos estudantes:", responses); // Log das respostas dos estudantes
 
       if (!responses || responses.length === 0) {
-        console.log("Nenhuma resposta encontrada para a tarefa ID:", taskId); // Log caso não haja respostas
         return res
           .status(404)
           .json({ message: "Nenhuma resposta encontrada para esta tarefa." });
       }
 
-      console.log("Retornando respostas com sucesso para a tarefa ID:", taskId); // Log de sucesso
       return res.status(200).json({
         taskId: task._id,
         responses: responses,
       });
     } catch (error: any) {
-      console.error("Erro ao buscar respostas da tarefa:", error); // Log do erro capturado no catch
       return res
         .status(500)
         .json({ message: "Erro ao buscar respostas da tarefa." });
@@ -509,58 +478,58 @@ class TaskController {
   public async create(req: Request, res: Response): Promise<Response> {
     try {
       console.log("Iniciando a criação da tarefa...");
-  
+
       const {
         subject,
         content,
         dueDate,
-        recipients, 
+        recipients,
         attachment,
         IdTeacher,
         alternatives,
       } = req.body;
-  
-  
+
+
       if (!subject || !content || !dueDate || !recipients || !IdTeacher) {
         console.log("Erro: Campos obrigatórios não preenchidos.");
         return res.status(400).json({
           message: "Todos os campos obrigatórios devem ser preenchidos.",
         });
       }
-  
+
       const existingTask = await Task.findOne({ subject, dueDate });
-  
+
       if (existingTask) {
- 
+
         return res.status(400).json({
           message: "Já existe uma tarefa com o mesmo assunto e data de vencimento.",
         });
       }
-  
+
       const newTask = new Task({
         subject,
         content,
         dueDate,
-        status : "em andamento",
-        recipients, 
+        status: "em andamento",
+        recipients,
         attachment,
         IdTeacher,
         alternatives,
-        studentResponses: [], 
-        studentStatus: [], 
+        studentResponses: [],
+        studentStatus: [],
       });
-  
+
       console.log("Nova tarefa a ser criada:", newTask);
-  
+
       const classes = await Class.find({ _id: { $in: recipients } });
       if (classes.length !== recipients.length) {
         return res.status(400).json({
           message: "Uma ou mais classes não foram encontradas.",
         });
       }
-  
+
       const createdTask = await Task.create(newTask);
-  
+
       return res.status(201).json({
         message: "Tarefa criada com sucesso.",
         task: createdTask,
@@ -569,8 +538,8 @@ class TaskController {
       return res.status(500).json({ message: "Erro ao criar a tarefa." });
     }
   }
-  
-  
+
+
 
   public async addStudentResponse(
     req: Request,
@@ -583,9 +552,6 @@ class TaskController {
         req.body;
       let user: UsersModel | null = TokenHelper.User;
 
-      console.log("Dados recebidos para adicionar resposta:", req.body);
-      console.log("Usuário atual:", user);
-
       if (!idTask || !user?._id || (!responseContent && !selectedAlternative)) {
         console.log("Erro: Campos obrigatórios faltando.");
         return res.status(400).json({
@@ -595,7 +561,6 @@ class TaskController {
       }
 
       const existingTask = await Task.findOne({ _id: idTask });
-      console.log("Verificando se a tarefa existe:", existingTask);
 
       if (!existingTask) {
         console.log("Erro: Tarefa não encontrada.");
@@ -640,16 +605,12 @@ class TaskController {
       );
 
       if (studentStatus) {
-        studentStatus.status = "pronto"; 
+        studentStatus.status = "pronto";
       }
 
-      console.log(
-        "Respostas do estudante atualizadas:",
-        existingTask.studentResponses
-      );
+
 
       await existingTask.save();
-      console.log("Tarefa salva com a nova resposta.");
 
       return res.status(200).json({
         message: "Resposta enviada com sucesso.",
@@ -671,13 +632,9 @@ class TaskController {
       const { idStudent, idTask } = req.body;
 
       const existingTask = await Task.findOne({ _id: idTask });
-      console.log(
-        "Verificando a tarefa para resposta do professor:",
-        existingTask
-      );
+
 
       if (!existingTask) {
-        console.log("Erro: Tarefa não encontrada.");
         throw new Error("Task not found");
       }
 
@@ -686,15 +643,12 @@ class TaskController {
       );
 
       if (!existingResponse) {
-        console.log("Erro: Resposta do estudante não existe.");
         throw new Error("Response not exist");
       }
 
       const { feedback, grade } = req.body;
-      console.log("Feedback e nota recebidos:", feedback, grade);
 
       if (!feedback || grade === undefined) {
-        console.log("Erro: Dados faltando.");
         throw new Error("Dados faltando");
       }
 
@@ -703,16 +657,12 @@ class TaskController {
       existingResponse.graded = true;
 
       await existingTask.save();
-      console.log(
-        "Resposta do estudante atualizada com sucesso:",
-        existingResponse
-      );
+;
 
       return res
         .status(200)
         .json({ message: "Response updated successfully", existingResponse });
     } catch (error: any) {
-      console.error("Erro ao adicionar resposta do professor:", error);
       return res.status(500).json({ message: error.message });
     }
   }
