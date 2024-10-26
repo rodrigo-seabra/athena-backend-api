@@ -48,7 +48,7 @@ class Routes {
     this.routes.get("/tasks/responsesbytask/:taskId", TaskController.getTaskResponsesById)
     this.routes.post("/tasks/create", AuthMiddlware.Authorization, TaskController.create);
     this.routes.post("/tasks/response", AuthMiddlware.Authorization ,TaskController.addStudentResponse)
-    this.routes.post("/tasks/correction", AuthMiddlware.Authorization,TaskController.addTeacherResponse)
+    this.routes.post("/tasks/correction", AuthMiddlware.Authorization,StudentStatsController.addTeacherResponse)
     this.routes.get("/tasks/getId/:id", AuthMiddlware.BasicAuth ,TaskController.getTaskById)
     this.routes.get("/tasks/completed/:teacherId?",TaskController.getCompletedTasks)
     this.routes.get("/tasks/dueSoon/:teacherId?", TaskController.getTasksDueSoon)

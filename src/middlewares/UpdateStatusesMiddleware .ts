@@ -10,10 +10,8 @@ class UpdateStatusesMiddleware {
         await this.updateStudentStatus();
         await this.updateAllStudentStatuses();
   
-        console.log('Status atualizados com sucesso.');
         next(); 
       } catch (error) {
-        console.error('Erro ao atualizar status:', error);
         next(error);
       }
     }
@@ -28,7 +26,6 @@ class UpdateStatusesMiddleware {
           status: { $ne: 'pronto' },
         });
     
-        console.log(`Tarefas vencidas encontradas: ${overdueTasks.length}`);
     
         for (const task of overdueTasks) {
           const userClass = await Class.findById(task.recipients);
@@ -47,14 +44,12 @@ class UpdateStatusesMiddleware {
             task.status = 'atrasada';
           }
     
-          console.log(`Atualizando tarefa ${task._id} para o status: ${task.status}`);
     
           await task.save().catch((saveError) => {
             console.error(`Erro ao salvar a tarefa ${task._id}:`, saveError);
           });
         }
     
-        console.log('Status das tarefas vencidas atualizados com sucesso.');
     
       } catch (error) {
         console.error('Erro ao atualizar status das tarefas atrasadas:', error);
@@ -87,7 +82,6 @@ class UpdateStatusesMiddleware {
           }
         }
   
-        console.log('Status dos alunos atualizados com sucesso.');
       } catch (error) {
         console.error('Erro ao atualizar status dos alunos:', error);
       }
@@ -145,7 +139,6 @@ class UpdateStatusesMiddleware {
           }
         }
     
-        console.log('Todos os studentStatus foram atualizados com sucesso.');
       } catch (error) {
         console.error('Erro ao atualizar studentStatus:', error);
       }
