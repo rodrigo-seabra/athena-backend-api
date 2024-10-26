@@ -6,7 +6,6 @@ import Class, { ClassModel } from "../models/Class";
 import { UsersInterface } from "../interfaces/User.interface";
 
 class TaskController {
-  
 
   public async getPendingTasksByUser(
     req: Request,
@@ -16,28 +15,30 @@ class TaskController {
       const { userId } = req.params;
 
       if (!userId) {
-        return res
-          .status(400)
-          .json({ message: "ID do usuário não fornecido." });
+        return res.status(400).json({ message: "ID do usuário não fornecido." });
       }
 
       const pendingTasks = await Task.find({
-        "studentStatus.studentId": userId,
-        "studentStatus.status": "em andamento",
-      });
-
-      if (pendingTasks.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "Nenhuma tarefa pendente encontrada." });
-      }
+        "studentStatus": {
+          $elemMatch: {
+            studentId: userId,
+            status: "em andamento"
+          }
+        }
+      }).lean();
 
       const tasksWithTeacherNames = await Promise.all(
         pendingTasks.map(async (task) => {
           const teacher = await User.findById(task.IdTeacher);
+
+          const filteredStudentStatus = task.studentStatus?.filter(
+            (status) => status.studentId === userId
+          );
+
           return {
-            ...task.toObject(),
+            ...task,
             teacherName: teacher ? teacher.name : "Professor não encontrado",
+            studentStatus: filteredStudentStatus,
           };
         })
       );
@@ -48,11 +49,10 @@ class TaskController {
       });
     } catch (error: any) {
       console.error("Erro ao buscar tarefas pendentes:", error);
-      return res
-        .status(500)
-        .json({ message: "Erro ao buscar tarefas pendentes." });
+      return res.status(500).json({ message: "Erro ao buscar tarefas pendentes." });
     }
   }
+
 
   public async getAllByUser(req: Request, res: Response): Promise<Response> {
     try {
@@ -75,13 +75,19 @@ class TaskController {
         query["studentStatus.status"] = "pronto";
       }
 
-      const tasks = await Task.find(query);
+      const tasks = await Task.find(query).lean();
       const tasksWithTeacherNames = await Promise.all(
         tasks.map(async (task) => {
           const teacher = await User.findById(task.IdTeacher);
+
+          const filteredStudentStatus = task.studentStatus?.filter(
+            (status) => status.studentId === userId
+          );
+
           return {
-            ...task.toObject(),
+            ...task,
             teacherName: teacher ? teacher.name : "Professor não encontrado",
+            studentStatus: filteredStudentStatus,
           };
         })
       );
@@ -104,37 +110,52 @@ class TaskController {
       const { userId } = req.params;
 
       if (!userId) {
-        return res
-          .status(400)
-          .json({ message: "ID do usuário não fornecido." });
+        return res.status(400).json({ message: "ID do usuário não fornecido." });
       }
 
+      // Busca apenas tarefas onde o status do aluno é "pronto"
       const completedTasks = await Task.find({
-        "studentStatus.studentId": userId,
-        "studentStatus.status": "pronto",
-      });
+        "studentStatus": {
+          $elemMatch: {
+            studentId: userId,
+            status: "pronto" // Verifica se o status é "pronto"
+          }
+        }
+      }).lean();
 
-      const tasksWithTeacherNames = await Promise.all(
+      const tasksWithFilteredData = await Promise.all(
         completedTasks.map(async (task) => {
           const teacher = await User.findById(task.IdTeacher);
+
+          // Filtra apenas o status e as respostas do aluno
+          const filteredStudentStatus = task.studentStatus?.filter(
+            (status) => status.studentId === userId
+          );
+
+          const filteredResponses = task.studentResponses?.filter(
+            (response) => response.studentId.toString() === userId
+          );
+
           return {
-            ...task.toObject(),
+            ...task,
             teacherName: teacher ? teacher.name : "Professor não encontrado",
+            studentStatus: filteredStudentStatus,
+            studentResponses: filteredResponses,
           };
         })
       );
 
       return res.status(200).json({
-        count: tasksWithTeacherNames.length,
-        tasks: tasksWithTeacherNames,
+        count: tasksWithFilteredData.length,
+        tasks: tasksWithFilteredData,
       });
     } catch (error: any) {
       console.error("Erro ao buscar tarefas completas:", error);
-      return res
-        .status(500)
-        .json({ message: "Erro ao buscar tarefas completas." });
+      return res.status(500).json({ message: "Erro ao buscar tarefas completas." });
     }
   }
+
+
 
   public async getTasksDueSoonByUser(
     req: Request,
@@ -148,34 +169,40 @@ class TaskController {
       upcomingDueDate.setHours(currentDate.getHours() + 48);
 
       if (!userId) {
-        return res.status(400).json({
-          message: "ID do usuário não fornecido.",
-        });
+        return res.status(400).json({ message: "ID do usuário não fornecido." });
       }
 
       const dueSoonTasks = await Task.find({
         dueDate: { $gte: currentDate, $lt: upcomingDueDate },
-        "studentStatus.studentId": userId,
-        "studentStatus.status": "em andamento",
-      });
-
-      if (dueSoonTasks.length === 0) {
-        return res
-          .status(404)
-          .json({
-            message: "Nenhuma tarefa com vencimento próximo encontrada.",
-          });
-      }
+        "studentStatus": {
+          $elemMatch: {
+            studentId: userId,
+            status: "em andamento", // Verifica se o status é "em andamento"
+          }
+        }
+      }).lean();
 
       const tasksWithTeacherNames = await Promise.all(
         dueSoonTasks.map(async (task) => {
           const teacher = await User.findById(task.IdTeacher);
+
+          const filteredStudentStatus = task.studentStatus?.filter(
+            (status) => status.studentId === userId
+          );
+
           return {
-            ...task.toObject(),
+            ...task,
             teacherName: teacher ? teacher.name : "Professor não encontrado",
+            studentStatus: filteredStudentStatus,
           };
         })
       );
+
+      if (tasksWithTeacherNames.length === 0) {
+        return res.status(404).json({
+          message: "Nenhuma tarefa com vencimento próximo encontrada.",
+        });
+      }
 
       return res.status(200).json({
         count: tasksWithTeacherNames.length,
@@ -183,9 +210,7 @@ class TaskController {
       });
     } catch (error: any) {
       console.error("Erro ao buscar tarefas com vencimento próximo:", error);
-      return res
-        .status(500)
-        .json({ message: "Erro ao buscar tarefas com vencimento próximo." });
+      return res.status(500).json({ message: "Erro ao buscar tarefas com vencimento próximo." });
     }
   }
 
@@ -198,32 +223,38 @@ class TaskController {
       const currentDate = new Date();
 
       if (!userId) {
-        return res
-          .status(400)
-          .json({ message: "ID do usuário não fornecido." });
+        return res.status(400).json({ message: "ID do usuário não fornecido." });
       }
 
       const overdueTasks = await Task.find({
         dueDate: { $lt: currentDate },
-        "studentStatus.studentId": userId,
-        "studentStatus.status": "atrasada",
-      });
-
-      if (overdueTasks.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "Nenhuma tarefa atrasada encontrada." });
-      }
+        "studentStatus": {
+          $elemMatch: {
+            studentId: userId,
+            status: "atrasada", // Verifica se o status é "atrasada"
+          }
+        }
+      }).lean();
 
       const tasksWithTeacherNames = await Promise.all(
         overdueTasks.map(async (task) => {
           const teacher = await User.findById(task.IdTeacher);
+
+          const filteredStudentStatus = task.studentStatus?.filter(
+            (status) => status.studentId === userId
+          );
+
           return {
-            ...task.toObject(),
+            ...task,
             teacherName: teacher ? teacher.name : "Professor não encontrado",
+            studentStatus: filteredStudentStatus,
           };
         })
       );
+
+      if (tasksWithTeacherNames.length === 0) {
+        return res.status(404).json({ message: "Nenhuma tarefa atrasada encontrada." });
+      }
 
       return res.status(200).json({
         count: tasksWithTeacherNames.length,
@@ -231,11 +262,10 @@ class TaskController {
       });
     } catch (error: any) {
       console.error("Erro ao buscar tarefas atrasadas:", error);
-      return res
-        .status(500)
-        .json({ message: "Erro ao buscar tarefas atrasadas." });
+      return res.status(500).json({ message: "Erro ao buscar tarefas atrasadas." });
     }
   }
+
 
 
 
@@ -260,12 +290,12 @@ class TaskController {
         const studentResponse = task.studentResponses?.find(
           response => response.studentId.toString() === userId
         );
-        
+
         return {
           taskId: task._id,
           taskTitle: task.content,
-          grade: studentResponse?.grade, 
-          feedback: studentResponse?.feedback, 
+          grade: studentResponse?.grade,
+          feedback: studentResponse?.feedback,
         };
       });
 
@@ -479,92 +509,68 @@ class TaskController {
   public async create(req: Request, res: Response): Promise<Response> {
     try {
       console.log("Iniciando a criação da tarefa...");
-
+  
       const {
         subject,
         content,
         dueDate,
-        classes,
-        recipients,
+        recipients, 
         attachment,
         IdTeacher,
         alternatives,
       } = req.body;
-
-      console.log("Dados da tarefa recebidos:", req.body);
-
+  
+  
       if (!subject || !content || !dueDate || !recipients || !IdTeacher) {
         console.log("Erro: Campos obrigatórios não preenchidos.");
         return res.status(400).json({
           message: "Todos os campos obrigatórios devem ser preenchidos.",
         });
       }
-
+  
       const existingTask = await Task.findOne({ subject, dueDate });
-      console.log("Verificando se a tarefa já existe:", existingTask);
-
+  
       if (existingTask) {
-        console.log(
-          "Erro: Já existe uma tarefa com o mesmo assunto e data de vencimento."
-        );
+ 
         return res.status(400).json({
-          message:
-            "Já existe uma tarefa com o mesmo assunto e data de vencimento.",
+          message: "Já existe uma tarefa com o mesmo assunto e data de vencimento.",
         });
       }
-
+  
       const newTask = new Task({
         subject,
         content,
         dueDate,
-        recipients,
+        status : "em andamento",
+        recipients, 
         attachment,
         IdTeacher,
         alternatives,
-        studentResponses: [], // Inicializa como um array vazio
-        studentStatus: [], // Adiciona status dos alunos
+        studentResponses: [], 
+        studentStatus: [], 
       });
-
+  
       console.log("Nova tarefa a ser criada:", newTask);
-
-      // Busca as classes associadas à tarefa
-      const userClass = await Class.findById(newTask.IdClass);
-      if (!userClass) {
-        console.log(`Classe não encontrada para a tarefa ${newTask._id}`);
+  
+      const classes = await Class.find({ _id: { $in: recipients } });
+      if (classes.length !== recipients.length) {
         return res.status(400).json({
-          message: "Classe não encontrada.",
+          message: "Uma ou mais classes não foram encontradas.",
         });
       }
-
-      // Pega todos os alunos da classe
-      const allStudents = userClass.students; // Lista de IDs dos alunos
-
-      // Busca os nomes dos alunos
-      const studentsDetails = await User.find({ _id: { $in: allStudents } });
-
-      newTask.studentStatus = allStudents.map((studentId) => {
-        const student = studentsDetails.find(
-          (s) => String(s._id) === String(studentId)
-        );
-        return {
-          studentId: String(studentId),
-          studentName: student ? student.name : "Nome não encontrado",
-          status: "em andamento",
-        };
-      });
-
+  
       const createdTask = await Task.create(newTask);
-      console.log("Tarefa criada com sucesso:", createdTask);
-
+  
       return res.status(201).json({
         message: "Tarefa criada com sucesso.",
         task: createdTask,
       });
     } catch (error) {
-      console.error("Erro ao criar a tarefa:", error);
       return res.status(500).json({ message: "Erro ao criar a tarefa." });
     }
   }
+  
+  
 
   public async addStudentResponse(
     req: Request,
@@ -634,7 +640,7 @@ class TaskController {
       );
 
       if (studentStatus) {
-        studentStatus.status = "pronto"; // Atualiza o status para "pronto"
+        studentStatus.status = "pronto"; 
       }
 
       console.log(

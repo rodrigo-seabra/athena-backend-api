@@ -183,7 +183,7 @@ async function seedDatabase() {
       },
       {
         subject: "Matemática",
-        content: "Resolver os exercícios da página 10.",
+        content: "Resolver os exercícios da página 15.",
         dueDate: new Date("2024-10-12"),
         recipients: [String(class8A._id), String(class9A._id)], 
         IdTeacher: teacher._id,
