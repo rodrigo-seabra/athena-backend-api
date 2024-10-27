@@ -213,7 +213,7 @@ async function seedDatabase() {
         approved: true,
       });
     
-      await createStudentStats(String(student._id), ["Matemática", "História", "Geografia", "Ciências"]);
+      await createStudentStats(String(student._id), ["Matemática", "História", "Geografia", "Física"]);
       return student;
     }));
     
@@ -228,7 +228,7 @@ async function seedDatabase() {
         students: [createdStudents[0]._id, createdStudents[1]._id, createdStudents[4]._id],
         IdSchool: school._id,
         year: 2024,
-        subject: ["Matemática", "História", "Geografia", "Ciências"],
+        subject: ["Matemática", "História", "Geografia", "Física"],
       },
       {
         name: "Turma 9B",
@@ -237,7 +237,7 @@ async function seedDatabase() {
         students: [createdStudents[2]._id, createdStudents[3]._id, createdStudents[5]._id],
         IdSchool: school._id,
         year: 2024,
-        subject: ["Matemática", "História", "Geografia", "Ciências"],
+        subject: ["Matemática", "História", "Geografia", "Física"],
       },
       {
         name: "Turma 8A",
@@ -246,7 +246,7 @@ async function seedDatabase() {
         students: [createdStudents[0]._id, createdStudents[1]._id],
         IdSchool: school._id,
         year: 2024,
-        subject: ["Matemática", "História", "Geografia", "Ciências"],
+        subject: ["Matemática", "História", "Geografia", "Física"],
       },
       {
         name: "Turma 8B",
@@ -255,7 +255,7 @@ async function seedDatabase() {
         students: [createdStudents[2]._id, createdStudents[3]._id],
         IdSchool: school._id,
         year: 2024,
-        subject: ["Matemática", "História", "Geografia", "Ciências"],
+        subject: ["Matemática", "História", "Geografia", "Física"],
       },
     ];
     
