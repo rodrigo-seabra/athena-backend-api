@@ -20,6 +20,7 @@ class Routes {
     this.ClassRoutes();
     this.StatsRoutes();
     this.AssisthenaRoutes();
+    this.ScheduleRoutes();
 
   }
   private AssisthenaRoutes() {
@@ -27,7 +28,7 @@ class Routes {
   }
 
   private ScheduleRoutes() {
-    this.routes.post("/schedule", ScheduleController.create);
+    this.routes.post("/schedule/create", ScheduleController.create);
     this.routes.get("/schedule/:classId", ScheduleController.getByClass);
     this.routes.put("/schedule/:classId", ScheduleController.update);
     this.routes.delete("/schedule/:classId", ScheduleController.delete);

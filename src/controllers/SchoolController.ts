@@ -101,13 +101,16 @@ class SchoolController {
     try {
       const { cnpj, password } = req.body;
 
+      console.log(cnpj)
       if (!cnpj || !password) {
         return res
           .status(400)
           .json({ message: "CNPJ e senha são obrigatórios para login." });
       }
+      console.log(cnpj)
 
       const existingSchool = await School.findOne({ cnpj });
+      console.log(existingSchool)
 
       if (!existingSchool) {
         return res.status(404).json({ message: "Instituição não encontrada." });
