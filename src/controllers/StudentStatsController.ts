@@ -8,6 +8,38 @@ import { calculateGrowthProjection } from "../utils/growthProjection.utils";
 import Task from "../models/Task";
 
 class StudentStatsController {
+
+  public async getSemesterPerformance(req: Request, res: Response): Promise<Response> {
+    try {
+      const { userId } = req.params;
+  
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required." });
+      }
+  
+      const studentStats = await StudentStats.findOne({ userId });
+  
+      if (!studentStats) {
+        return res.status(404).json({ message: "Student stats not found." });
+      }
+  
+      // Mapeie os dados para calcular a pontuação de presença e ausência com base na proficiência
+      const performanceData = studentStats.subjects.map(subject => {
+        const presente = Math.min(subject.averageLevel, 1000); // Assumindo que 1000 é a pontuação máxima
+        const ausente = 1000 - presente;
+        return {
+          category: subject.name,
+          presente,
+          ausente
+        };
+      });
+  
+      return res.status(200).json(performanceData);
+    } catch (error) {
+      console.error("Error retrieving semester performance:", error);
+      return res.status(500).json({ message: "Error retrieving performance data." });
+    }
+  }
     public async updateProficiency(req: Request, res: Response): Promise<Response> {
         try {
           const { userId, subjectName, newLevel } = req.body;

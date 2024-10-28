@@ -84,6 +84,8 @@ class Routes {
 
   this.routes.post("/stats/proficiency", StudentStatsController.updateProficiency);
   this.routes.get("/stats/proficiency/:userId", StudentStatsController.getProficiencyByUser);
+  this.routes.get("/stats/semester/:userId", StudentStatsController.getSemesterPerformance);
+
   this.routes.get("/class/:classId/proficiency", StudentStatsController.getProficiencyByClass);
   }
 

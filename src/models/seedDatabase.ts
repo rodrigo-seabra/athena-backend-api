@@ -23,18 +23,17 @@ async function createSchool(schoolData: any) {
 }
 
 async function createStudentStats(userId: string, subjects: string[]) {
-  const initialStats = subjects.map(subject => ({
-    name: subject,       // Atributo name, conforme definido no schema
-    averageLevel: 1,     // Atributo averageLevel, valor inicial
-    activitiesCount: 0    // Atributo activitiesCount, valor inicial
+  const initialStats = subjects.map((subject, index) => ({
+    name: subject,
+    averageLevel: Math.max(1, Math.floor(Math.random() * 5)), 
+    activitiesCount: Math.floor(Math.random() * 10),           
   }));
 
   return StudentStats.create({
     userId, 
-    subjects: initialStats, // Certifique-se de que isso está correto
+    subjects: initialStats,
   });
 }
-
 
 
 async function seedDatabase() {
