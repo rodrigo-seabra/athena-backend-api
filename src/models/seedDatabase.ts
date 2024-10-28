@@ -6,6 +6,7 @@ import Task from "./Task";
 import StudentStats from "./StudentStats"; // Certifique-se de importar o modelo StudentStats
 import "dotenv/config";
 import bcrypt from "bcrypt";
+import Schedule from "./Schedule";
 
 const mongoURI =
   process.env.CONNECTIONSTRING || "mongodb://localhost:27017/Athena";
@@ -33,6 +34,16 @@ async function createStudentStats(userId: string, subjects: string[]) {
     userId, 
     subjects: initialStats,
   });
+}
+
+async function createSchedule(classId: string) {
+  const scheduleItems = [
+    { dayOfWeek: "1", startTime: "08:00", endTime: "10:00", topic: "Matemática" },
+    { dayOfWeek: "2", startTime: "08:00", endTime: "10:00", topic: "História" },
+    { dayOfWeek: "3", startTime: "08:00", endTime: "10:00", topic: "Geografia" },
+  ];
+
+  return Schedule.create({ classId, scheduleItems: scheduleItems });
 }
 
 
@@ -260,6 +271,12 @@ async function seedDatabase() {
     
     const createdClasses = await Class.insertMany(classes);
     console.log("Classes criadas:", createdClasses);
+
+    const schedules = await Promise.all(
+      createdClasses.map((createdClass) => createSchedule(String(createdClass._id)))
+    );
+    console.log("Cronogramas criados para as classes:", schedules);
+
     
     const tasks :  any[] = [];
     
