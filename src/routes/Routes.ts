@@ -9,6 +9,7 @@ import AssisthenaRoutes from './AssisthenaRoutes';
 import UpdateStatusesMiddleware from "../middlewares/UpdateStatusesMiddleware ";
 import StudentStatsController from "../controllers/StudentStatsController";
 import ScheduleController from "../controllers/ScheduleController";
+import AttendanceController from "../controllers/AttendanceController"; // Importando o AttendanceController
 
 class Routes {
   public routes: Router;
@@ -21,10 +22,15 @@ class Routes {
     this.StatsRoutes();
     this.AssisthenaRoutes();
     this.ScheduleRoutes();
+    this.AttendanceRoutes(); 
 
   }
   private AssisthenaRoutes() {
     this.routes.use('/teste', AssisthenaRoutes);
+  }
+
+  private AttendanceRoutes() {
+    this.routes.post("/attendance", AttendanceController.register); 
   }
 
   private ScheduleRoutes() {
