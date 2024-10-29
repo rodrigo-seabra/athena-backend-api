@@ -169,8 +169,8 @@ public async manualRegister(req: Request, res: Response): Promise<Response> {
 
   // Busca a presença de um aluno em uma data específica
   async getAttendanceByDate(req: Request, res: Response) {
-    const { studentId, date } = req.params;
-
+    const { studentId } = req.params;
+const {date} = req.body
     try {
       const attendanceRecords = await Attendance.find({
         studentId,

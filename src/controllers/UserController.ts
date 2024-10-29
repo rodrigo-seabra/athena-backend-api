@@ -63,7 +63,8 @@ class UserController {
   public async updateFaceDescriptor(req: Request, res: Response): Promise<Response> {
     const { descriptor } = req.body;
     const userId = TokenHelper.User?._id;
-  
+
+    console.log(userId)
     if (!descriptor) {
       return res.status(400).json({ message: "Descriptor facial é obrigatório." });
     }

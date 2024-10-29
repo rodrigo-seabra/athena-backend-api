@@ -35,7 +35,7 @@ class Routes {
      this.routes.post("/attendance/manualRegister", AttendanceController.manualRegister);
      this.routes.post("/attendance/register", AttendanceController.register);
      this.routes.post("/attendance/registerManual", AttendanceController.registerAttendanceManual);
-     this.routes.get("/attendance/:studentId/:date", AttendanceController.getAttendanceByDate); 
+     this.routes.get("/attendance/:studentId", AttendanceController.getAttendanceByDate); 
      this.routes.get("/attendance/class/:classId", AttendanceController.getAttendanceByClass);
   }
 
@@ -49,7 +49,7 @@ class Routes {
   private UserRoutes() {
     this.routes.get("/user", AuthMiddlware.Authorization, UserController.index);
     this.routes.post("/user/facelogin", UserController.loginWithFaceDescriptor)
-    this.routes.post("/face", UserController.updateFaceDescriptor)
+    this.routes.post("/face", AuthMiddlware.BasicAuth, UserController.updateFaceDescriptor)
     this.routes.post("/user/create", UserController.create);
     this.routes.post("/user/login", UserController.login);
     this.routes.post('/user/approve', UserController.approveUser);
