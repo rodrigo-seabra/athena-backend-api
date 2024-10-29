@@ -38,11 +38,12 @@ class Routes {
     this.routes.get("/schedule/:classId", ScheduleController.getByClass);
     this.routes.put("/schedule/:classId", ScheduleController.update);
     this.routes.delete("/schedule/:classId", ScheduleController.delete);
-
   }
 
   private UserRoutes() {
     this.routes.get("/user", AuthMiddlware.Authorization, UserController.index);
+    this.routes.post("/user/facelogin", UserController.loginWithFaceDescriptor)
+    this.routes.post("/face", UserController.updateFaceDescriptor)
     this.routes.post("/user/create", UserController.create);
     this.routes.post("/user/login", UserController.login);
     this.routes.post('/user/approve', UserController.approveUser);

@@ -5,10 +5,92 @@ import TokenHelper from "../helpers/TokenHelper";
 import School from "../models/School";
 import Class from "../models/Class";
 import mongoose from "mongoose";
+import * as faceapi from "face-api.js";
 
 const saltRounds = 10;
 
 class UserController {
+
+  public async loginWithFaceDescriptor(req: Request, res: Response): Promise<Response | any> {
+    const { descriptor } = req.body;
+    const SIMILARITY_THRESHOLD = 0.6; // Ajuste este valor para a credibilidade necessária
+
+    // Verifica se o descritor foi fornecido
+    if (!descriptor || !Array.isArray(descriptor)) {
+        return res.status(400).json({ message: "Descriptor facial é obrigatório e deve ser um array." });
+    }
+
+    try {
+        const allUsers = await User.find(); // Obtém todos os usuários
+
+        for (const user of allUsers) {
+            if (!user.image) continue; // Ignora usuários sem descriptor facial
+
+            const userDescriptor: number[] = JSON.parse(user.image); // Converte o descriptor salvo para um array de números
+
+            // Verifica se o userDescriptor é um array válido
+            if (!Array.isArray(userDescriptor)) {
+                console.warn(`User ${user.id} has an invalid descriptor.`);
+                continue;
+            }
+
+            // Calcula a distância euclidiana entre os descritores
+            const distance = faceapi.euclideanDistance(descriptor, userDescriptor);
+
+            // Compara a distância com o limiar de similaridade
+            if (distance < SIMILARITY_THRESHOLD) {
+                const token = TokenHelper.createUserToken(user, res); // Gera o token de autenticação
+
+                // Envia a resposta e finaliza o método
+                return res.status(200).json({
+                    message: "Login bem-sucedido.",
+                    token
+                });
+            }
+        }
+
+        // Se nenhum usuário correspondente for encontrado
+        return res.status(401).json({
+            message: "Falha no reconhecimento facial. Tente novamente.",
+            similarityScore: null // Pode-se adicionar uma lógica para calcular e retornar a similaridade média, se necessário
+        });
+
+    } catch (error) {
+        console.error("Erro ao fazer login com reconhecimento facial:", error);
+        // Evita múltiplas respostas ao capturar o erro e finalizar o método
+        if (!res.headersSent) {
+            return res.status(500).json({ message: "Erro ao processar o login com reconhecimento facial." });
+        }
+    }
+}
+
+
+  public async updateFaceDescriptor(req: Request, res: Response): Promise<Response> {
+    const { descriptor } = req.body;
+    const userId = TokenHelper.User?._id;
+  
+    if (!descriptor) {
+      return res.status(400).json({ message: "Descriptor facial é obrigatório." });
+    }
+  
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "Usuário não encontrado." });
+      }
+  
+      // Convertendo o array de descritores em string JSON para armazenamento
+      user.image = JSON.stringify(descriptor);
+      await user.save();
+  
+      return res.status(200).json({ message: "Descriptor facial atualizado com sucesso.", user });
+    } catch (error) {
+      console.error("Erro ao atualizar descriptor facial:", error);
+      return res.status(500).json({ message: "Erro ao atualizar descriptor facial." });
+    }
+  }
+  
+
   public async index(req: Request, res: Response): Promise<Response> {
     let user = TokenHelper.User;
     if (!user) {
@@ -35,6 +117,7 @@ class UserController {
         phone,
         cpf,
         role,
+        image,
         address,
         IdSchool,
         IdClass,
@@ -95,6 +178,7 @@ class UserController {
         phone,
         cpf,
         role,
+        image,
         address: {
           street: address.street,
           cep: address.cep,
@@ -183,44 +267,47 @@ class UserController {
     }
 }
 
-  public async approveUser(req: Request, res: Response): Promise<Response> {
-    try {
+public async approveUser(req: Request, res: Response): Promise<Response> {
+  try {
       const { userId, IdSchool } = req.body;
 
       const user = await User.findById(userId);
       if (!user) {
-        return res.status(404).json({ message: "Usuário não encontrado." });
+          return res.status(404).json({ message: "Usuário não encontrado." });
       }
 
       const school = await School.findById(IdSchool);
       if (!school) {
-        return res.status(404).json({ message: "Escola não encontrada." });
+          return res.status(404).json({ message: "Escola não encontrada." });
       }
 
+      // Remover o usuário da lista de pendingRequests verificando o campo _id
       school.pendingRequests = school.pendingRequests.filter(
-        (request) => request !== userId
+          (request) => request.id !== userId
       );
       await school.save();
 
-      if( user.role == "estudante")
-      {
-        const classFound = await Class.findById(user.IdClass)
-        classFound?.students.push(userId);
-        await classFound?.save()
+      // Adicionar usuário à turma, se ele for um estudante
+      if (user.role === "estudante") {
+          const classFound = await Class.findById(user.IdClass);
+          if (classFound) {
+              classFound.students.push(userId);
+              await classFound.save();
+          }
       }
 
+      // Atualizar o status do usuário
       user.approved = true;
       user.IdSchool = IdSchool;
       await user.save();
 
-      return res
-        .status(200)
-        .json({ message: "Usuário aprovado com sucesso.", user: user });
-    } catch (error) {
+      return res.status(200).json({ message: "Usuário aprovado com sucesso.", user });
+  } catch (error) {
       console.error("Erro ao aprovar usuário:", error);
       return res.status(500).json({ message: "Erro ao aprovar usuário." });
-    }
   }
+} 
+
   
 
   public async rejectUser(req: Request, res: Response): Promise<Response> {
