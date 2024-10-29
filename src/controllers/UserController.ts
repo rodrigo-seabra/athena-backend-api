@@ -34,7 +34,6 @@ class UserController {
             // Calcula a distância euclidiana entre os descritores
             const distance = faceapi.euclideanDistance(descriptor, userDescriptor);
 
-            // Compara a distância com o limiar de similaridade
             if (distance < SIMILARITY_THRESHOLD) {
                 const token = TokenHelper.createUserToken(user, res);
 
@@ -47,12 +46,10 @@ class UserController {
 
         return res.status(401).json({
             message: "Falha no reconhecimento facial. Tente novamente.",
-            similarityScore: null // Pode-se adicionar uma lógica para calcular e retornar a similaridade média, se necessário
+            similarityScore: null 
         });
 
     } catch (error) {
-        console.error("Erro ao fazer login com reconhecimento facial:", error);
-        // Evita múltiplas respostas ao capturar o erro e finalizar o método
         if (!res.headersSent) {
             return res.status(500).json({ message: "Erro ao processar o login com reconhecimento facial." });
         }
@@ -60,32 +57,52 @@ class UserController {
 }
 
 
-  public async updateFaceDescriptor(req: Request, res: Response): Promise<Response> {
+
+public async updateFaceDescriptor(req: Request, res: Response): Promise<Response> {
     const { descriptor } = req.body;
     const userId = TokenHelper.User?._id;
 
-    console.log(userId)
     if (!descriptor) {
-      return res.status(400).json({ message: "Descriptor facial é obrigatório." });
+        return res.status(400).json({ message: "Descriptor facial é obrigatório." });
     }
-  
+
     try {
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: "Usuário não encontrado." });
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "Usuário não encontrado." });
+        }
+
+        const allUsers = await User.find({ _id: { $ne: userId }, image: { $exists: true } });
+
+        const newDescriptor = Float32Array.from(descriptor);
+
+
+        for (const otherUser of allUsers) {
+          if (!otherUser.image) continue;
+      
+          const existingDescriptor = Float32Array.from(JSON.parse(otherUser.image));
+      
+          const distance = faceapi.euclideanDistance(newDescriptor, existingDescriptor);
+      
+          if (distance < 0.6) { 
+              return res.status(409).json({
+                  message: "Este rosto já foi registrado por outro usuário.",
+              });
+          }
       }
-  
-      // Convertendo o array de descritores em string JSON para armazenamento
-      user.image = JSON.stringify(descriptor);
-      await user.save();
-  
-      return res.status(200).json({ message: "Descriptor facial atualizado com sucesso.", user });
+      
+
+        // Converte o descritor para string JSON para armazenar
+        user.image = JSON.stringify(descriptor);
+        await user.save();
+
+        return res.status(200).json({ message: "Descriptor facial atualizado com sucesso.", user });
     } catch (error) {
-      console.error("Erro ao atualizar descriptor facial:", error);
-      return res.status(500).json({ message: "Erro ao atualizar descriptor facial." });
+        console.error("Erro ao atualizar descriptor facial:", error);
+        return res.status(500).json({ message: "Erro ao atualizar descriptor facial." });
     }
-  }
-  
+}
+
 
   public async index(req: Request, res: Response): Promise<Response> {
     let user = TokenHelper.User;

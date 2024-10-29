@@ -7,6 +7,8 @@ import StudentStats from "./StudentStats"; // Certifique-se de importar o modelo
 import "dotenv/config";
 import bcrypt from "bcrypt";
 import Schedule from "./Schedule";
+import Attendance from "./Attendance";
+
 
 const mongoURI =
   process.env.CONNECTIONSTRING || "mongodb://localhost:27017/Athena";
@@ -44,6 +46,22 @@ async function createSchedule(classId: string) {
   ];
 
   return Schedule.create({ classId, scheduleItems: scheduleItems });
+}
+
+// Nova função para criar registros de presença
+async function createAttendance(studentId: string, classId: string) {
+  const attendanceRecords = Array.from({ length: 5 }).map(() => ({
+    studentId,
+    classId,
+    date: new Date(Date.now() - Math.floor(Math.random() * 10000000000)),
+    entryTime: new Date(Date.now() - Math.floor(Math.random() * 10000000)),
+    exitTime: new Date(Date.now() - Math.floor(Math.random() * 10000000) + 3600000),
+    attendedClasses: Math.floor(Math.random() * 10),
+    attempts: Math.floor(Math.random() * 3),
+    recognitionCode: "success",
+    notes: "Presença confirmada automaticamente",
+  }));
+  return Attendance.insertMany(attendanceRecords);
 }
 
 
@@ -228,6 +246,7 @@ async function seedDatabase() {
     }));
     
     console.log("Usuários (alunos) criados:", createdStudents);
+  
     
     // Criar classes
     const classes = [
@@ -276,6 +295,16 @@ async function seedDatabase() {
       createdClasses.map((createdClass) => createSchedule(String(createdClass._id)))
     );
     console.log("Cronogramas criados para as classes:", schedules);
+
+     await Promise.all(
+      createdClasses.map(async (classData) => {
+        for (const studentId of classData.students) {
+          await createAttendance(String(studentId), String(classData._id));
+        }
+      })
+    );
+    console.log("Presença dos alunos criada.");
+
 
     
     const tasks :  any[] = [];

@@ -111,13 +111,9 @@ class UpdateStatusesMiddleware {
               let status: 'em andamento' | 'pronto' | 'atrasada' = 'em andamento';
     
               const dueDate = task.dueDate ? new Date(task.dueDate) : null;
-              const submissionDate = response?.submissionDate
-                ? new Date(response.submissionDate)
-                : null;
     
               if (response) {
-                  status = 'pronto';
-           
+                status = 'pronto';
               } else if (dueDate && dueDate < new Date()) {
                 status = 'atrasada';
               }
@@ -128,21 +124,25 @@ class UpdateStatusesMiddleware {
                 status: status,
               };
     
-              task.studentStatus = task.studentStatus?.filter(
-                (ss) => ss.studentId !== studentStatus.studentId
-              ) || [];
-    
-              task.studentStatus.push(studentStatus);
-    
-              await task.save();
+              await Task.findOneAndUpdate(
+                { _id: task._id },
+                {
+                  $set: {
+                    studentStatus: task.studentStatus?.filter(
+                      (ss) => ss.studentId !== studentStatus.studentId
+                    ).concat(studentStatus) || [studentStatus],
+                  },
+                },
+                { new: true, runValidators: true }
+              );
             }
           }
         }
-    
       } catch (error) {
         console.error('Erro ao atualizar studentStatus:', error);
       }
-    }
+    };
+    
     
     
 
