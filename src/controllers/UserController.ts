@@ -13,22 +13,19 @@ class UserController {
 
   public async loginWithFaceDescriptor(req: Request, res: Response): Promise<Response | any> {
     const { descriptor } = req.body;
-    const SIMILARITY_THRESHOLD = 0.6; // Ajuste este valor para a credibilidade necessária
-
-    // Verifica se o descritor foi fornecido
+    const SIMILARITY_THRESHOLD = 0.6; 
     if (!descriptor || !Array.isArray(descriptor)) {
         return res.status(400).json({ message: "Descriptor facial é obrigatório e deve ser um array." });
     }
 
     try {
-        const allUsers = await User.find(); // Obtém todos os usuários
+        const allUsers = await User.find();
 
         for (const user of allUsers) {
-            if (!user.image) continue; // Ignora usuários sem descriptor facial
+            if (!user.image) continue; 
 
-            const userDescriptor: number[] = JSON.parse(user.image); // Converte o descriptor salvo para um array de números
+            const userDescriptor: number[] = JSON.parse(user.image);
 
-            // Verifica se o userDescriptor é um array válido
             if (!Array.isArray(userDescriptor)) {
                 console.warn(`User ${user.id} has an invalid descriptor.`);
                 continue;
@@ -39,9 +36,8 @@ class UserController {
 
             // Compara a distância com o limiar de similaridade
             if (distance < SIMILARITY_THRESHOLD) {
-                const token = TokenHelper.createUserToken(user, res); // Gera o token de autenticação
+                const token = TokenHelper.createUserToken(user, res);
 
-                // Envia a resposta e finaliza o método
                 return res.status(200).json({
                     message: "Login bem-sucedido.",
                     token
@@ -49,7 +45,6 @@ class UserController {
             }
         }
 
-        // Se nenhum usuário correspondente for encontrado
         return res.status(401).json({
             message: "Falha no reconhecimento facial. Tente novamente.",
             similarityScore: null // Pode-se adicionar uma lógica para calcular e retornar a similaridade média, se necessário

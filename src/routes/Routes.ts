@@ -30,7 +30,13 @@ class Routes {
   }
 
   private AttendanceRoutes() {
-    this.routes.post("/attendance", AttendanceController.register); 
+     this.routes.post("/attendance/registerWithFaceDescriptor", AttendanceController.registerWithFaceDescriptor);
+     this.routes.post("/attendance/registerAttendance", AttendanceController.registerAttendance);
+     this.routes.post("/attendance/manualRegister", AttendanceController.manualRegister);
+     this.routes.post("/attendance/register", AttendanceController.register);
+     this.routes.post("/attendance/registerManual", AttendanceController.registerAttendanceManual);
+     this.routes.get("/attendance/:studentId/:date", AttendanceController.getAttendanceByDate); 
+     this.routes.get("/attendance/class/:classId", AttendanceController.getAttendanceByClass);
   }
 
   private ScheduleRoutes() {

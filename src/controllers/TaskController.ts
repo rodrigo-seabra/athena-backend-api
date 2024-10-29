@@ -264,45 +264,48 @@ class TaskController {
 
 
 
-  public async getUserGrades(req: Request, res: Response): Promise<Response> {
+  public async getUserGrades(req: Request, res: Response): Promise<Response> { 
     try {
-      const { userId } = req.params;
+        const { userId } = req.params;
 
-      if (!userId) {
-        return res.status(400).json({ message: "ID do usuário não fornecido." });
-      }
+        if (!userId) {
+            return res.status(400).json({ message: "ID do usuário não fornecido." });
+        }
 
-      const tasksWithGrades = await Task.find({
-        "studentResponses.studentId": userId,
-        "studentResponses.graded": true,
-      });
+        const tasksWithGrades = await Task.find({
+            "studentResponses.studentId": userId,
+            "studentResponses.graded": true,
+        });
 
-      if (tasksWithGrades.length === 0) {
-        return res.status(404).json({ message: "Nenhuma nota encontrada." });
-      }
+        if (tasksWithGrades.length === 0) {
+            return res.status(404).json({ message: "Nenhuma nota encontrada." });
+        }
 
-      const grades = tasksWithGrades.map(task => {
-        const studentResponse = task.studentResponses?.find(
-          response => response.studentId.toString() === userId
-        );
+        const grades = await Promise.all(tasksWithGrades.map(async task => {
+            const studentResponse = task.studentResponses?.find(
+                response => response.studentId.toString() === userId
+            );
 
-        return {
-          taskId: task._id,
-          taskTitle: task.content,
-          grade: studentResponse?.grade,
-          feedback: studentResponse?.feedback,
-        };
-      });
+            const teacher = await User.findById(task.IdTeacher);
 
-      return res.status(200).json({
-        count: grades.length,
-        grades,
-      });
+            return {
+                taskId: task._id,
+                taskTitle: task.content,
+                grade: studentResponse?.grade,
+                feedback: studentResponse?.feedback,
+                teacherName: teacher?.name,  
+            };
+        }));
+
+        return res.status(200).json({
+            count: grades.length,
+            grades,
+        });
     } catch (error: any) {
-      console.error("Erro ao buscar notas do usuário:", error);
-      return res.status(500).json({ message: "Erro ao buscar notas do usuário." });
+        console.error("Erro ao buscar notas do usuário:", error);
+        return res.status(500).json({ message: "Erro ao buscar notas do usuário." });
     }
-  }
+}
 
 
   public async getCompletedTasks(
