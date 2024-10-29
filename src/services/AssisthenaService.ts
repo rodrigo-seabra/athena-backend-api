@@ -187,7 +187,6 @@ export class AssisthenaService {
       "definicao_metas"
     );
 
-    // Saudações
     this.classifier.addDocument("oi", "greeting");
     this.classifier.addDocument("olá", "greeting");
     this.classifier.addDocument("bom dia", "greeting");

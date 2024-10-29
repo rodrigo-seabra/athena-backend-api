@@ -357,6 +357,16 @@
       "Oi! Como posso ajudar você hoje?",
       "Olá! Espero que esteja tendo um bom dia!",
       "Bom dia! Estou aqui para ajudar com suas dúvidas."
+    ],
+    "professor": [
+      "Oi! Como posso ajudar você hoje?",
+      "Olá! Espero que esteja tendo um bom dia!",
+      "Bom dia! Estou aqui para ajudar com suas dúvidas."
+    ],
+    "instituicao": [
+      "Oi! Como posso ajudar você hoje?",
+      "Olá! Espero que esteja tendo um bom dia!",
+      "Bom dia! Estou aqui para ajudar com suas dúvidas."
     ]
   }
 }
