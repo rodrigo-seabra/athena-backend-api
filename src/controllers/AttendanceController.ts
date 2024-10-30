@@ -12,7 +12,100 @@ class AttendanceController {
   private studentId!: any;
   private classId!: any;
 
-  // Função para registrar presença com base em entrada e saída
+    private isTimeWithinRange(entryTime: string, exitTime: string, startTime: string, endTime: string): boolean {
+    const entryDate = new Date(`1970-01-01T${entryTime}:00`);
+    const exitDate = new Date(`1970-01-01T${exitTime}:00`);
+    const startDate = new Date(`1970-01-01T${startTime}:00`);
+    const endDate = new Date(`1970-01-01T${endTime}:00`);
+
+    return entryDate >= startDate && exitDate <= endDate;
+  }
+
+  private async getClassCountForDay(classId: string, dayOfWeek: number): Promise<number> {
+    const schedule = await Schedule.findOne({ classId });
+    if (!schedule) return 0;
+
+    const classCount = schedule.scheduleItems.filter(item => item.dayOfWeek === dayOfWeek).length;
+    return classCount;
+}
+
+
+public getAttendanceStats = async (req: Request, res: Response): Promise<Response> => {
+  const { studentId } = req.params;
+
+  // Defina os horários de início e término (exemplo: 08:00 a 17:00)
+  const startTime = "08:00"; // Horário de entrada
+  const endTime = "17:00"; // Horário de saída
+
+  try {
+      const attendanceRecords = await Attendance.find({ studentId });
+      if (!attendanceRecords.length) {
+          return res.status(404).json({ message: "Nenhum registro de presença encontrado para este aluno." });
+      }
+
+      const attendanceByDate = attendanceRecords.reduce((acc, record) => {
+          const date = record.date.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+          const dayOfWeek = new Date(date).getDay(); // Obtém o dia da semana (0 = Domingo, 1 = Segunda, ..., 6 = Sábado)
+
+          // Ajuste para garantir que dia da semana esteja entre 1 e 5
+          if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+              if (!acc[date]) {
+                  acc[date] = { entryTime: record.entryTime, exitTime: record.exitTime, classId: record.classId, dayOfWeek };
+              }
+          }
+          return acc;
+      }, {} as Record<string, any>);
+
+      const attendanceStats = await Promise.all(
+          Object.keys(attendanceByDate).map(async (date) => {
+              const attendanceInfo = attendanceByDate[date];
+              const { classId, dayOfWeek } = attendanceInfo;
+
+              // Busca o total de aulas apenas para dias úteis
+              const classCount = await this.getClassCountForDay(classId, dayOfWeek);
+
+              // Busca os tópicos da aula correspondente para o dia da semana
+              const topics = await this.getTopicsByClassId(classId, dayOfWeek);
+
+              const entryHHmm = attendanceInfo.entryTime ? attendanceInfo.entryTime.toTimeString().slice(0, 5) : null;
+              const exitHHmm = attendanceInfo.exitTime ? attendanceInfo.exitTime.toTimeString().slice(0, 5) : null;
+
+              if (!entryHHmm) {
+                  return { date, status: "Horário de entrada não registrado" };
+              }
+
+              const attended = this.isTimeWithinRange(entryHHmm, exitHHmm || entryHHmm, startTime, endTime); // Verifica se o aluno esteve presente
+
+              return {
+                  date,
+                  dayOfWeek: dayOfWeek + 1, // Ajuste para retornar de 1 (Segunda) a 5 (Sexta)
+                  attendedClasses: attended ? 1 : 0,
+                  totalClasses: classCount, // Total de aulas para aquele dia
+                  topics, // Inclui os tópicos obtidos
+              };
+          })
+      );
+
+      // Filtra os resultados para remover dias inválidos
+      const validAttendanceStats = attendanceStats.filter(stat => stat.dayOfWeek >= 1 && stat.dayOfWeek <= 5);
+
+      return res.status(200).json(validAttendanceStats);
+  } catch (error) {
+      console.error("Erro ao buscar estatísticas de presença:", error);
+      return res.status(500).json({ message: "Erro ao buscar estatísticas de presença." });
+  }
+}
+
+// Método para buscar os tópicos da aula pelo classId e dayOfWeek
+private getTopicsByClassId = async (classId: string, dayOfWeek: number): Promise<string[]> => {
+  const schedule = await Schedule.findOne({ classId }); // Ajuste conforme seu modelo
+  if (!schedule) return [];
+
+  // Filtra os itens do cronograma de acordo com o dia da semana
+  const scheduleItemsForDay = schedule.scheduleItems.filter(item => item.dayOfWeek === dayOfWeek);
+  return scheduleItemsForDay.map(item => item.topic).filter(Boolean);
+}
+
   public async registerAttendance(req: Request, res: Response): Promise<Response> {
     const { studentId, classId, descriptor } = req.body;
 
@@ -30,7 +123,7 @@ class AttendanceController {
         if (!attendance.exitTime) {
           attendance.exitTime = new Date();
           if (attendance.entryTime) {
-            attendance.attendedClasses = calculateAttendedClasses(
+            attendance.attendedClasses = this.calculateAttendedClasses(
               attendance.entryTime, 
               attendance.exitTime, 
               schedule
@@ -60,7 +153,6 @@ class AttendanceController {
     }
   }
 
-  // Função auxiliar para cadastro de presença
   private async cadastro(req: Request, res: Response): Promise<Response> {
     const classId = this.classId;
     const studentId = this.studentId;
@@ -79,7 +171,7 @@ class AttendanceController {
         if (!attendance.exitTime) {
           attendance.exitTime = new Date();
           if (attendance.entryTime) {
-            attendance.attendedClasses = calculateAttendedClasses(
+            attendance.attendedClasses = this.calculateAttendedClasses(
               attendance.entryTime,
               attendance.exitTime,
               schedule
@@ -109,7 +201,24 @@ class AttendanceController {
     }
   }
 
-  // Função para registro com reconhecimento facial
+  private calculateAttendedClasses(entryTime: Date, exitTime: Date, schedule: any) {
+    const entryHHmm = entryTime.toTimeString().slice(0, 5); // "HH:mm"
+    const exitHHmm = exitTime.toTimeString().slice(0, 5); // "HH:mm"
+    let attendedClasses = 0;
+
+    for (const item of schedule.scheduleItems) {
+      const { dayOfWeek, startTime, endTime } = item;
+
+      if (new Date().getDay() === dayOfWeek) {
+        if (this.isTimeWithinRange(entryHHmm, exitHHmm, startTime, endTime)) {
+          attendedClasses += 1;
+        }
+      }
+    }
+
+    return attendedClasses;
+  }
+
   public registerWithFaceDescriptor = async (req: Request, res: Response): Promise<Response | any> => {
     const { studentId, descriptor } = req.body;
     const SIMILARITY_THRESHOLD = 0.6;
@@ -194,7 +303,6 @@ class AttendanceController {
     }
   }
 
-  // Busca a presença de um aluno em uma data específica
   public async getAttendanceByDate(req: Request, res: Response): Promise<Response> {
     const { studentId } = req.params;
     const { date } = req.body;
@@ -215,7 +323,6 @@ class AttendanceController {
     }
   }
 
-  // Lista todas as presenças de um aluno em uma turma
   public async getAttendanceByClass(req: Request, res: Response): Promise<Response> {
     const { classId } = req.params;
 
