@@ -80,6 +80,7 @@ class Routes {
     this.routes.get("/tasks/delay/:userId", UpdateStatusesMiddleware.update, TaskController.getOverdueTasksByUser)
     this.routes.get("/tasks/duesoon/:userId", UpdateStatusesMiddleware.update, TaskController.getTasksDueSoonByUser)
     this.routes.get("/tasks/duesoon-user/:userId", UpdateStatusesMiddleware.update, TaskController.getTasksDueSoonByUser)
+    this.routes.get("/tasks/getalltasksclass/:classId", UpdateStatusesMiddleware.update, TaskController.getTasksByClassId)
     this.routes.get("/tasks/inprogress/:userId", UpdateStatusesMiddleware.update, TaskController.getPendingTasksByUser)
     this.routes.get("/tasks/usergrade/:userId", TaskController.getUserGrades)
 

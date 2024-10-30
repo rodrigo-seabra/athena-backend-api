@@ -402,26 +402,53 @@ class TaskController {
   public async getAllTasks(req: Request, res: Response): Promise<Response> {
     try {
       const { teacherId } = req.params;
-
+  
       if (teacherId) {
         const allTasks = await Task.find({
           IdTeacher: teacherId,
         });
+  
+        let countLate = 0;
+        let countOngoing = 0;
+        let countCompleted = 0;
+        const currentDate = new Date();
+  
+        // Conta as tarefas por status
+        allTasks.forEach((task) => {
+          // Verifica se a tarefa está atrasada
+          if (new Date(task.dueDate) < currentDate) {
+            countLate++;
+          }
+  
+          // Verifica o status do aluno, se existir
+          if (task.studentStatus) {
+            task.studentStatus.forEach(status => {
+              if (status.status === 'em andamento') {
+                countOngoing++;
+              } else if (status.status === 'pronto') {
+                countCompleted++;
+              }
+            });
+          }
+        });
+  
         return res.status(200).json({
           count: allTasks.length,
+          countLate,
+          countOngoing,
+          countCompleted,
           tasks: allTasks,
         });
       }
-
+  
       return res.status(400).json({
         message: "Invalid IDS",
       });
     } catch (error: any) {
-      return res
-        .status(500)
-        .json({ message: "Erro ao buscar todas as tarefas." });
+      return res.status(500).json({ message: "Erro ao buscar todas as tarefas." });
     }
   }
+  
 
   public async getTaskResponsesById(
     req: Request,
@@ -669,6 +696,69 @@ class TaskController {
       return res.status(500).json({ message: error.message });
     }
   }
+  
+  public async getTasksByClassId(req: Request, res: Response): Promise<Response> {
+    try {
+      const { classId } = req.params;
+    
+      if (!classId) {
+        return res.status(400).json({ message: "ID da classe não fornecido." });
+      }
+    
+      // Busca as tarefas que têm a classe como destinatária
+      const tasks = await Task.find({ recipients: classId }).lean();
+    
+      if (tasks.length === 0) {
+        return res.status(404).json({ message: "Nenhuma tarefa encontrada para esta classe." });
+      }
+    
+      let countLate = 0;
+      let countOngoing = 0;
+      let countCompleted = 0;
+      const currentDate = new Date();
+    
+      // Adiciona o nome do professor às tarefas e conta os status
+      const tasksWithTeacherNames = await Promise.all(
+        tasks.map(async (task) => {
+          const teacher = await User.findById(task.IdTeacher);
+          
+          // Verifica se a tarefa está atrasada
+          if (new Date(task.dueDate) < currentDate) {
+            countLate++;
+          }
+    
+          // Verifica se studentStatus existe e conta os status
+          if (task.studentStatus) {
+            task.studentStatus.forEach(status => {
+              if (status.status === 'em andamento') {
+                countOngoing++;
+              } else if (status.status === 'pronto') {
+                countCompleted++;
+              }
+            });
+          }
+    
+          return {
+            ...task,
+            teacherName: teacher ? teacher.name : "Professor não encontrado",
+          };
+        })
+      );
+    
+      return res.status(200).json({
+        count: tasksWithTeacherNames.length,
+        countLate,
+        countOngoing,
+        countCompleted,
+        tasks: tasksWithTeacherNames,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar tarefas pela classe:", error);
+      return res.status(500).json({ message: "Erro ao buscar tarefas pela classe." });
+    }
+    
+  }
+  
 }
 
 export default new TaskController();
