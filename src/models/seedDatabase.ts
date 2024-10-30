@@ -40,11 +40,16 @@ async function createStudentStats(userId: string, subjects: string[]) {
 
 async function createSchedule(classId: string) {
   const scheduleItems = [
-    { dayOfWeek: "1", startTime: "08:00", endTime: "10:00", topic: "Matemática" },
-    { dayOfWeek: "2", startTime: "08:00", endTime: "10:00", topic: "História" },
-    { dayOfWeek: "3", startTime: "08:00", endTime: "10:00", topic: "Geografia" },
-    { dayOfWeek: "4", startTime: "08:00", endTime: "10:00", topic: "Ciências" },
-    { dayOfWeek: "5", startTime: "08:00", endTime: "10:00", topic: "Educação Física" },
+    { dayOfWeek: "1", startTime: "08:00", endTime: "09:30", topic: "Matemática" },
+    { dayOfWeek: "1", startTime: "10:00", endTime: "11:30", topic: "Português" },
+    { dayOfWeek: "2", startTime: "08:00", endTime: "09:30", topic: "História" },
+    { dayOfWeek: "2", startTime: "10:00", endTime: "11:30", topic: "Artes" },
+    { dayOfWeek: "3", startTime: "08:00", endTime: "09:30", topic: "Geografia" },
+    { dayOfWeek: "3", startTime: "10:00", endTime: "11:30", topic: "Ciências" },
+    { dayOfWeek: "4", startTime: "08:00", endTime: "09:30", topic: "Física" },
+    { dayOfWeek: "4", startTime: "10:00", endTime: "11:30", topic: "Química" },
+    { dayOfWeek: "5", startTime: "08:00", endTime: "09:30", topic: "Educação Física" },
+    { dayOfWeek: "5", startTime: "10:00", endTime: "11:30", topic: "Sociologia" },
   ];
 
   return Schedule.create({ classId, scheduleItems });
@@ -59,43 +64,58 @@ async function createAttendance(studentId: string, classId: string) {
     const randomDate = new Date(currentDate);
     randomDate.setDate(currentDate.getDate() - randomDaysBack);
 
-    const randomHour = Math.floor(Math.random() * 2) + 8; // Horário de entrada entre 8h e 10h
-    const entryTime = new Date(randomDate.setHours(randomHour, 0, 0)); // Entrada em horários aleatórios de 8h a 10h
-    const exitTime = new Date(entryTime.getTime() + 3600000); // Saída uma hora depois
+    // Sorteio para simular presença na primeira ou segunda aula ou ambas
+    const attendFirstClass = Math.random() > 0.3;  // 70% de chance de participar da primeira aula
+    const attendSecondClass = Math.random() > 0.5; // 50% de chance de participar da segunda aula
 
-    const attendedClasses = Math.floor(Math.random() * 5) + 5; // Garantir que o aluno tenha participado de pelo menos 5 aulas
+    if (attendFirstClass) {
+      const entryTime1 = new Date(randomDate.setHours(8, 0, 0));
+      const exitTime1 = new Date(entryTime1.getTime() + 5400000); // Saída 1h30 depois
 
-    attendanceRecords.push({
-      studentId,
-      classId,
-      date: randomDate,
-      entryTime,
-      exitTime,
-      attendedClasses,
-      attempts: Math.floor(Math.random() * 3),
-      recognitionCode: "success",
-      notes: "Presença confirmada automaticamente",
-    });
-  }
+      attendanceRecords.push({
+        studentId,
+        classId,
+        date: randomDate,
+        entryTime: entryTime1,
+        exitTime: exitTime1,
+        attendedClasses: 1,
+        attempts: Math.floor(Math.random() * 3),
+        recognitionCode: "success",
+        notes: "Presença na primeira aula",
+      });
+    }
 
-  // Criar registros de falta
-  for (let i = 0; i < 10; i++) {
-    const randomDaysBack = Math.floor(Math.random() * 30);
-    const randomDate = new Date(currentDate);
-    randomDate.setDate(currentDate.getDate() - randomDaysBack);
+    if (attendSecondClass) {
+      const entryTime2 = new Date(randomDate.setHours(10, 0, 0));
+      const exitTime2 = new Date(entryTime2.getTime() + 5400000); // Saída 1h30 depois
 
-    // Simular uma falta sem entrada e saída
-    attendanceRecords.push({
-      studentId,
-      classId,
-      date: randomDate,
-      entryTime: null,
-      exitTime: null,
-      attendedClasses: 0,
-      attempts: Math.floor(Math.random() * 3),
-      recognitionCode: "absent",
-      notes: "Falta registrada automaticamente",
-    });
+      attendanceRecords.push({
+        studentId,
+        classId,
+        date: randomDate,
+        entryTime: entryTime2,
+        exitTime: exitTime2,
+        attendedClasses: attendFirstClass ? 2 : 1, // Conta 2 se participou de ambas, 1 se apenas desta
+        attempts: Math.floor(Math.random() * 3),
+        recognitionCode: "success",
+        notes: "Presença na segunda aula",
+      });
+    }
+
+    // Criar registros de falta para dias sem presença em nenhuma aula
+    if (!attendFirstClass && !attendSecondClass) {
+      attendanceRecords.push({
+        studentId,
+        classId,
+        date: randomDate,
+        entryTime: null,
+        exitTime: null,
+        attendedClasses: 0,
+        attempts: Math.floor(Math.random() * 3),
+        recognitionCode: "absent",
+        notes: "Falta registrada automaticamente",
+      });
+    }
   }
 
   return Attendance.insertMany(attendanceRecords);
