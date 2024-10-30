@@ -25,17 +25,38 @@ async function createSchool(schoolData: any) {
   return School.create(schoolData);
 }
 
-async function createStudentStats(userId: string, subjects: string[]) {
-  const initialStats = subjects.map((subject, index) => ({
+async function createStudentStats(userId: string, subjects: any[]) {
+  const existingStats = await StudentStats.findOne({ userId });
+
+  if (existingStats) {
+    throw new Error(`Estatísticas já existem para o usuário com ID ${userId}.`);
+  }
+
+  const initialStats = subjects.map((subject: any) => ({
     name: subject,
-    averageLevel: Math.max(1, Math.floor(Math.random() * 5)), 
-    activitiesCount: Math.floor(Math.random() * 10),           
+    averageLevel: Math.max(1, Math.floor(Math.random() * 5)),
+    activitiesCount: Math.floor(Math.random() * 10),
+  }));
+  const teste = subjects.map((subject: any) => ({
+    name: subject,
+    averageLevel: Math.max(1, Math.floor(Math.random() * 5)),
+    activitiesCount: Math.floor(Math.random() * 10),
   }));
 
-  return StudentStats.create({
-    userId, 
-    subjects: initialStats,
+
+  const currentStats = await StudentStats.create({
+    userId,
+    subjects: teste,
+    createdAt: new Date(),
+    pastStat: [
+      {
+        semester: "Semestre Atual",
+        subjects: initialStats,
+      },
+    ],
   });
+
+  return currentStats;
 }
 
 async function createSchedule(classId: string) {
@@ -58,6 +79,7 @@ async function createSchedule(classId: string) {
 async function createAttendance(studentId: string, classId: string) {
   const currentDate = new Date();
   const attendanceRecords = [];
+  const totalClasses = 2; // Define o total de aulas por dia
 
   for (let i = 0; i < 15; i++) {
     const randomDaysBack = Math.floor(Math.random() * 30);
@@ -79,6 +101,7 @@ async function createAttendance(studentId: string, classId: string) {
         entryTime: entryTime1,
         exitTime: exitTime1,
         attendedClasses: 1,
+        totalClasses,
         attempts: Math.floor(Math.random() * 3),
         recognitionCode: "success",
         notes: "Presença na primeira aula",
@@ -96,6 +119,7 @@ async function createAttendance(studentId: string, classId: string) {
         entryTime: entryTime2,
         exitTime: exitTime2,
         attendedClasses: attendFirstClass ? 2 : 1, // Conta 2 se participou de ambas, 1 se apenas desta
+        totalClasses,
         attempts: Math.floor(Math.random() * 3),
         recognitionCode: "success",
         notes: "Presença na segunda aula",
@@ -111,6 +135,7 @@ async function createAttendance(studentId: string, classId: string) {
         entryTime: null,
         exitTime: null,
         attendedClasses: 0,
+        totalClasses,
         attempts: Math.floor(Math.random() * 3),
         recognitionCode: "absent",
         notes: "Falta registrada automaticamente",
@@ -120,6 +145,7 @@ async function createAttendance(studentId: string, classId: string) {
 
   return Attendance.insertMany(attendanceRecords);
 }
+
 
 
 async function seedDatabase() {

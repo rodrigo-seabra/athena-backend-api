@@ -1,10 +1,15 @@
 import { Schema, model, Document, Types } from "mongoose";
-import { StudentStatsInterface, SubjectProficiency } from "../interfaces/StudentStats.Interface";
+import { StudentStatsInterface, SubjectProficiency, PastStat } from "../interfaces/StudentStats.Interface";
 
 const SubjectProficiencySchema = new Schema<SubjectProficiency>({
   name: { type: String, required: true },
   averageLevel: { type: Number, required: true },
   activitiesCount: { type: Number, default: 0 }
+});
+
+const pastStatSchema = new Schema<PastStat>({
+  semester: { type: String, required: true },
+  subjects: [SubjectProficiencySchema]
 });
 
 const StudentStatsSchema = new Schema<StudentStatsInterface & Document>(
@@ -15,8 +20,10 @@ const StudentStatsSchema = new Schema<StudentStatsInterface & Document>(
       required: true,
       unique: true
     },
-    subjects: [SubjectProficiencySchema]
+    subjects: [SubjectProficiencySchema],
+    pastStat: [pastStatSchema]
   },
+
   {
     timestamps: true
   }

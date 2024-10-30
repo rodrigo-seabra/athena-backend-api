@@ -26,6 +26,10 @@ const AttendanceSchema = new Schema<AttendanceInterface>(
       type: Number,
       default: 0,
     },
+    totalClasses: {
+      type: Number,
+      default: 0,
+    },
     attempts: {
       type: Number,
       default: 0,

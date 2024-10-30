@@ -33,7 +33,7 @@ class Routes {
      this.routes.post("/attendance/registerWithFaceDescriptor", AttendanceController.registerWithFaceDescriptor);
      this.routes.post("/attendance/registerAttendance", AttendanceController.registerAttendance);
      this.routes.post("/attendance/manualRegister", AttendanceController.manualRegister);
-    //  this.routes.get("/attendance/:studentId", AttendanceController.getAttendanceStats); 
+    this.routes.get("/attendance/:studentId", AttendanceController.getOverallAttendanceRate); 
      this.routes.get("/attendance/class/:classId", AttendanceController.getAttendanceByClass);
   }
 
