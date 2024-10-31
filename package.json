@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsnd --respawn --transpile-only src/App.ts",
-    "seed": "ts-node src/models/seedDatabase.ts"
+    "seed": "ts-node src/models/seedDatabase.ts",
+        "build": "tsup src"
   },
   "keywords": [],
   "author": "",
@@ -34,7 +35,7 @@
     "jest": "^29.7.0",
     "ts-jest": "^29.2.5",
     "ts-node-dev": "^2.0.0",
-    "tsup": "^8.3.0",
+    "tsup": "^8.3.5",
     "typescript": "^5.6.2"
   }
 }
