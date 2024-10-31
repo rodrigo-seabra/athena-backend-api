@@ -5,7 +5,6 @@ import TaskController from "../controllers/TaskController";
 import ClassController from "../controllers/ClassController";
 import AuthMiddlware from "../middlewares/AuthMiddleware";
 import StatsController from "../controllers/StatsController";
-import AssisthenaRoutes from './AssisthenaRoutes';
 import UpdateStatusesMiddleware from "../middlewares/UpdateStatusesMiddleware ";
 import StudentStatsController from "../controllers/StudentStatsController";
 import ScheduleController from "../controllers/ScheduleController";
@@ -20,14 +19,11 @@ class Routes {
     this.TaskRoutes();
     this.ClassRoutes();
     this.StatsRoutes();
-    this.AssisthenaRoutes();
     this.ScheduleRoutes();
     this.AttendanceRoutes(); 
 
   }
-  private AssisthenaRoutes() {
-    this.routes.use('/teste', AssisthenaRoutes);
-  }
+
 
   private AttendanceRoutes() {
      this.routes.post("/attendance/registerWithFaceDescriptor", AttendanceController.registerWithFaceDescriptor);
