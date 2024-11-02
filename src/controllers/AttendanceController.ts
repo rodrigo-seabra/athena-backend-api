@@ -410,6 +410,84 @@ class AttendanceController {
         .json({ message: "Erro ao buscar registros de presença." });
     }
   }
+
+  public async getAttendanceBySchool(req: Request, res: Response): Promise<Response> {
+    const { schoolId } = req.params;
+
+    try {
+        const classes = await Class.find({ IdSchool: schoolId });
+
+        if (!classes.length) {
+            return res.status(404).json({ message: "Nenhuma classe encontrada para esta escola." });
+        }
+
+        const attendanceData: any[] = [];
+        let totalAttendedClassesOverall = 0; // Total de aulas atendidas na escola
+        let totalClassesOverall = 0; // Total de aulas disponíveis na escola
+
+        for (const classItem of classes) {
+            const attendanceRecords = await Attendance.find({ classId: String(classItem._id) });
+
+            let totalAttendedClasses = 0;
+            let totalClasses = 0; // Para acumular o total de aulas disponíveis
+            const studentsMap = new Map<string, any>();
+
+            for (const record of attendanceRecords) {
+                const attendedClasses = record.attendedClasses ?? 0;
+                const recordTotalClasses = record.totalClasses ?? 0;
+                totalAttendedClasses += attendedClasses;
+                totalClasses += recordTotalClasses; 
+
+                // Adiciona os dados dos alunos ao mapa
+                if (!studentsMap.has(record.studentId)) {
+                    studentsMap.set(record.studentId, {
+                        studentId: record.studentId,
+                        records: [],
+                    });
+                }
+
+                studentsMap.get(record.studentId)?.records.push({
+                    date: record.date,
+                    entryTime: record.entryTime ?? null, 
+                    exitTime: record.exitTime ?? null, 
+                    attendedClasses: attendedClasses, 
+                    totalClasses: recordTotalClasses,
+                });
+            }
+
+            // Calcular a taxa de presença com base em totalClasses acumuladas
+            const attendanceRate = totalClasses ? (totalAttendedClasses / totalClasses) * 100 : 0;
+
+            const classAttendance = {
+                classId: classItem._id,
+                className: classItem.name,
+                totalClasses, // Total de aulas disponíveis
+                totalAttendedClasses,
+                attendanceRate,
+                students: Array.from(studentsMap.values()), 
+            };
+
+            attendanceData.push(classAttendance);
+
+            // Acumula as aulas atendidas e totais para a escola
+            totalAttendedClassesOverall += totalAttendedClasses;
+            totalClassesOverall += totalClasses;
+        }
+
+        // Calcular a taxa de presença geral da escola
+        const overallAttendanceRate = totalClassesOverall ? (totalAttendedClassesOverall / totalClassesOverall) * 100 : 0;
+
+        // Incluir a taxa de presença geral no retorno
+        return res.status(200).json({
+            attendanceData,
+            overallAttendanceRate, // A taxa de presença geral
+        });
+    } catch (error) {
+        console.error("Erro ao buscar a presença por escola:", error);
+        return res.status(500).json({ message: "Erro ao buscar a presença por escola." });
+    }
+}
+
 }
 
 export default new AttendanceController();

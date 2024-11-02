@@ -5,7 +5,7 @@ export interface AttendanceInterface extends Document {
   entryTime?: Date;            
   exitTime?: Date;             
   attendedClasses?: number;   
-  totalClasses: number; // Certifique-se de incluir totalClasses aqui  
+  totalClasses: number; 
   attempts: number;             
   recognitionCode?: string;     
   notes?: string;              
