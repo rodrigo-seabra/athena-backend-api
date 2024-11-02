@@ -392,6 +392,34 @@ public async approveUser(req: Request, res: Response): Promise<Response> {
     }
   }
   
+
+  public async confirmPassword(req: Request, res: Response): Promise<Response> {
+    const { password } = req.body;
+    const userId  = TokenHelper.User?._id
+    if (!userId || !password) {
+        return res.status(400).json({ message: "ID do usuário e senha são obrigatórios." });
+    }
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "Usuário não encontrado." });
+        }
+
+        // Verifica a senha fornecida com a senha armazenada no banco de dados
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Senha incorreta." });
+        }
+
+        return res.status(200).json({ message: "Senha confirmada com sucesso." });
+    } catch (error) {
+        console.error("Erro ao confirmar senha:", error);
+        return res.status(500).json({ message: "Erro ao confirmar senha." });
+    }
+}
+
+
 }
 
 

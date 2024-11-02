@@ -41,6 +41,7 @@ class Routes {
   }
 
   private UserRoutes() {
+    this.routes.post("/confirm-password", AuthMiddlware.BasicAuth ,UserController.confirmPassword)
     this.routes.get("/user", AuthMiddlware.Authorization, UserController.index);
     this.routes.post("/user/facelogin", UserController.loginWithFaceDescriptor)
     this.routes.post("/face", AuthMiddlware.BasicAuth, UserController.updateFaceDescriptor)
