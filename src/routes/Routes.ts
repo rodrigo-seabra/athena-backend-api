@@ -14,6 +14,8 @@ class Routes {
   public routes: Router;
   public constructor() {
     this.routes = Router();
+    this.routes.get("/", this.getRoot); 
+
     this.UserRoutes();
     this.SchoolRoutes();
     this.TaskRoutes();
@@ -62,6 +64,23 @@ class Routes {
     this.routes.post("/school/login", SchoolController.login);
     this.routes.get('/schools/:schoolId/pending-requests', AuthMiddlware.schoolAuthorization, SchoolController.listPendingRequests);
     this.routes.get("/school/data", AuthMiddlware.schoolAuthorization, SchoolController.schoolData)
+  }
+
+  private getRoot(req: any, res: any) {
+    const response = {
+      message: "Bem-vindo à API do Projeto!",
+      routes: {
+        "/user": "Gerenciar usuários",
+        "/school": "Gerenciar escolas",
+        "/tasks": "Gerenciar tarefas",
+        "/class": "Gerenciar turmas",
+        "/attendance": "Gerenciar frequência",
+        "/schedule": "Gerenciar horários",
+        "/stats": "Estatísticas",
+      },
+      note: "Use a rota apropriada para acessar os recursos disponíveis.",
+    };
+    res.status(200).json(response);
   }
   private TaskRoutes() {
     this.routes.get("/tasks/responsesbytask/:taskId", TaskController.getTaskResponsesById)

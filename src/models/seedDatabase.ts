@@ -58,19 +58,42 @@ async function createStudentStats(userId: string, subjects: any[]) {
 
   return currentStats;
 }
-
 async function createSchedule(classId: string) {
   const scheduleItems = [
     { dayOfWeek: "1", startTime: "08:00", endTime: "09:30", topic: "Matemática" },
-    { dayOfWeek: "1", startTime: "10:00", endTime: "11:30", topic: "Português" },
-    { dayOfWeek: "2", startTime: "08:00", endTime: "09:30", topic: "História" },
-    { dayOfWeek: "2", startTime: "10:00", endTime: "11:30", topic: "Artes" },
-    { dayOfWeek: "3", startTime: "08:00", endTime: "09:30", topic: "Geografia" },
-    { dayOfWeek: "3", startTime: "10:00", endTime: "11:30", topic: "Ciências" },
-    { dayOfWeek: "4", startTime: "08:00", endTime: "09:30", topic: "Física" },
-    { dayOfWeek: "4", startTime: "10:00", endTime: "11:30", topic: "Química" },
-    { dayOfWeek: "5", startTime: "08:00", endTime: "09:30", topic: "Educação Física" },
-    { dayOfWeek: "5", startTime: "10:00", endTime: "11:30", topic: "Sociologia" },
+    { dayOfWeek: "1", startTime: "09:30", endTime: "11:00", topic: "Educação Cívica" },
+    { dayOfWeek: "1", startTime: "11:00", endTime: "12:30", topic: "Português" },
+    { dayOfWeek: "1", startTime: "13:00", endTime: "14:30", topic: "Inglês" },
+    { dayOfWeek: "1", startTime: "14:30", endTime: "16:00", topic: "História" },
+    { dayOfWeek: "1", startTime: "16:00", endTime: "17:30", topic: "Filosofia" },
+
+    { dayOfWeek: "2", startTime: "08:00", endTime: "09:30", topic: "Matemática" },
+    { dayOfWeek: "2", startTime: "09:30", endTime: "11:00", topic: "Educação Cívica" },
+    { dayOfWeek: "2", startTime: "11:00", endTime: "12:30", topic: "Português" },
+    { dayOfWeek: "2", startTime: "13:00", endTime: "14:30", topic: "Inglês" },
+    { dayOfWeek: "2", startTime: "14:30", endTime: "16:00", topic: "História" },
+    { dayOfWeek: "2", startTime: "16:00", endTime: "17:30", topic: "Filosofia" },
+
+    { dayOfWeek: "3", startTime: "08:00", endTime: "09:30", topic: "Matemática" },
+    { dayOfWeek: "3", startTime: "09:30", endTime: "11:00", topic: "Educação Cívica" },
+    { dayOfWeek: "3", startTime: "11:00", endTime: "12:30", topic: "Português" },
+    { dayOfWeek: "3", startTime: "13:00", endTime: "14:30", topic: "Inglês" },
+    { dayOfWeek: "3", startTime: "14:30", endTime: "16:00", topic: "História" },
+    { dayOfWeek: "3", startTime: "16:00", endTime: "17:30", topic: "Filosofia" },
+
+    { dayOfWeek: "4", startTime: "08:00", endTime: "09:30", topic: "Matemática" },
+    { dayOfWeek: "4", startTime: "09:30", endTime: "11:00", topic: "Educação Cívica" },
+    { dayOfWeek: "4", startTime: "11:00", endTime: "12:30", topic: "Português" },
+    { dayOfWeek: "4", startTime: "13:00", endTime: "14:30", topic: "Inglês" },
+    { dayOfWeek: "4", startTime: "14:30", endTime: "16:00", topic: "História" },
+    { dayOfWeek: "4", startTime: "16:00", endTime: "17:30", topic: "Filosofia" },
+
+    { dayOfWeek: "5", startTime: "08:00", endTime: "09:30", topic: "Matemática" },
+    { dayOfWeek: "5", startTime: "09:30", endTime: "11:00", topic: "Educação Cívica" },
+    { dayOfWeek: "5", startTime: "11:00", endTime: "12:30", topic: "Português" },
+    { dayOfWeek: "5", startTime: "13:00", endTime: "14:30", topic: "Inglês" },
+    { dayOfWeek: "5", startTime: "14:30", endTime: "16:00", topic: "História" },
+    { dayOfWeek: "5", startTime: "16:00", endTime: "17:30", topic: "Filosofia" },
   ];
 
   return Schedule.create({ classId, scheduleItems });
@@ -79,16 +102,22 @@ async function createSchedule(classId: string) {
 async function createAttendance(studentId: string, classId: string) {
   const currentDate = new Date();
   const attendanceRecords = [];
-  const totalClasses = 2; // Define o total de aulas por dia
+  const totalClasses = 6; // Atualizado para 6 aulas por dia
 
   for (let i = 0; i < 15; i++) {
     const randomDaysBack = Math.floor(Math.random() * 30);
     const randomDate = new Date(currentDate);
     randomDate.setDate(currentDate.getDate() - randomDaysBack);
 
-    // Sorteio para simular presença na primeira ou segunda aula ou ambas
-    const attendFirstClass = Math.random() > 0.3;  // 70% de chance de participar da primeira aula
-    const attendSecondClass = Math.random() > 0.5; // 50% de chance de participar da segunda aula
+    // Sorteio para simular presença em cada uma das seis aulas
+    const attendFirstClass = Math.random() > 0.2;  
+    const attendSecondClass = Math.random() > 0.27; 
+    const attendThirdClass = Math.random() > 0.33; 
+    const attendFourthClass = Math.random() > 0.38; 
+    const attendFifthClass = Math.random() > 0.4; 
+    const attendSixthClass = Math.random() > 0.45; 
+
+    let attendedClasses = 0;
 
     if (attendFirstClass) {
       const entryTime1 = new Date(randomDate.setHours(8, 0, 0));
@@ -106,10 +135,11 @@ async function createAttendance(studentId: string, classId: string) {
         recognitionCode: "success",
         notes: "Presença na primeira aula",
       });
+      attendedClasses++;
     }
 
     if (attendSecondClass) {
-      const entryTime2 = new Date(randomDate.setHours(10, 0, 0));
+      const entryTime2 = new Date(randomDate.setHours(9, 30, 0));
       const exitTime2 = new Date(entryTime2.getTime() + 5400000); // Saída 1h30 depois
 
       attendanceRecords.push({
@@ -118,16 +148,92 @@ async function createAttendance(studentId: string, classId: string) {
         date: randomDate,
         entryTime: entryTime2,
         exitTime: exitTime2,
-        attendedClasses: attendFirstClass ? 2 : 1, // Conta 2 se participou de ambas, 1 se apenas desta
+        attendedClasses: attendedClasses + 1,
         totalClasses,
         attempts: Math.floor(Math.random() * 3),
         recognitionCode: "success",
         notes: "Presença na segunda aula",
       });
+      attendedClasses++;
     }
 
-    // Criar registros de falta para dias sem presença em nenhuma aula
-    if (!attendFirstClass && !attendSecondClass) {
+    if (attendThirdClass) {
+      const entryTime3 = new Date(randomDate.setHours(11, 0, 0));
+      const exitTime3 = new Date(entryTime3.getTime() + 5400000); // Saída 1h30 depois
+
+      attendanceRecords.push({
+        studentId,
+        classId,
+        date: randomDate,
+        entryTime: entryTime3,
+        exitTime: exitTime3,
+        attendedClasses: attendedClasses + 1,
+        totalClasses,
+        attempts: Math.floor(Math.random() * 3),
+        recognitionCode: "success",
+        notes: "Presença na terceira aula",
+      });
+      attendedClasses++;
+    }
+
+    if (attendFourthClass) {
+      const entryTime4 = new Date(randomDate.setHours(13, 0, 0));
+      const exitTime4 = new Date(entryTime4.getTime() + 5400000); // Saída 1h30 depois
+
+      attendanceRecords.push({
+        studentId,
+        classId,
+        date: randomDate,
+        entryTime: entryTime4,
+        exitTime: exitTime4,
+        attendedClasses: attendedClasses + 1,
+        totalClasses,
+        attempts: Math.floor(Math.random() * 3),
+        recognitionCode: "success",
+        notes: "Presença na quarta aula",
+      });
+      attendedClasses++;
+    }
+
+    if (attendFifthClass) {
+      const entryTime5 = new Date(randomDate.setHours(14, 30, 0));
+      const exitTime5 = new Date(entryTime5.getTime() + 5400000); // Saída 1h30 depois
+
+      attendanceRecords.push({
+        studentId,
+        classId,
+        date: randomDate,
+        entryTime: entryTime5,
+        exitTime: exitTime5,
+        attendedClasses: attendedClasses + 1,
+        totalClasses,
+        attempts: Math.floor(Math.random() * 3),
+        recognitionCode: "success",
+        notes: "Presença na quinta aula",
+      });
+      attendedClasses++;
+    }
+
+    if (attendSixthClass) {
+      const entryTime6 = new Date(randomDate.setHours(16, 0, 0));
+      const exitTime6 = new Date(entryTime6.getTime() + 5400000); // Saída 1h30 depois
+
+      attendanceRecords.push({
+        studentId,
+        classId,
+        date: randomDate,
+        entryTime: entryTime6,
+        exitTime: exitTime6,
+        attendedClasses: attendedClasses + 1,
+        totalClasses,
+        attempts: Math.floor(Math.random() * 3),
+        recognitionCode: "success",
+        notes: "Presença na sexta aula",
+      });
+      attendedClasses++;
+    }
+
+    if (attendedClasses === 0) {
       attendanceRecords.push({
         studentId,
         classId,
@@ -148,18 +254,19 @@ async function createAttendance(studentId: string, classId: string) {
 
 
 
+
 async function seedDatabase() {
   await mongoose.connect(mongoURI);
 
   try {
     // Criar escola
     const school = await createSchool({
-      name: "Escola Exemplo 3",
-      email: "contato3@escolaexemplo.com",
+      name: "Escola Sicredi Inovação",
+      email: "contato1@escolaexemplo.com",
       phone: "987654321",
       cnpj: "12345678200195",
       address: {
-        street: "Rua Exemplo 2",
+        street: "Rua Exemplo 1",
         cep: "12345-679",
         state: "SP",
         city: "São Paulo",
@@ -172,8 +279,8 @@ async function seedDatabase() {
 
     const teachers = await Promise.all([
       createUser({
-        name: "Professor Exemplo3",
-        email: "professor3@escolaexemplo.com",
+        name: "Professor Sicredi 1",
+        email: "professor1@escolaexemplo.com",
         phone: "987654321",
         password: "senhaSegura",
         role: "professor",
@@ -188,7 +295,39 @@ async function seedDatabase() {
         cpf: "12345678900",
       }),
       createUser({
-        name: "Professor Exemplo4",
+        name: "Professor Sicredi 2",
+        email: "professor2@escolaexemplo.com",
+        phone: "987654321",
+        password: "senhaSegura",
+        role: "professor",
+        IdSchool: school._id,
+        approved: true,
+        address: {
+          street: "Rua do Professor 2",
+          cep: "12345-678",
+          state: "SP",
+          city: "São Paulo",
+        },
+        cpf: "12345678900",
+      }),
+      createUser({
+        name: "Professor Sicredi",
+        email: "professor3@escolaexemplo.com",
+        phone: "987654321",
+        password: "senhaSegura",
+        role: "professor",
+        IdSchool: school._id,
+        approved: true,
+        address: {
+          street: "Rua do Professor 3",
+          cep: "12345-678",
+          state: "SP",
+          city: "São Paulo",
+        },
+        cpf: "12345678900",
+      }),
+      createUser({
+        name: "Professor Sicredi 4",
         email: "professor4@escolaexemplo.com",
         phone: "987654322",
         password: "senhaSegura",
@@ -196,7 +335,7 @@ async function seedDatabase() {
         IdSchool: school._id,
         approved: true,
         address: {
-          street: "Rua do Professor 2",
+          street: "Rua do Professor 4",
           cep: "12345-679",
           state: "SP",
           city: "São Paulo",
@@ -204,7 +343,7 @@ async function seedDatabase() {
         cpf: "12345678901",
       }),
       createUser({
-        name: "Professor Exemplo5",
+        name: "Professor Sicredi 5",
         email: "professor5@escolaexemplo.com",
         phone: "987654323",
         password: "senhaSegura",
@@ -212,7 +351,7 @@ async function seedDatabase() {
         IdSchool: school._id,
         approved: true,
         address: {
-          street: "Rua do Professor 3",
+          street: "Rua do Professor 5",
           cep: "12345-680",
           state: "SP",
           city: "São Paulo",
@@ -220,7 +359,7 @@ async function seedDatabase() {
         cpf: "12345678902",
       }),
       createUser({
-        name: "Professor Exemplo6",
+        name: "Professor Sicredi 6",
         email: "professor6@escolaexemplo.com",
         phone: "987654324",
         password: "senhaSegura",
@@ -228,7 +367,7 @@ async function seedDatabase() {
         IdSchool: school._id,
         approved: true,
         address: {
-          street: "Rua do Professor 4",
+          street: "Rua do Professor 6",
           cep: "12345-681",
           state: "SP",
           city: "São Paulo",
@@ -241,7 +380,7 @@ async function seedDatabase() {
     
     const students = [
       {
-        name: "Aluno Exemplo 1",
+        name: "Aluno Sicredi 1",
         email: "aluno1@escolaexemplo.com",
         phone: "123123123",
         cpf: "98765432100",
@@ -253,7 +392,7 @@ async function seedDatabase() {
         },
       },
       {
-        name: "Aluno Exemplo 2",
+        name: "Aluno Sicredi 2",
         email: "aluno2@escolaexemplo.com",
         phone: "321321321",
         cpf: "12312312300",
@@ -265,7 +404,7 @@ async function seedDatabase() {
         },
       },
       {
-        name: "Aluno Exemplo 3",
+        name: "Aluno Sicredi 3",
         email: "aluno3@escolaexemplo.com",
         phone: "3213213221",
         cpf: "15312312300",
@@ -277,7 +416,7 @@ async function seedDatabase() {
         },
       },
       {
-        name: "Aluno Exemplo 4",
+        name: "Aluno Sicredi 4",
         email: "aluno4@escolaexemplo.com",
         phone: "3213243221",
         cpf: "15312312301",
@@ -289,7 +428,7 @@ async function seedDatabase() {
         },
       },
       {
-        name: "Aluno Exemplo 5",
+        name: "Aluno Sicredi 5",
         email: "aluno5@escolaexemplo.com",
         phone: "3213243222",
         cpf: "15312312302",
@@ -301,7 +440,7 @@ async function seedDatabase() {
         },
       },
       {
-        name: "Aluno Exemplo 6",
+        name: "Aluno Sicredi 6",
         email: "aluno6@escolaexemplo.com",
         phone: "3213243223",
         cpf: "15312312303",
@@ -313,7 +452,7 @@ async function seedDatabase() {
         },
       },
       {
-        name: "Aluno Exemplo 7",
+        name: "Aluno Sicredi 7",
         email: "aluno7@escolaexemplo.com",
         phone: "3213243224",
         cpf: "15312312304",
@@ -325,7 +464,7 @@ async function seedDatabase() {
         },
       },
       {
-        name: "Aluno Exemplo 8",
+        name: "Aluno Sicredi 8",
         email: "aluno8@escolaexemplo.com",
         phone: "3213243225",
         cpf: "15312312305",
@@ -337,7 +476,7 @@ async function seedDatabase() {
         },
       },
       {
-        name: "Aluno Exemplo 9",
+        name: "Aluno Sicredi 9",
         email: "aluno9@escolaexemplo.com",
         phone: "3213243226",
         cpf: "15312312306",
@@ -349,7 +488,7 @@ async function seedDatabase() {
         },
       },
       {
-        name: "Aluno Exemplo 10",
+        name: "Aluno Sicredi 10",
         email: "aluno10@escolaexemplo.com",
         phone: "3213243227",
         cpf: "15312312307",
@@ -361,7 +500,7 @@ async function seedDatabase() {
         },
       },
       {
-        name: "Aluno Exemplo 11",
+        name: "Aluno Sicredi 11",
         email: "aluno11@escolaexemplo.com",
         phone: "3213243228",
         cpf: "15312312308",
@@ -373,7 +512,7 @@ async function seedDatabase() {
         },
       },
       {
-        name: "Aluno Exemplo 12",
+        name: "Aluno Sicredi 12",
         email: "aluno12@escolaexemplo.com",
         phone: "3213243229",
         cpf: "15312312309",
@@ -385,7 +524,7 @@ async function seedDatabase() {
         },
       },
       {
-        name: "Aluno Exemplo 13",
+        name: "Aluno Sicredi 13",
         email: "aluno13@escolaexemplo.com",
         phone: "3213243230",
         cpf: "15312312310",
@@ -397,7 +536,7 @@ async function seedDatabase() {
         },
       },
       {
-        name: "Aluno Exemplo 14",
+        name: "Aluno Sicredi 14",
         email: "aluno14@escolaexemplo.com",
         phone: "3213243231",
         cpf: "15312312311",
@@ -409,7 +548,7 @@ async function seedDatabase() {
         },
       },
       {
-        name: "Aluno Exemplo 15",
+        name: "Aluno Sicredi 15",
         email: "aluno15@escolaexemplo.com",
         phone: "3213243232",
         cpf: "15312312312",
@@ -421,7 +560,7 @@ async function seedDatabase() {
         },
       },
       {
-        name: "Aluno Exemplo 16",
+        name: "Aluno Sicredi 16",
         email: "aluno16@escolaexemplo.com",
         phone: "3213243233",
         cpf: "15312312313",
@@ -444,7 +583,8 @@ async function seedDatabase() {
         approved: true,
       });
     
-      await createStudentStats(String(student._id), ["Matemática", "História", "Geografia", "Física"]);
+      await createStudentStats(String(student._id), ["Matemática", "História", "Educação Cívica", "Inglês", "Filosofia", "Português",],
+    );
       return student;
     }));
     
@@ -457,56 +597,47 @@ async function seedDatabase() {
         grade: "9º Ano",
         teacher: [teachers[0]._id, teachers[1]._id, teachers[2]._id, teachers[3]._id],
         students: [
-          createdStudents[0]._id, // Aluno 1
-          createdStudents[1]._id, // Aluno 2
-          createdStudents[2]._id, // Aluno 3
-          createdStudents[3]._id, // Aluno 4
-          createdStudents[4]._id, // Aluno 5
+          createdStudents[0]._id, createdStudents[1]._id, createdStudents[2]._id, 
+          createdStudents[3]._id, createdStudents[4]._id,
         ],
         IdSchool: school._id,
         year: 2024,
-        subject: ["Matemática", "História", "Geografia", "Física"],
+        subject: ["Matemática", "História", "Educação Cívica", "Inglês", "Filosofia", "Português",],
       },
       {
         name: "Turma 9B",
         grade: "9º Ano",
-        teacher: [teachers[0]._id, teachers[1]._id, teachers[2]._id, teachers[3]._id],
+        teacher: [teachers[1]._id, teachers[4]._id, teachers[2]._id, teachers[5]._id],
         students: [
-          createdStudents[5]._id, // Aluno 6
-          createdStudents[6]._id, // Aluno 7
-          createdStudents[7]._id, // Aluno 8
-          createdStudents[8]._id, // Aluno 9
+          createdStudents[5]._id, createdStudents[6]._id, createdStudents[7]._id, 
+          createdStudents[8]._id,
         ],
         IdSchool: school._id,
         year: 2024,
-        subject: ["Matemática", "História", "Geografia", "Física"],
+        subject: ["Matemática", "História", "Educação Cívica", "Inglês", "Filosofia", "Português",],
       },
       {
         name: "Turma 8A",
         grade: "8º Ano",
-        teacher: [teachers[0]._id, teachers[1]._id, teachers[2]._id, teachers[3]._id],
+        teacher: [teachers[0]._id, teachers[2]._id, teachers[5]._id, teachers[4]._id],
         students: [
-          createdStudents[10]._id, // Aluno 11
-          createdStudents[11]._id, // Aluno 12
-          createdStudents[12]._id, // Aluno 13
-          createdStudents[13]._id, // Aluno 14
+          createdStudents[10]._id, createdStudents[11]._id, createdStudents[12]._id, 
+          createdStudents[13]._id,
         ],
         IdSchool: school._id,
         year: 2024,
-        subject: ["Matemática", "História", "Geografia", "Física"],
+        subject: ["Matemática", "História", "Educação Cívica", "Inglês", "Filosofia", "Português",],
       },
       {
         name: "Turma 8B",
         grade: "8º Ano",
-        teacher: [teachers[0]._id, teachers[1]._id, teachers[2]._id, teachers[3]._id],
+        teacher: [teachers[3]._id, teachers[4]._id, teachers[1]._id, teachers[0]._id],
         students: [
-          createdStudents[14]._id, 
-          createdStudents[15]._id, 
-          createdStudents[9]._id, 
+          createdStudents[14]._id, createdStudents[15]._id, createdStudents[9]._id,
         ],
         IdSchool: school._id,
         year: 2024,
-        subject: ["Matemática", "História", "Geografia", "Física"],
+        subject: ["Filosofia", "Inglês", "Português", "Matemática", "Educação Cívica", "História"],
       },
     ];
     
@@ -531,13 +662,13 @@ async function seedDatabase() {
     
     const createTasksForClass = (classId : any, subjects : any) => {
       subjects.forEach((subject: any, index : any) => {
-        for (let i = 1; i <= 3; i++) {
+        for (let i = 1; i <= 8; i++) {
           tasks.push({
             subject,
             content: `${subject} Tarefa ${i} para ${classId}.`,
-            dueDate: new Date(`2024-12-0${i}`),
+            dueDate: new Date(`2024-11-0${i}`),
             recipients: [String(classId)],
-            IdTeacher: teachers[index]._id, // Usando o professor correspondente para cada matéria
+            IdTeacher: teachers[index]._id, 
             IdClass: String(classId),
             status: "em andamento",
             school: school._id,
