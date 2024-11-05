@@ -110,12 +110,12 @@ async function createAttendance(studentId: string, classId: string) {
     randomDate.setDate(currentDate.getDate() - randomDaysBack);
 
     // Sorteio para simular presença em cada uma das seis aulas
-    const attendFirstClass = Math.random() > 0.17;  
-    const attendSecondClass = Math.random() > 0.37; 
-    const attendThirdClass = Math.random() > 0.13; 
-    const attendFourthClass = Math.random() > 0.25; 
-    const attendFifthClass = Math.random() > 0.37; 
-    const attendSixthClass = Math.random() > 0.32; 
+    const attendFirstClass = Math.random() > 0.17;
+    const attendSecondClass = Math.random() > 0.37;
+    const attendThirdClass = Math.random() > 0.13;
+    const attendFourthClass = Math.random() > 0.25;
+    const attendFifthClass = Math.random() > 0.37;
+    const attendSixthClass = Math.random() > 0.32;
 
     let attendedClasses = 0;
 
@@ -375,9 +375,9 @@ async function seedDatabase() {
         cpf: "12345678903",
       }),
     ]);
-    
+
     console.log("Usuários (professores) criados:", teachers);
-    
+
 
     const users = [
       {
@@ -477,11 +477,11 @@ async function seedDatabase() {
         cpf: "11122233349",
       },
     ];
-    
+
     // Criação de usuários de outros papéis no banco de dados
     const otherRolesUsers = await Promise.all(users.map(userData => createUser(userData)));
     console.log("Usuários de outros papéis criados:", otherRolesUsers);
-    
+
 
     const students = [
       {
@@ -677,7 +677,7 @@ async function seedDatabase() {
         },
       },
     ];
-    
+
     // Criar usuários (alunos)
     const createdStudents = await Promise.all(students.map(async studentData => {
       const student = await createUser({
@@ -687,14 +687,14 @@ async function seedDatabase() {
         IdSchool: school._id,
         approved: true,
       });
-    
+
       await createStudentStats(String(student._id), ["Matemática", "História", "Educação Física", "Inglês", "Filosofia", "Português",],
-    );
+      );
       return student;
     }));
-    
+
     console.log("Usuários (alunos) criados:", createdStudents);
-    
+
     // Criar classes
     const classes = [
       {
@@ -702,7 +702,7 @@ async function seedDatabase() {
         grade: "9º Ano",
         teacher: [teachers[0]._id, teachers[1]._id, teachers[2]._id, teachers[3]._id],
         students: [
-          createdStudents[0]._id, createdStudents[1]._id, createdStudents[2]._id, 
+          createdStudents[0]._id, createdStudents[1]._id, createdStudents[2]._id,
           createdStudents[3]._id, createdStudents[4]._id,
         ],
         IdSchool: school._id,
@@ -714,7 +714,7 @@ async function seedDatabase() {
         grade: "9º Ano",
         teacher: [teachers[1]._id, teachers[4]._id, teachers[2]._id, teachers[5]._id],
         students: [
-          createdStudents[5]._id, createdStudents[6]._id, createdStudents[7]._id, 
+          createdStudents[5]._id, createdStudents[6]._id, createdStudents[7]._id,
           createdStudents[8]._id,
         ],
         IdSchool: school._id,
@@ -726,7 +726,7 @@ async function seedDatabase() {
         grade: "8º Ano",
         teacher: [teachers[0]._id, teachers[2]._id, teachers[5]._id, teachers[4]._id],
         students: [
-          createdStudents[10]._id, createdStudents[11]._id, createdStudents[12]._id, 
+          createdStudents[10]._id, createdStudents[11]._id, createdStudents[12]._id,
           createdStudents[13]._id,
         ],
         IdSchool: school._id,
@@ -745,15 +745,15 @@ async function seedDatabase() {
         subject: ["Filosofia", "Inglês", "Português", "Matemática", "Educação Física", "História"],
       },
     ];
-    
+
     const createdClasses = await Class.insertMany(classes);
     console.log("Classes criadas:", createdClasses);
-    
+
     const schedules = await Promise.all(
       createdClasses.map((createdClass) => createSchedule(String(createdClass._id)))
     );
     console.log("Cronogramas criados para as classes:", schedules);
-    
+
     await Promise.all(
       createdClasses.map(async (classData) => {
         for (const studentId of classData.students) {
@@ -762,33 +762,121 @@ async function seedDatabase() {
       })
     );
     console.log("Presença dos alunos criada.");
-    
-    const tasks :  any[] = [];
-    
-    const createTasksForClass = (classId : any, subjects : any) => {
-      subjects.forEach((subject: any, index : any) => {
-        for (let i = 1; i <= 8; i++) {
+
+    // const tasks :  any[] = [];
+
+    // const createTasksForClass = (classId : any, subjects : any) => {
+    //   subjects.forEach((subject: any, index : any) => {
+    //     for (let i = 1; i <= 8; i++) {
+    //       tasks.push({
+    //         subject,
+    //         content: `${subject} Tarefa ${i} para ${classId}.`,
+    //         dueDate: new Date(`2024-11-0${i}`),
+    //         recipients: [String(classId)],
+    //         IdTeacher: teachers[index]._id, 
+    //         IdClass: String(classId),
+    //         status: "em andamento",
+    //         school: school._id,
+    //       });
+    //     }
+    //   });
+    // };
+
+    // // Criar tarefas para cada classe
+    // createdClasses.forEach(createdClass => {
+    //   createTasksForClass(createdClass._id, createdClass.subject);
+    // });
+
+    // const createdTasks = await Task.insertMany(tasks);
+    // console.log("Tarefas criadas:", createdTasks);
+
+    const tasks: any = [];
+
+    const createTasksForClass = (classId: any, subjects: any, students: any) => {
+      subjects.forEach((subject: string, index: number) => {
+        // Tarefas concluídas e validadas
+        for (let i = 1; i <= 3; i++) {
           tasks.push({
             subject,
-            content: `${subject} Tarefa ${i} para ${classId}.`,
+            content: `${subject} Tarefa Concluída e Avaliada ${i} para ${classId}.`,
             dueDate: new Date(`2024-11-0${i}`),
             recipients: [String(classId)],
-            IdTeacher: teachers[index]._id, 
+            IdTeacher: teachers[index]._id,
+            IdClass: String(classId),
+            status: "pronto",
+            school: school._id,
+            studentResponses: students.map((student: any) => ({
+              studentId: student,
+              studentName: `Nome do Aluno ${student}`, // Personalize conforme necessário
+              responseContent: `Resposta do aluno ${student} para a tarefa ${i} de ${subject}`,
+              submissionDate: new Date(),
+              graded: true,
+              grade: Math.floor(Math.random() * 10 + 1), // Nota aleatória para simulação
+              feedback: "Feedback do professor",
+            })),
+          });
+        }
+
+        // Tarefas concluídas sem avaliação
+        for (let i = 4; i <= 6; i++) {
+          tasks.push({
+            subject,
+            content: `${subject} Tarefa Concluída esperando Avaliação ${i - 3} para ${classId}.`,
+            dueDate: new Date(`2024-11-0${i}`),
+            recipients: [String(classId)],
+            IdTeacher: teachers[index]._id,
+            IdClass: String(classId),
+            status: "pendente",
+            school: school._id,
+            studentResponses: students.map((student: any) => ({
+              studentId: student,
+              studentName: `Nome do Aluno ${student}`,
+              responseContent: `Resposta do aluno ${student} para a tarefa ${i} de ${subject}`,
+              submissionDate: new Date(),
+            })),
+          });
+        }
+
+        // Tarefas em andamento
+        for (let i = 7; i <= 10; i++) {
+          tasks.push({
+            subject,
+            content: `${subject} Tarefa em Andamento ${i - 6} para ${classId}.`,
+            dueDate: new Date(`2024-12-0${i}`),
+            recipients: [String(classId)],
+            IdTeacher: teachers[index]._id,
             IdClass: String(classId),
             status: "em andamento",
             school: school._id,
           });
         }
+
+        // Tarefas em atraso
+        for (let i = 11; i <= 12; i++) {
+          tasks.push({
+            subject,
+            content: `${subject} Tarefa Atrasada ${i - 10} para ${classId}.`,
+            dueDate: new Date(`2024-10-0${i}`),
+            recipients: [String(classId)],
+            IdTeacher: teachers[index]._id,
+            IdClass: String(classId),
+            status: "atrasada",
+            school: school._id,
+          });
+        }
       });
     };
-    
-    // Criar tarefas para cada classe
+
+
     createdClasses.forEach(createdClass => {
-      createTasksForClass(createdClass._id, createdClass.subject);
+      createTasksForClass(createdClass._id, createdClass.subject, createdClass.students);
     });
-    
+
     const createdTasks = await Task.insertMany(tasks);
     console.log("Tarefas criadas:", createdTasks);
+
+
+
 
   } catch (error) {
     console.error("Erro ao popular o banco de dados:", error);
