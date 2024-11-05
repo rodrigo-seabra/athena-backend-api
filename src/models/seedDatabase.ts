@@ -378,6 +378,111 @@ async function seedDatabase() {
     
     console.log("Usuários (professores) criados:", teachers);
     
+
+    const users = [
+      {
+        name: "Diretor Sicredi",
+        email: "diretor@escolaexemplo.com",
+        phone: "123456789",
+        password: "senhaSegura",
+        role: "diretor",
+        IdSchool: school._id,
+        approved: true,
+        address: {
+          street: "Rua do Diretor",
+          cep: "12345-678",
+          state: "SP",
+          city: "São Paulo",
+        },
+        cpf: "11122233344",
+      },
+      {
+        name: "Coordenador Sicredi",
+        email: "coordenador@escolaexemplo.com",
+        phone: "123456780",
+        password: "senhaSegura",
+        role: "coordenador",
+        IdSchool: school._id,
+        approved: true,
+        address: {
+          street: "Rua do Coordenador",
+          cep: "12345-679",
+          state: "SP",
+          city: "São Paulo",
+        },
+        cpf: "11122233345",
+      },
+      {
+        name: "Inspetor Sicredi",
+        email: "inspetor@escolaexemplo.com",
+        phone: "123456781",
+        password: "senhaSegura",
+        role: "inspetor",
+        IdSchool: school._id,
+        approved: true,
+        address: {
+          street: "Rua do Inspetor",
+          cep: "12345-680",
+          state: "SP",
+          city: "São Paulo",
+        },
+        cpf: "11122233346",
+      },
+      {
+        name: "Funcionário Limpeza",
+        email: "limpeza@escolaexemplo.com",
+        phone: "123456782",
+        password: "senhaSegura",
+        role: "limpeza",
+        IdSchool: school._id,
+        approved: true,
+        address: {
+          street: "Rua do Limpeza",
+          cep: "12345-681",
+          state: "SP",
+          city: "São Paulo",
+        },
+        cpf: "11122233347",
+      },
+      {
+        name: "Funcionário Cozinha",
+        email: "cozinha@escolaexemplo.com",
+        phone: "123456783",
+        password: "senhaSegura",
+        role: "cozinha",
+        IdSchool: school._id,
+        approved: true,
+        address: {
+          street: "Rua da Cozinha",
+          cep: "12345-682",
+          state: "SP",
+          city: "São Paulo",
+        },
+        cpf: "11122233348",
+      },
+      {
+        name: "Outro Funcionário",
+        email: "outro@escolaexemplo.com",
+        phone: "123456784",
+        password: "senhaSegura",
+        role: "outro",
+        IdSchool: school._id,
+        approved: true,
+        address: {
+          street: "Rua do Outro",
+          cep: "12345-683",
+          state: "SP",
+          city: "São Paulo",
+        },
+        cpf: "11122233349",
+      },
+    ];
+    
+    // Criação de usuários de outros papéis no banco de dados
+    const otherRolesUsers = await Promise.all(users.map(userData => createUser(userData)));
+    console.log("Usuários de outros papéis criados:", otherRolesUsers);
+    
+
     const students = [
       {
         name: "Aluno Sicredi 1",
