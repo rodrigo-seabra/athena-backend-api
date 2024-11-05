@@ -10,6 +10,31 @@ class AttendanceController {
   private studentId!: any;
   private classId!: any;
 
+  private generateRandomStudentCount(min: number, max: number): number {
+    const dateSeed = new Date().toISOString().split('T')[0]; 
+    let hash = 0;
+    for (let i = 0; i < dateSeed.length; i++) {
+      hash = dateSeed.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    hash = Math.abs(hash);
+    return min + (hash % (max - min + 1));
+  }
+
+
+  public async getDailyStudentCount(req: Request, res: Response): Promise<Response> {
+    try {
+      const minStudents = 100; 
+      const maxStudents = 350; 
+
+      const studentCount = this.generateRandomStudentCount(minStudents, maxStudents);
+      return res.status(200).json({ studentCount });
+    } catch (error) {
+      console.error("Erro ao gerar contagem de alunos:", error);
+      return res.status(500).json({ message: "Erro ao gerar contagem de alunos." });
+    }
+  }
+
+
   private isTimeWithinRange(
     entryTime: string,
     exitTime: string,
