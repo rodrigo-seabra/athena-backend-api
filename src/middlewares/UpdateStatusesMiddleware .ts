@@ -142,10 +142,8 @@ class UpdateStatusesMiddleware {
         console.error('Erro ao atualizar studentStatus:', error);
       }
     };
+  
     
-    
-    
-
   }
   
   export default new UpdateStatusesMiddleware();

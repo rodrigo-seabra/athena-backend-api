@@ -758,6 +758,10 @@ class TaskController {
     }
     
   }
+  public async ping(req: Request, res:Response) : Promise<any>
+  {
+    return res.status(200).json({ message: "pong" });
+  }
   
 }
 
