@@ -15,7 +15,6 @@ class AttendanceController {
   
   private generateRandomStudentCount(min: number, max: number): number {
     try {
-      console.log("Gerando contagem de alunos...");
       const dateSeed = new Date().toISOString().split('T')[0];
       let hash = 0;
       for (let i = 0; i < dateSeed.length; i++) {
@@ -23,10 +22,8 @@ class AttendanceController {
       }
       hash = Math.abs(hash);
       const result = min + (hash % (max - min + 1));
-      console.log("Contagem gerada:", result);
       return result;
     } catch (error) {
-      console.error("Erro dentro de generateRandomStudentCount:", error);
       throw new Error("Erro ao gerar contagem de alunos.");
     }
   }
@@ -38,7 +35,6 @@ class AttendanceController {
       const studentCount = this.generateRandomStudentCount(minStudents, maxStudents);
       return res.status(200).json({ studentCount });
     } catch (error) {
-      console.error("Erro ao retornar contagem de alunos:", error);
       return res.status(500).json({ message: "Erro ao gerar contagem de alunos." });
     }
   }
