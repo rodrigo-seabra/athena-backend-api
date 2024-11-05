@@ -9,7 +9,7 @@ import UpdateStatusesMiddleware from "../middlewares/UpdateStatusesMiddleware ";
 import StudentStatsController from "../controllers/StudentStatsController";
 import ScheduleController from "../controllers/ScheduleController";
 import AttendanceController from "../controllers/AttendanceController"; // Importando o AttendanceController
-
+import ExperienceController from "../controllers/ExperienceController";
 class Routes {
   public routes: Router;
   public constructor() {
@@ -23,9 +23,13 @@ class Routes {
     this.StatsRoutes();
     this.ScheduleRoutes();
     this.AttendanceRoutes(); 
-
+    this.ExperienceRoutes();
   }
+  private ExperienceRoutes() {
+    this.routes.post("/experience", ExperienceController.create);
+    this.routes.get("/experience", ExperienceController.index);
 
+ }
 
   private AttendanceRoutes() {
      this.routes.post("/attendance/registerWithFaceDescriptor", AttendanceController.registerWithFaceDescriptor);
@@ -33,7 +37,7 @@ class Routes {
      this.routes.post("/attendance/manualRegister", AttendanceController.manualRegister);
     this.routes.get("/attendance/:studentId", AttendanceController.getOverallAttendanceRate); 
     this.routes.get("/attendance/school/:schoolId", AttendanceController.getAttendanceBySchool);
-
+    this.routes.get("/student-count", AttendanceController.getDailyStudentCount)
      this.routes.get("/attendance/class/:classId", AttendanceController.getAttendanceByClass);
   }
 
