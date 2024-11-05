@@ -61,35 +61,35 @@ async function createStudentStats(userId: string, subjects: any[]) {
 async function createSchedule(classId: string) {
   const scheduleItems = [
     { dayOfWeek: "1", startTime: "08:00", endTime: "09:30", topic: "Matemática" },
-    { dayOfWeek: "1", startTime: "09:30", endTime: "11:00", topic: "Educação Cívica" },
+    { dayOfWeek: "1", startTime: "09:30", endTime: "11:00", topic: "Educação Física" },
     { dayOfWeek: "1", startTime: "11:00", endTime: "12:30", topic: "Português" },
     { dayOfWeek: "1", startTime: "13:00", endTime: "14:30", topic: "Inglês" },
     { dayOfWeek: "1", startTime: "14:30", endTime: "16:00", topic: "História" },
     { dayOfWeek: "1", startTime: "16:00", endTime: "17:30", topic: "Filosofia" },
 
     { dayOfWeek: "2", startTime: "08:00", endTime: "09:30", topic: "Matemática" },
-    { dayOfWeek: "2", startTime: "09:30", endTime: "11:00", topic: "Educação Cívica" },
+    { dayOfWeek: "2", startTime: "09:30", endTime: "11:00", topic: "Educação Física" },
     { dayOfWeek: "2", startTime: "11:00", endTime: "12:30", topic: "Português" },
     { dayOfWeek: "2", startTime: "13:00", endTime: "14:30", topic: "Inglês" },
     { dayOfWeek: "2", startTime: "14:30", endTime: "16:00", topic: "História" },
     { dayOfWeek: "2", startTime: "16:00", endTime: "17:30", topic: "Filosofia" },
 
     { dayOfWeek: "3", startTime: "08:00", endTime: "09:30", topic: "Matemática" },
-    { dayOfWeek: "3", startTime: "09:30", endTime: "11:00", topic: "Educação Cívica" },
+    { dayOfWeek: "3", startTime: "09:30", endTime: "11:00", topic: "Educação Física" },
     { dayOfWeek: "3", startTime: "11:00", endTime: "12:30", topic: "Português" },
     { dayOfWeek: "3", startTime: "13:00", endTime: "14:30", topic: "Inglês" },
     { dayOfWeek: "3", startTime: "14:30", endTime: "16:00", topic: "História" },
     { dayOfWeek: "3", startTime: "16:00", endTime: "17:30", topic: "Filosofia" },
 
     { dayOfWeek: "4", startTime: "08:00", endTime: "09:30", topic: "Matemática" },
-    { dayOfWeek: "4", startTime: "09:30", endTime: "11:00", topic: "Educação Cívica" },
+    { dayOfWeek: "4", startTime: "09:30", endTime: "11:00", topic: "Educação Física" },
     { dayOfWeek: "4", startTime: "11:00", endTime: "12:30", topic: "Português" },
     { dayOfWeek: "4", startTime: "13:00", endTime: "14:30", topic: "Inglês" },
     { dayOfWeek: "4", startTime: "14:30", endTime: "16:00", topic: "História" },
     { dayOfWeek: "4", startTime: "16:00", endTime: "17:30", topic: "Filosofia" },
 
     { dayOfWeek: "5", startTime: "08:00", endTime: "09:30", topic: "Matemática" },
-    { dayOfWeek: "5", startTime: "09:30", endTime: "11:00", topic: "Educação Cívica" },
+    { dayOfWeek: "5", startTime: "09:30", endTime: "11:00", topic: "Educação Física" },
     { dayOfWeek: "5", startTime: "11:00", endTime: "12:30", topic: "Português" },
     { dayOfWeek: "5", startTime: "13:00", endTime: "14:30", topic: "Inglês" },
     { dayOfWeek: "5", startTime: "14:30", endTime: "16:00", topic: "História" },
@@ -110,12 +110,12 @@ async function createAttendance(studentId: string, classId: string) {
     randomDate.setDate(currentDate.getDate() - randomDaysBack);
 
     // Sorteio para simular presença em cada uma das seis aulas
-    const attendFirstClass = Math.random() > 0.2;  
-    const attendSecondClass = Math.random() > 0.27; 
-    const attendThirdClass = Math.random() > 0.33; 
-    const attendFourthClass = Math.random() > 0.38; 
-    const attendFifthClass = Math.random() > 0.4; 
-    const attendSixthClass = Math.random() > 0.45; 
+    const attendFirstClass = Math.random() > 0.17;  
+    const attendSecondClass = Math.random() > 0.37; 
+    const attendThirdClass = Math.random() > 0.13; 
+    const attendFourthClass = Math.random() > 0.25; 
+    const attendFifthClass = Math.random() > 0.37; 
+    const attendSixthClass = Math.random() > 0.32; 
 
     let attendedClasses = 0;
 
@@ -583,7 +583,7 @@ async function seedDatabase() {
         approved: true,
       });
     
-      await createStudentStats(String(student._id), ["Matemática", "História", "Educação Cívica", "Inglês", "Filosofia", "Português",],
+      await createStudentStats(String(student._id), ["Matemática", "História", "Educação Física", "Inglês", "Filosofia", "Português",],
     );
       return student;
     }));
@@ -602,7 +602,7 @@ async function seedDatabase() {
         ],
         IdSchool: school._id,
         year: 2024,
-        subject: ["Matemática", "História", "Educação Cívica", "Inglês", "Filosofia", "Português",],
+        subject: ["Matemática", "História", "Educação Física", "Inglês", "Filosofia", "Português",],
       },
       {
         name: "Turma 9B",
@@ -614,7 +614,7 @@ async function seedDatabase() {
         ],
         IdSchool: school._id,
         year: 2024,
-        subject: ["Matemática", "História", "Educação Cívica", "Inglês", "Filosofia", "Português",],
+        subject: ["Matemática", "História", "Educação Física", "Inglês", "Filosofia", "Português",],
       },
       {
         name: "Turma 8A",
@@ -626,7 +626,7 @@ async function seedDatabase() {
         ],
         IdSchool: school._id,
         year: 2024,
-        subject: ["Matemática", "História", "Educação Cívica", "Inglês", "Filosofia", "Português",],
+        subject: ["Matemática", "História", "Educação Física", "Inglês", "Filosofia", "Português",],
       },
       {
         name: "Turma 8B",
@@ -637,7 +637,7 @@ async function seedDatabase() {
         ],
         IdSchool: school._id,
         year: 2024,
-        subject: ["Filosofia", "Inglês", "Português", "Matemática", "Educação Cívica", "História"],
+        subject: ["Filosofia", "Inglês", "Português", "Matemática", "Educação Física", "História"],
       },
     ];
     
