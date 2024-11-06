@@ -71,7 +71,81 @@ class TaskController {
       return res.status(500).json({ message: "Erro ao buscar estatísticas das tarefas." });
     }
   }
-  
+  public async getAverageGradesBySchool(req: Request, res: Response): Promise<Response> {
+    try {
+        const { schoolId } = req.params;
+
+        if (!schoolId) {
+            return res.status(400).json({ message: "ID da escola não fornecido." });
+        }
+
+        // Busca todas as classes da escola
+        const classes = await Class.find({ IdSchool: schoolId }).lean();
+        const classIds = classes.map(classItem => String(classItem._id));
+
+        // Verifica se há classes associadas à escola
+        if (classIds.length === 0) {
+            return res.status(404).json({ message: "Nenhuma classe encontrada para esta escola." });
+        }
+
+        // Busca todas as tarefas avaliadas relacionadas às classes
+        const tasks = await Task.find({
+            recipients: { $in: classIds },
+            "studentResponses.graded": true
+        }).lean();
+
+        if (tasks.length === 0) {
+            return res.status(404).json({ message: "Nenhuma tarefa avaliada encontrada para esta escola." });
+        }
+
+        let totalGrades = 0;
+        let totalResponses = 0;
+        const classAverages: { [key: string]: { name: string; average: number } } = {};
+
+        classIds.forEach(classId => {
+            const classItem = classes.find(item => String(item._id) === classId);
+            const className = classItem ? classItem.name : "Classe desconhecida"; // Atribuindo o nome da classe
+
+            const classTasks = tasks.filter(task => 
+                task.recipients?.some((recipientId: string) => recipientId === classId)
+            );
+
+            let classTotalGrades = 0;
+            let classTotalResponses = 0;
+
+            classTasks.forEach(task => {
+                const gradedResponses = task.studentResponses?.filter(response => response.graded) || [];
+                gradedResponses.forEach(response => {
+                    if (response.grade !== undefined) {
+                        classTotalGrades += response.grade;
+                        classTotalResponses += 1;
+                    }
+                });
+            });
+
+            if (classTotalResponses > 0) {
+                classAverages[classId] = {
+                    name: className,
+                    average: classTotalGrades / classTotalResponses
+                };
+                totalGrades += classTotalGrades;
+                totalResponses += classTotalResponses;
+            }
+        });
+
+        const overallAverage = totalResponses > 0 ? totalGrades / totalResponses : 0;
+
+        return res.status(200).json({
+            classAverages,
+            overallAverage: parseFloat(overallAverage.toFixed(2)),
+        });
+    } catch (error: any) {
+        console.error("Erro ao buscar média de notas:", error);
+        return res.status(500).json({ message: "Erro ao buscar média de notas." });
+    }
+}
+
+
 
 
   public async getPendingTasksByUser(
