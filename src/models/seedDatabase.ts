@@ -102,20 +102,19 @@ async function createSchedule(classId: string) {
 async function createAttendance(studentId: string, classId: string) {
   const currentDate = new Date();
   const attendanceRecords = [];
-  const totalClasses = 6; // Atualizado para 6 aulas por dia
+  const totalClasses = 6;
 
   for (let i = 0; i < 15; i++) {
     const randomDaysBack = Math.floor(Math.random() * 30);
     const randomDate = new Date(currentDate);
     randomDate.setDate(currentDate.getDate() - randomDaysBack);
 
-    // Sorteio para simular presença em cada uma das seis aulas
     const attendFirstClass = Math.random() > 0.15;
     const attendSecondClass = Math.random() > 0.17;
     const attendThirdClass = Math.random() > 0.13;
     const attendFourthClass = Math.random() > 0.15;
-    const attendFifthClass = Math.random() > 0.17;
-    const attendSixthClass = Math.random() > 0.17;
+    const attendFifthClass = Math.random() > 0.12;
+    const attendSixthClass = Math.random() > 0.13;
 
     let attendedClasses = 0;
 
@@ -809,7 +808,7 @@ async function seedDatabase() {
               responseContent: `Resposta do aluno ${student} para a tarefa de ${subject}`,
               submissionDate: new Date(),
               graded: true,
-              grade: Math.floor(Math.random() * 10 + 1), 
+              grade: Math.floor(Math.random() * 7 + 4), 
               feedback: "Feedback do professor",
             })),
           });
