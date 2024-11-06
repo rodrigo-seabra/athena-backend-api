@@ -110,12 +110,12 @@ async function createAttendance(studentId: string, classId: string) {
     randomDate.setDate(currentDate.getDate() - randomDaysBack);
 
     // Sorteio para simular presença em cada uma das seis aulas
-    const attendFirstClass = Math.random() > 0.17;
-    const attendSecondClass = Math.random() > 0.37;
+    const attendFirstClass = Math.random() > 0.15;
+    const attendSecondClass = Math.random() > 0.17;
     const attendThirdClass = Math.random() > 0.13;
-    const attendFourthClass = Math.random() > 0.25;
-    const attendFifthClass = Math.random() > 0.37;
-    const attendSixthClass = Math.random() > 0.32;
+    const attendFourthClass = Math.random() > 0.15;
+    const attendFifthClass = Math.random() > 0.17;
+    const attendSixthClass = Math.random() > 0.17;
 
     let attendedClasses = 0;
 
@@ -794,12 +794,10 @@ async function seedDatabase() {
 
     const createTasksForClass = (classId: any, subjects: any, students: any) => {
       subjects.forEach((subject: string, index: number) => {
-        // Tarefas concluídas e validadas
-        for (let i = 1; i <= 3; i++) {
           tasks.push({
             subject,
-            content: `${subject} Tarefa Concluída e Avaliada ${i} para ${classId}.`,
-            dueDate: new Date(`2024-11-0${i}`),
+            content: `${subject} Tarefa Concluída e Avaliada  para ${classId}.`,
+            dueDate: new Date(`2024-11-05`),
             recipients: [String(classId)],
             IdTeacher: teachers[index]._id,
             IdClass: String(classId),
@@ -807,22 +805,19 @@ async function seedDatabase() {
             school: school._id,
             studentResponses: students.map((student: any) => ({
               studentId: student,
-              studentName: `Nome do Aluno ${student}`, // Personalize conforme necessário
-              responseContent: `Resposta do aluno ${student} para a tarefa ${i} de ${subject}`,
+              studentName: `Nome do Aluno ${student}`, 
+              responseContent: `Resposta do aluno ${student} para a tarefa de ${subject}`,
               submissionDate: new Date(),
               graded: true,
-              grade: Math.floor(Math.random() * 10 + 1), // Nota aleatória para simulação
+              grade: Math.floor(Math.random() * 10 + 1), 
               feedback: "Feedback do professor",
             })),
           });
-        }
 
-        // Tarefas concluídas sem avaliação
-        for (let i = 4; i <= 6; i++) {
           tasks.push({
             subject,
-            content: `${subject} Tarefa Concluída esperando Avaliação ${i - 3} para ${classId}.`,
-            dueDate: new Date(`2024-11-0${i}`),
+            content: `${subject} Tarefa Concluída esperando Avaliação teste para ${classId}.`,
+            dueDate: new Date(`2024-11-09`),
             recipients: [String(classId)],
             IdTeacher: teachers[index]._id,
             IdClass: String(classId),
@@ -831,39 +826,34 @@ async function seedDatabase() {
             studentResponses: students.map((student: any) => ({
               studentId: student,
               studentName: `Nome do Aluno ${student}`,
-              responseContent: `Resposta do aluno ${student} para a tarefa ${i} de ${subject}`,
+              responseContent: `Resposta do aluno ${student} para a tarefa de ${subject}`,
               submissionDate: new Date(),
             })),
           });
-        }
 
         // Tarefas em andamento
-        for (let i = 7; i <= 10; i++) {
           tasks.push({
             subject,
-            content: `${subject} Tarefa em Andamento ${i - 6} para ${classId}.`,
-            dueDate: new Date(`2024-12-0${i}`),
+            content: `${subject} Tarefa em Andamento teste para ${classId}.`,
+            dueDate: new Date(`2024-12-10`),
             recipients: [String(classId)],
             IdTeacher: teachers[index]._id,
             IdClass: String(classId),
             status: "em andamento",
             school: school._id,
           });
-        }
 
-        // Tarefas em atraso
-        for (let i = 11; i <= 12; i++) {
+
           tasks.push({
             subject,
-            content: `${subject} Tarefa Atrasada ${i - 10} para ${classId}.`,
-            dueDate: new Date(`2024-10-0${i}`),
+            content: `${subject} Tarefa Atrasada teste para ${classId}.`,
+            dueDate: new Date(`2024-10-08`),
             recipients: [String(classId)],
             IdTeacher: teachers[index]._id,
             IdClass: String(classId),
             status: "atrasada",
             school: school._id,
           });
-        }
       });
     };
 

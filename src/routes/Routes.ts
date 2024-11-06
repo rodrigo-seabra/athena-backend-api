@@ -96,6 +96,8 @@ class Routes {
     this.routes.get("/tasks/dueSoon/:teacherId?", TaskController.getTasksDueSoon)
     this.routes.get("/tasks/overdue/:teacherId?", TaskController.getOverdueTasks)
     this.routes.get('/tasks/getalluser/:teacherId?', TaskController.getAllTasks)
+    this.routes.get('/tasks/getAll/:schoolId?', TaskController.getTaskCompletionStatsBySchool)
+
     this.routes.get("/task/getall/userbyclass/:userId", TaskController.getAllByUser)
     this.routes.get("/pong",  UpdateStatusesMiddleware.update, TaskController.ping)
     this.routes.get("/tasks/completed/:userId", TaskController.getAllCompleteByUser)

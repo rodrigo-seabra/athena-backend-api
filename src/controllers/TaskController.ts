@@ -6,6 +6,73 @@ import Class, { ClassModel } from "../models/Class";
 import { UsersInterface } from "../interfaces/User.interface";
 
 class TaskController {
+  public async getTaskCompletionStatsBySchool(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
+    try {
+      const { schoolId } = req.params;
+  
+      if (!schoolId) {
+        return res.status(400).json({ message: "ID da escola não fornecido." });
+      }
+  
+      // Busca todas as classes da escola
+      const classes = await Class.find({ IdSchool: schoolId }).lean();
+      const classIds = classes.map(classItem => classItem._id);
+  
+      // Verifica se há classes associadas à escola
+      if (classIds.length === 0) {
+        return res.status(404).json({ message: "Nenhuma classe encontrada para esta escola." });
+      }
+  
+      // Busca todas as tarefas relacionadas às classes
+      const tasks = await Task.find({ recipients: { $in: classIds } }).lean();
+      
+      if (tasks.length === 0) {
+        return res.status(404).json({ message: "Nenhuma tarefa encontrada para esta escola." });
+      }
+  
+      // Contadores para os estados das tarefas
+      let countCompleted = 0;
+      let countOngoing = 0;
+      let countLate = 0;
+      const currentDate = new Date();
+  
+      tasks.forEach(task => {
+        if (task.studentStatus) { // Verificação adicionada aqui
+          task.studentStatus.forEach(status => {
+            if (status.status === "pronto") {
+              countCompleted++;
+            } else if (status.status === "em andamento") {
+              
+                countOngoing++;
+              }else if( status.status === "atrasada")
+              {
+                countLate++;
+              }
+          });
+        }
+      });
+  
+      const totalTasks = countCompleted + countOngoing + countLate;
+      const completedPercentage = (countCompleted / totalTasks) * 100;
+      const ongoingPercentage = (countOngoing / totalTasks) * 100;
+      const latePercentage = (countLate / totalTasks) * 100;
+  
+      return res.status(200).json({
+        totalTasks,
+        completedPercentage: completedPercentage.toFixed(2),
+        ongoingPercentage: ongoingPercentage.toFixed(2),
+        latePercentage: latePercentage.toFixed(2),
+      });
+    } catch (error: any) {
+      console.error("Erro ao buscar estatísticas das tarefas:", error);
+      return res.status(500).json({ message: "Erro ao buscar estatísticas das tarefas." });
+    }
+  }
+  
+
 
   public async getPendingTasksByUser(
     req: Request,
