@@ -102,154 +102,59 @@ async function createSchedule(classId: string) {
 async function createAttendance(studentId: string, classId: string) {
   const currentDate = new Date();
   const attendanceRecords = [];
-  const totalClasses = 6;
+  const totalClasses = 6;  // Número fixo de aulas por dia
+  const minimumAttendance = Math.floor(totalClasses); // Total de aulas a serem registradas
 
   for (let i = 0; i < 15; i++) {
     const randomDaysBack = Math.floor(Math.random() * 30);
     const randomDate = new Date(currentDate);
     randomDate.setDate(currentDate.getDate() - randomDaysBack);
 
-    const attendFirstClass = Math.random() > 0.15;
-    const attendSecondClass = Math.random() > 0.17;
-    const attendThirdClass = Math.random() > 0.13;
-    const attendFourthClass = Math.random() > 0.15;
-    const attendFifthClass = Math.random() > 0.12;
-    const attendSixthClass = Math.random() > 0.13;
-
     let attendedClasses = 0;
 
-    if (attendFirstClass) {
-      const entryTime1 = new Date(randomDate.setHours(8, 0, 0));
-      const exitTime1 = new Date(entryTime1.getTime() + 5400000); // Saída 1h30 depois
+    // A probabilidade de presença de 4 a 6 aulas
+    const presenceOptions = [4, 5, 6]; // 4, 5 ou 6 aulas frequentadas
 
-      attendanceRecords.push({
-        studentId,
-        classId,
-        date: randomDate,
-        entryTime: entryTime1,
-        exitTime: exitTime1,
-        attendedClasses: 1,
-        totalClasses,
-        attempts: Math.floor(Math.random() * 3),
-        recognitionCode: "success",
-        notes: "Presença na primeira aula",
-      });
-      attendedClasses++;
+    // Escolher aleatoriamente o número de aulas que o aluno vai frequentar
+    attendedClasses = presenceOptions[Math.floor(Math.random() * presenceOptions.length)];
+
+    const presentClasses = new Set();
+
+    // Gerar aulas aleatórias em que o aluno compareceu, com o número de aulas frequentes
+    while (presentClasses.size < attendedClasses) {
+      presentClasses.add(Math.floor(Math.random() * totalClasses)); // Aulas aleatórias
     }
 
-    if (attendSecondClass) {
-      const entryTime2 = new Date(randomDate.setHours(9, 30, 0));
-      const exitTime2 = new Date(entryTime2.getTime() + 5400000); // Saída 1h30 depois
+    const attendanceTimes = [
+      { hour: 8, minute: 0, note: "Presença na primeira aula" },   // 1ª aula (08:00-09:30)
+      { hour: 9, minute: 30, note: "Presença na segunda aula" },   // 2ª aula (09:30-11:00)
+      { hour: 11, minute: 0, note: "Presença na terceira aula" },  // 3ª aula (11:00-12:30)
+      { hour: 13, minute: 0, note: "Presença na quarta aula" },    // 4ª aula (13:00-14:30)
+      { hour: 14, minute: 30, note: "Presença na quinta aula" },   // 5ª aula (14:30-16:00)
+      { hour: 16, minute: 0, note: "Presença na sexta aula" },     // 6ª aula (16:00-17:30)
+    ];
 
-      attendanceRecords.push({
-        studentId,
-        classId,
-        date: randomDate,
-        entryTime: entryTime2,
-        exitTime: exitTime2,
-        attendedClasses: attendedClasses + 1,
-        totalClasses,
-        attempts: Math.floor(Math.random() * 3),
-        recognitionCode: "success",
-        notes: "Presença na segunda aula",
-      });
-      attendedClasses++;
-    }
+    // Registro de presença diário, com entrada na primeira aula e saída na última
+    const entryTime = new Date(randomDate.setHours(8, 0, 0));  // Entrada na primeira aula (08:00)
+    const exitTime = new Date(randomDate.setHours(17, 30, 0)); // Saída na última aula (17:30)
 
-    if (attendThirdClass) {
-      const entryTime3 = new Date(randomDate.setHours(11, 0, 0));
-      const exitTime3 = new Date(entryTime3.getTime() + 5400000); // Saída 1h30 depois
-
-      attendanceRecords.push({
-        studentId,
-        classId,
-        date: randomDate,
-        entryTime: entryTime3,
-        exitTime: exitTime3,
-        attendedClasses: attendedClasses + 1,
-        totalClasses,
-        attempts: Math.floor(Math.random() * 3),
-        recognitionCode: "success",
-        notes: "Presença na terceira aula",
-      });
-      attendedClasses++;
-    }
-
-    if (attendFourthClass) {
-      const entryTime4 = new Date(randomDate.setHours(13, 0, 0));
-      const exitTime4 = new Date(entryTime4.getTime() + 5400000); // Saída 1h30 depois
-
-      attendanceRecords.push({
-        studentId,
-        classId,
-        date: randomDate,
-        entryTime: entryTime4,
-        exitTime: exitTime4,
-        attendedClasses: attendedClasses + 1,
-        totalClasses,
-        attempts: Math.floor(Math.random() * 3),
-        recognitionCode: "success",
-        notes: "Presença na quarta aula",
-      });
-      attendedClasses++;
-    }
-
-    if (attendFifthClass) {
-      const entryTime5 = new Date(randomDate.setHours(14, 30, 0));
-      const exitTime5 = new Date(entryTime5.getTime() + 5400000); // Saída 1h30 depois
-
-      attendanceRecords.push({
-        studentId,
-        classId,
-        date: randomDate,
-        entryTime: entryTime5,
-        exitTime: exitTime5,
-        attendedClasses: attendedClasses + 1,
-        totalClasses,
-        attempts: Math.floor(Math.random() * 3),
-        recognitionCode: "success",
-        notes: "Presença na quinta aula",
-      });
-      attendedClasses++;
-    }
-
-    if (attendSixthClass) {
-      const entryTime6 = new Date(randomDate.setHours(16, 0, 0));
-      const exitTime6 = new Date(entryTime6.getTime() + 5400000); // Saída 1h30 depois
-
-      attendanceRecords.push({
-        studentId,
-        classId,
-        date: randomDate,
-        entryTime: entryTime6,
-        exitTime: exitTime6,
-        attendedClasses: attendedClasses + 1,
-        totalClasses,
-        attempts: Math.floor(Math.random() * 3),
-        recognitionCode: "success",
-        notes: "Presença na sexta aula",
-      });
-      attendedClasses++;
-    }
-
-    if (attendedClasses === 0) {
-      attendanceRecords.push({
-        studentId,
-        classId,
-        date: randomDate,
-        entryTime: null,
-        exitTime: null,
-        attendedClasses: 0,
-        totalClasses,
-        attempts: Math.floor(Math.random() * 3),
-        recognitionCode: "absent",
-        notes: "Falta registrada automaticamente",
-      });
-    }
+    attendanceRecords.push({
+      studentId,
+      classId,
+      date: randomDate,  // A data do registro será o dia em questão
+      entryTime,         // Entrada no horário da primeira aula
+      exitTime,          // Saída no horário da última aula
+      attendedClasses,   // Quantidade de aulas que o aluno participou
+      totalClasses,      // Total de aulas (6)
+      attempts: Math.floor(Math.random() * 3),  // Tentativas aleatórias
+      recognitionCode: attendedClasses > 0 ? "success" : "absent",  // Se o aluno participou, marca como 'success', caso contrário 'absent'
+      notes: attendedClasses > 0 ? `${attendedClasses} aulas presentes` : "Falta registrada automaticamente",
+    });
   }
 
   return Attendance.insertMany(attendanceRecords);
 }
+
 
 
 
@@ -808,7 +713,7 @@ async function seedDatabase() {
               responseContent: `Resposta do aluno ${student} para a tarefa de ${subject}`,
               submissionDate: new Date(),
               graded: true,
-              grade: Math.floor(Math.random() * 7 + 4), 
+              grade: Math.floor(Math.random() * 6 + 5), 
               feedback: "Feedback do professor",
             })),
           });
@@ -835,6 +740,17 @@ async function seedDatabase() {
             subject,
             content: `${subject} Tarefa em Andamento teste para ${classId}.`,
             dueDate: new Date(`2024-12-10`),
+            recipients: [String(classId)],
+            IdTeacher: teachers[index]._id,
+            IdClass: String(classId),
+            status: "em andamento",
+            school: school._id,
+          });
+
+          tasks.push({
+            subject,
+            content: `${subject} Tarefa em Andamento teste para ${classId}.`,
+            dueDate: new Date(`2024-11-08`),
             recipients: [String(classId)],
             IdTeacher: teachers[index]._id,
             IdClass: String(classId),
